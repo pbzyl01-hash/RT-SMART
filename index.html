@@ -568,7 +568,7 @@
                                         <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status Kependudukan</label>
                                         <select id="warga-status" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
                                             <option value="Warga Tetap">Warga Tetap</option>
-                                            <option value="Kontrak / Kos">Kontrak / Kos</option>
+                                            <option value="Contrak / Kos">Kontrak / Kos</option>
                                         </select>
                                     </div>
                                     <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
@@ -776,7 +776,7 @@
             toast.classList.remove('hidden');
             setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 3500);
+            }, 5000); // Diperlama ke 5 detik agar pengguna sempat membaca error detail
         }
 
         // --- FITUR HARI, TANGGAL, JAM REAL-TIME ---
@@ -816,7 +816,6 @@
             const lightIcon = document.getElementById('theme-toggle-light-icon');
             const darkIcon = document.getElementById('theme-toggle-dark-icon');
 
-            // Cek preferensi user yang tersimpan sebelumnya atau default sistem operasi
             const isDarkSaved = localStorage.getItem('color-theme') === 'dark' || 
                 (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -831,10 +830,8 @@
             }
 
             themeToggleBtn.addEventListener('click', () => {
-                // Balik kelas dark pada elemen html
                 const isDark = document.documentElement.classList.toggle('dark');
                 
-                // Ubah visibilitas ikon
                 if (isDark) {
                     lightIcon.classList.remove('hidden');
                     darkIcon.classList.add('hidden');
@@ -847,7 +844,6 @@
                     showNotification("Mode terang diaktifkan");
                 }
 
-                // Render ulang chart agar kontras lebih baik jika diperlukan
                 renderPublicDashboard();
             });
         }
@@ -1056,7 +1052,7 @@
         function renderChart(pemasukan, pengeluaran) {
             const ctx = document.getElementById('canvas-finance-chart').getContext('2d');
             const isDark = document.documentElement.classList.contains('dark');
-            const textHex = isDark ? '#94a3b8' : '#64748b'; // Slate 400 vs Slate 500
+            const textHex = isDark ? '#94a3b8' : '#64748b';
 
             if (financeChartInstance) {
                 financeChartInstance.destroy();
@@ -1110,7 +1106,7 @@
                 sortedAllTrans.forEach(item => {
                     const typeBadge = item.type === 'Pemasukan' 
                         ? `<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-600/10">Pemasukan</span>`
-                        : `<span class="inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-400 ring-1 ring-red-600/10">Pengeluaran</span>`;
+                        : `<span class="inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-400 ring-1 ring-emerald-600/10">Pengeluaran</span>`;
                     
                     const amountClass = item.type === 'Pemasukan' ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-red-600 dark:text-red-400 font-bold';
 
@@ -1278,7 +1274,14 @@
             try {
                 const response = await fetch(url, options);
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    let errMsg = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errJson = await response.json();
+                        if (errJson.error && errJson.error.message) {
+                            errMsg = errJson.error.message;
+                        }
+                    } catch(e) {}
+                    throw new Error(errMsg);
                 }
                 return await response.json();
             } catch (error) {
@@ -1359,7 +1362,8 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                 showNotification('AI Berhasil mengekstrak data KTP/KK secara instan!');
             } catch (err) {
                 console.error(err);
-                showNotification('Gagal memproses dokumen dengan AI. Silakan coba unggah ulang atau isi manual.', false);
+                // Membaca dan menampilkan detail pesan error agar pengembang/pengguna mengerti alasannya
+                showNotification(`Gagal scan AI: ${err.message}`, false);
             } finally {
                 scannerPrompt.classList.remove('hidden');
                 scannerLoading.classList.add('hidden');
@@ -1537,7 +1541,6 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                 dbSurat.push(newSurat);
                 await syncDatabase('Surat', 'create', newSurat);
 
-                // Buat Teks Pesan WhatsApp yang Terformat
                 const waMessage = encodeURIComponent(
                     `*RT SMART - KONFIRMASI PENGAJUAN SURAT*\n\n` +
                     `Halo Pengurus RT, saya baru saja melakukan pengajuan surat secara mandiri di sistem.\n\n` +
@@ -1609,7 +1612,6 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                             statusIcon = '<i class="fa-solid fa-circle-xmark"></i>';
                         }
 
-                        // WA Follow-up text
                         const followUpText = encodeURIComponent(
                             `*PERTANYAAN STATUS BERKAS - RT SMART*\n\n` +
                             `Halo Ketua RT, saya ingin menanyakan status dokumen pengajuan saya:\n` +
@@ -1953,5 +1955,20 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
             showNotification('Unduhan Surat berhasil dibuat!');
         }
     </script>
+<script type="text/javascript">
+    // Menonaktifkan Klik Kanan
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Menonaktifkan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+U)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
+</script>
 </body>
 </html>
