@@ -526,7 +526,17 @@
                                     Unggah foto KTP atau Kartu Keluarga, serta dokumen PDF. AI memproses langsung di browser secara 100% aman dan privat tanpa memerlukan API Key internet.
                                 </p>
                                 
-                                <div class="relative">
+                                <div class="relative space-y-3">
+                                    <!-- Document Preview Box (Pindahkan ke luar label agar interaksinya independen) -->
+                                    <div class="hidden w-full relative group" id="document-preview-container">
+                                        <img id="document-preview-img" src="" class="max-h-40 mx-auto rounded-lg object-contain shadow border dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-lg">
+                                            <button type="button" id="btn-remove-preview" class="bg-red-600 hover:bg-red-700 text-white rounded-full p-2 text-xs font-bold shadow-md">
+                                                <i class="fa-solid fa-trash-can"></i> Hapus Berkas
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     <label id="drop-zone" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-5 bg-white dark:bg-slate-900 cursor-pointer hover:border-brand-500 dark:hover:border-brand-400 hover:bg-brand-50 dark:hover:bg-slate-800 transition relative overflow-hidden group">
                                         <div class="text-center space-y-1.5" id="scanner-prompt">
                                             <i class="fa-solid fa-camera-retro text-2xl text-slate-400 dark:text-slate-500 group-hover:text-brand-500 transition duration-200"></i>
@@ -534,16 +544,6 @@
                                             <div class="text-[10px] text-slate-400 dark:text-slate-500">Mendukung Gambar & PDF KTP/KK</div>
                                         </div>
                                         
-                                        <!-- Document Preview Box -->
-                                        <div class="hidden w-full relative group mb-2" id="document-preview-container">
-                                            <img id="document-preview-img" src="" class="max-h-40 mx-auto rounded-lg object-contain shadow border dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
-                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-lg">
-                                                <button type="button" id="btn-remove-preview" class="bg-red-600 hover:bg-red-700 text-white rounded-full p-2 text-xs font-bold shadow-md">
-                                                    <i class="fa-solid fa-trash-can"></i> Hapus Berkas
-                                                </button>
-                                            </div>
-                                        </div>
-
                                         <!-- Spinner progress loading -->
                                         <div class="hidden flex-col items-center space-y-3 text-center py-2" id="scanner-loading">
                                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-900">
@@ -950,7 +950,8 @@
                     if (window.isCloudConnected) {
                         showNotification("Koneksi Google Sheets berhasil disinkronkan!");
                     } else {
-                        showNotification("Gagal memuat Cloud. Mengaktifkan database lokal.", false);
+                        // Diperbaiki: Melakukan silent fallback tanpa menampilkan pesan kesalahan merah besar yang mengganggu saat memuat halaman pertama kali
+                        console.warn("Koneksi Cloud gagal. Mode Simulasi Lokal diaktifkan.");
                     }
                 } catch(e) {
                     console.error("Gagal sinkronisasi data paralel:", e);
@@ -1302,7 +1303,6 @@
         }
 
         // --- PARSER TEXT OCR (KTP / KK INDONESIA) ---
-        // Membaca secara murni Nama Lengkap, NIK (16 Digit), dan Alamat Lengkap sesuai dengan struktur kolom formulir
         function parseOCRText(text) {
             const lines = text.split('\n').map(line => line.trim());
             let nama = "";
@@ -2059,7 +2059,7 @@
             doc.setFont('Helvetica', 'normal');
             rowY += 15;
             doc.text("Demikian Surat Pengantar Keterangan ini diberikan kepada yang bersangkutan agar dapat", 20, rowY);
-            doc.text("dipergunakan sebagaimana mestinya dan penuh tanggung jawab.", 20, rowY + 6);
+            doc.text("dipergunakan sebagaimana mestinya and penuh tanggung jawab.", 20, rowY + 6);
 
             rowY += 25;
             doc.text("Hormat kami,", 130, rowY);
