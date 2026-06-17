@@ -534,6 +534,16 @@
                                             <div class="text-[10px] text-slate-400 dark:text-slate-500">Mendukung Gambar & PDF KTP/KK</div>
                                         </div>
                                         
+                                        <!-- Document Preview Box -->
+                                        <div class="hidden w-full relative group mb-2" id="document-preview-container">
+                                            <img id="document-preview-img" src="" class="max-h-40 mx-auto rounded-lg object-contain shadow border dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-lg">
+                                                <button type="button" id="btn-remove-preview" class="bg-red-600 hover:bg-red-700 text-white rounded-full p-2 text-xs font-bold shadow-md">
+                                                    <i class="fa-solid fa-trash-can"></i> Hapus Berkas
+                                                </button>
+                                            </div>
+                                        </div>
+
                                         <!-- Spinner progress loading -->
                                         <div class="hidden flex-col items-center space-y-3 text-center py-2" id="scanner-loading">
                                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-900">
@@ -1292,7 +1302,7 @@
         }
 
         // --- PARSER TEXT OCR (KTP / KK INDONESIA) ---
-        // Diperbarui secara ketat agar hanya mengekstrak Nama Lengkap, NIK, dan Alamat Lengkap
+        // Membaca secara murni Nama Lengkap, NIK (16 Digit), dan Alamat Lengkap sesuai dengan struktur kolom formulir
         function parseOCRText(text) {
             const lines = text.split('\n').map(line => line.trim());
             let nama = "";
@@ -1300,7 +1310,7 @@
             let alamat = "";
             let status = "Warga Tetap";
 
-            // 1. Ekstrak NIK (16 digit angka bersih tanpa noise OCR)
+            // 1. Ekstrak NIK (16 digit angka murni dengan menangani noise OCR)
             let cleanedText = text
                 .replace(/[oO]/g, '0')
                 .replace(/[iIlI|]/g, '1')
@@ -1312,7 +1322,7 @@
                 nik = nikMatch[0];
             }
 
-            // 2. Ekstrak Nama Lengkap & Alamat Lengkap secara baris-per-baris
+            // 2. Ekstrak Nama Lengkap & Alamat Lengkap
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
 
@@ -1415,10 +1425,26 @@
             const scannerPrompt = document.getElementById('scanner-prompt');
             const scannerLoading = document.getElementById('scanner-loading');
             const loadingText = document.getElementById('scanner-loading-text');
+            const previewContainer = document.getElementById('document-preview-container');
+            const previewImg = document.getElementById('document-preview-img');
             
             scannerPrompt.classList.add('hidden');
             scannerLoading.classList.remove('hidden');
             loadingText.textContent = "Mempersiapkan berkas...";
+
+            // Tampilkan Live Preview Gambar/PDF yang diunggah
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
+                // Gunakan PDF.js placeholder thumbnail icon
+                previewImg.src = "https://cdn-icons-png.flaticon.com/512/337/337946.png";
+                previewContainer.classList.remove('hidden');
+            }
 
             try {
                 if (file.type === 'application/pdf') {
@@ -1567,6 +1593,16 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 runLocalOCRScanner(file);
+            });
+
+            // Remove preview image
+            document.getElementById('btn-remove-preview').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('document-preview-container').classList.add('hidden');
+                document.getElementById('document-preview-img').src = "";
+                aiScannerInput.value = "";
+                showNotification("Berkas dihapus");
             });
 
             // Drag and Drop Zone support
@@ -2036,20 +2072,5 @@
             showNotification('Unduhan Surat berhasil dibuat!');
         }
     </script>
-<script type="text/javascript">
-    // Menonaktifkan Klik Kanan
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-    });
-
-    // Menonaktifkan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+U)
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) || 
-            (e.ctrlKey && e.key === 'u')) {
-            e.preventDefault();
-        }
-    });
-</script>
 </body>
 </html>
