@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- PDF.js (Membaca file PDF secara offline sebelum di-OCR) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <!-- Tesseract.js (Client-side OCR Tanpa API Key) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Google Fonts -->
@@ -252,7 +254,7 @@
                 </div>
             </div>
 
-            <!-- Main Content Area Grid (Pengumuman & Laporan Keuangan) -->
+            <!-- Main Content Area Grid -->
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
                 
                 <!-- Left: Pengumuman Section -->
@@ -669,7 +671,7 @@
                             </form>
                         </div>
 
-                        <!-- Pengumuman List (Col Span 2) -->
+                        <!-- Pengumuman List -->
                         <div class="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
                             <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Kelola Daftar Pengumuman</h3>
                             <div class="overflow-x-auto max-h-[360px] custom-scrollbar">
@@ -720,6 +722,9 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
+        // Menginisialisasi URL Google Apps Script Worker PDF.js secara offline
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
         // URL DEPLOY GOOGLE APPS SCRIPT WEB APP (Telah disinkronkan)
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
@@ -1276,64 +1281,108 @@
             let alamat = "";
             let status = "Warga Tetap";
 
-            // Deteksi NIK (16 digit berurutan)
+            // Deteksi NIK (16 digit angka berurutan)
             const nikMatch = text.match(/\b\d{16}\b/);
             if (nikMatch) {
                 nik = nikMatch[0];
             } else {
-                // Alternatif pendeteksian jika OCR sedikit salah membaca angka (misal angka 'O' terbaca '0' atau sebaliknya)
+                // Penanganan jika digit angka terbaca huruf 'O' oleh engine OCR
                 const looseNikMatch = text.match(/[0-9O]{16}/i);
                 if (looseNikMatch) {
-                    nik = looseNikMatch[0].replace(/O/ig, '0');
+                    nik = looseNikMatch[0].toUpperCase().replace(/O/g, '0');
                 }
             }
 
-            // Parsing baris demi baris secara cerdas
+            // Parsing baris secara cerdas & toleran
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
 
-                // Cari NAMA Lengkap
-                if (/nama/i.test(line)) {
-                    let extractedName = line.replace(/.*nama\s*[:=-]?\s*/i, '').trim();
-                    if (extractedName.length > 2) {
-                        nama = extractedName;
-                    } else if (i + 1 < lines.length) {
+                // Pencocokan Nama
+                if (/nam[aa]/i.test(line) && !/kepala/i.test(line)) {
+                    let val = line.replace(/.*nam[aa]\s*[:=-]?\s*/i, '').trim();
+                    if (val.length > 2) {
+                        nama = val;
+                    } else if (i + 1 < lines.length && lines[i + 1].length > 2) {
                         nama = lines[i + 1];
                     }
                 }
 
-                // Cari ALAMAT
-                if (/alamat/i.test(line)) {
-                    let extractedAlamat = line.replace(/.*alamat\s*[:=-]?\s*/i, '').trim();
-                    if (extractedAlamat.length > 4) {
-                        alamat = extractedAlamat;
-                    } else if (i + 1 < lines.length) {
+                // Pencocokan Alamat
+                if (/al[aa]mat/i.test(line)) {
+                    let val = line.replace(/.*al[aa]mat\s*[:=-]?\s*/i, '').trim();
+                    if (val.length > 4) {
+                        alamat = val;
+                    } else if (i + 1 < lines.length && lines[i + 1].length > 4) {
                         alamat = lines[i + 1];
                     }
 
-                    // Gabungkan baris tambahan setelah Alamat (seperti RT/RW, Kel, Kecamatan)
+                    // Gabungkan baris tambahan setelah Alamat (seperti RT/RW, Kelurahan, Kecamatan)
                     let step = 1;
-                    while (i + step < lines.length && (/(rt\/rw|kel|desa|kec|prov|kota|kab|blok|no\.)/i.test(lines[i + step]))) {
-                        alamat += ", " + lines[i + step];
+                    while (i + step < lines.length && step < 4) {
+                        const nextLine = lines[i + step];
+                        if (/(rt\/rw|rt|rw|kel|desa|kec|prov|kab|blok|no\.)/i.test(nextLine)) {
+                            alamat += ", " + nextLine;
+                        }
                         step++;
                     }
                 }
             }
 
-            // Bersihkan sisa karakter aneh hasil OCR pada Nama
+            // Bersihkan Nama dari karakter simbol aneh
             nama = nama.replace(/[^a-zA-Z\s]/g, '').trim();
-            // Format huruf kapital pada awal kata
             if (nama) {
+                // Format huruf kapital di setiap awal kata (Title Case)
                 nama = nama.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
             }
 
-            // Bersihkan sisa karakter aneh pada Alamat
+            // Bersihkan Alamat dari tanda penghubung di depan
             alamat = alamat.replace(/^\s*[:=-]\s*/, '').trim();
 
             return { nama, nik, alamat, status };
         }
 
-        // --- INTEGRASI SCANNER OCR LOKAL TESSERACT (TANPA API KEY) ---
+        // --- PEMROSES OCR OFFLINE (TESSERACT.JS RUNTIME DIRECT RECOGNIZE) ---
+        async function performOCR(imageSource, loadingTextElement) {
+            loadingTextElement.textContent = "Menginisialisasi Engine OCR...";
+            try {
+                // Memanggil langsung Tesseract.recognize untuk melewatkan mode worker sandbox yang diblokir browser
+                const result = await Tesseract.recognize(
+                    imageSource,
+                    'ind',
+                    {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                const percent = Math.round(m.progress * 100);
+                                loadingTextElement.textContent = `Memindai teks: ${percent}%`;
+                            } else {
+                                loadingTextElement.textContent = "Menganalisis dokumen...";
+                            }
+                        }
+                    }
+                );
+
+                const rawText = result.data.text;
+                if (!rawText || rawText.trim().length === 0) {
+                    throw new Error("Teks tidak dapat dibaca dari dokumen.");
+                }
+
+                const parsed = parseOCRText(rawText);
+
+                // Auto-fill fields formulir
+                if (parsed.nama) document.getElementById('warga-nama').value = parsed.nama;
+                if (parsed.nik) document.getElementById('warga-nik').value = parsed.nik;
+                if (parsed.alamat) document.getElementById('warga-alamat').value = parsed.alamat;
+                if (parsed.status) document.getElementById('warga-status').value = parsed.status;
+
+                showNotification('AI Berhasil mendeteksi data dari dokumen Anda secara lokal!');
+            } catch (ocrError) {
+                console.error("OCR Error:", ocrError);
+                showNotification('Gagal mengenali teks. Pastikan gambar terlihat jelas dan terang.', false);
+            } finally {
+                resetScannerUI();
+            }
+        }
+
         async function runLocalOCRScanner(file) {
             const scannerPrompt = document.getElementById('scanner-prompt');
             const scannerLoading = document.getElementById('scanner-loading');
@@ -1341,45 +1390,53 @@
             
             scannerPrompt.classList.add('hidden');
             scannerLoading.classList.remove('hidden');
-            loadingText.textContent = "Menginisialisasi Engine...";
+            loadingText.textContent = "Mempersiapkan berkas...";
 
             try {
-                // Membuat worker Tesseract dengan bahasa Indonesia ('ind') dan Inggris ('eng')
-                const worker = await Tesseract.createWorker('ind+eng', 1, {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            const percent = Math.round(m.progress * 100);
-                            loadingText.textContent = `Memindai teks: ${percent}%`;
-                        } else {
-                            loadingText.textContent = "Menyiapkan Dokumen...";
+                if (file.type === 'application/pdf') {
+                    loadingText.textContent = "Membaca berkas PDF...";
+                    const reader = new FileReader();
+                    reader.onload = async function() {
+                        try {
+                            const typedarray = new Uint8Array(this.result);
+                            
+                            // Load dokumen PDF menggunakan Mozilla PDF.js
+                            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                            const page = await pdf.getPage(1); // Ambil halaman pertama
+                            
+                            // Render halaman PDF ke elemen canvas di latar belakang dengan resolusi tinggi (scale 2.0)
+                            const viewport = page.getViewport({ scale: 2.0 });
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            
+                            loadingText.textContent = "Merender halaman PDF...";
+                            await page.render({ canvasContext: context, viewport: viewport }).promise;
+                            
+                            // Jalankan OCR pada canvas renderan PDF tersebut
+                            await performOCR(canvas, loadingText);
+                        } catch (pdfError) {
+                            console.error("PDF Render Error:", pdfError);
+                            showNotification('Gagal membaca dokumen PDF. Pastikan file tidak rusak.', false);
+                            resetScannerUI();
                         }
-                    }
-                });
-
-                // Melakukan pemindaian OCR secara lokal di browser
-                const ret = await worker.recognize(file);
-                const rawText = ret.data.text;
-                await worker.terminate();
-
-                console.log("Raw OCR Text:", rawText);
-
-                // Ekstraksi data terstruktur dari teks mentah
-                const parsed = parseOCRText(rawText);
-
-                // Auto-fill field formulir
-                if (parsed.nama) document.getElementById('warga-nama').value = parsed.nama;
-                if (parsed.nik) document.getElementById('warga-nik').value = parsed.nik;
-                if (parsed.alamat) document.getElementById('warga-alamat').value = parsed.alamat;
-                if (parsed.status) document.getElementById('warga-status').value = parsed.status;
-
-                showNotification('AI Berhasil mendeteksi data dari dokumen Anda secara lokal!');
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    // Jika tipe file adalah gambar biasa, langsung jalankan OCR
+                    await performOCR(file, loadingText);
+                }
             } catch (err) {
-                console.error("Kesalahan OCR Tesseract:", err);
+                console.error("Kesalahan scanner utama:", err);
                 showNotification('Gagal memproses dokumen secara lokal. Silakan isi data secara manual.', false);
-            } finally {
-                scannerPrompt.classList.remove('hidden');
-                scannerLoading.classList.add('hidden');
+                resetScannerUI();
             }
+        }
+
+        function resetScannerUI() {
+            document.getElementById('scanner-prompt').classList.remove('hidden');
+            document.getElementById('scanner-loading').classList.add('hidden');
         }
 
         // --- APP HANDLERS AND EVENT LISTENERS ---
@@ -1956,20 +2013,5 @@
             showNotification('Unduhan Surat berhasil dibuat!');
         }
     </script>
-<script type="text/javascript">
-    // Menonaktifkan Klik Kanan
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-    });
-
-    // Menonaktifkan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+U)
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) || 
-            (e.ctrlKey && e.key === 'u')) {
-            e.preventDefault();
-        }
-    });
-</script>
 </body>
 </html>
