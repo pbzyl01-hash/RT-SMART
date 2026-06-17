@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Tesseract.js (Client-side OCR Tanpa API Key) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -516,10 +518,10 @@
                             <!-- AI Scanner Card -->
                             <div class="rounded-2xl border-2 border-dashed border-brand-300 dark:border-brand-800 bg-brand-50/40 dark:bg-brand-950/10 p-5 shadow-sm">
                                 <h3 class="text-xs font-extrabold text-brand-700 dark:text-brand-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-wand-magic-sparkles text-brand-600 dark:text-brand-400 animate-pulse"></i> Pembaca AI KTP / KK
+                                    <i class="fa-solid fa-wand-magic-sparkles text-brand-600 dark:text-brand-400 animate-pulse"></i> Pembaca AI KTP / KK (Offline & Privat)
                                 </h3>
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                                    Unggah foto KTP atau Kartu Keluarga, serta dokumen PDF. AI akan otomatis mendeteksi nama, NIK, alamat lengkap, dan mengisi formulir di bawah secara instan.
+                                    Unggah foto KTP atau Kartu Keluarga, serta dokumen PDF. AI memproses langsung di browser secara 100% aman dan privat tanpa memerlukan API Key internet.
                                 </p>
                                 
                                 <div class="relative">
@@ -532,11 +534,11 @@
                                         
                                         <!-- Spinner progress loading -->
                                         <div class="hidden flex-col items-center space-y-3 text-center py-2" id="scanner-loading">
-                                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50">
-                                                <i class="fa-solid fa-circle-notch animate-spin text-xl text-brand-600"></i>
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-900">
+                                                <i class="fa-solid fa-circle-notch animate-spin text-xl text-brand-600 dark:text-brand-400"></i>
                                             </div>
                                             <div>
-                                                <span class="text-xs font-extrabold text-brand-700 dark:text-brand-400 block">AI Sedang Membaca Dokumen</span>
+                                                <span class="text-xs font-extrabold text-brand-700 dark:text-brand-400 block" id="scanner-loading-text">AI Membaca Dokumen...</span>
                                                 <span class="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">Mengekstrak NIK, Nama & Alamat...</span>
                                             </div>
                                         </div>
@@ -568,7 +570,7 @@
                                         <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status Kependudukan</label>
                                         <select id="warga-status" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
                                             <option value="Warga Tetap">Warga Tetap</option>
-                                            <option value="Contrak / Kos">Kontrak / Kos</option>
+                                            <option value="Kontrak / Kos">Kontrak / Kos</option>
                                         </select>
                                     </div>
                                     <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
@@ -718,9 +720,6 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        // API KEY GOOGLE GEMINI UNTUK OCR GAMBAR & PDF
-        const apiKey = "AQ.Ab8RN6Irxy2IrUlkOJc1ObrlIfYsFml2yGXnuPIV9fc0qJae6A";
-
         // URL DEPLOY GOOGLE APPS SCRIPT WEB APP (Telah disinkronkan)
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
@@ -776,7 +775,7 @@
             toast.classList.remove('hidden');
             setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 5000); // Diperlama ke 5 detik agar pengguna sempat membaca error detail
+            }, 5000);
         }
 
         // --- FITUR HARI, TANGGAL, JAM REAL-TIME ---
@@ -1269,101 +1268,114 @@
             }
         }
 
-        // --- EXPONENTIAL BACKOFF FOR GEMINI API CALLS ---
-        async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) {
-                    let errMsg = `HTTP error! status: ${response.status}`;
-                    try {
-                        const errJson = await response.json();
-                        if (errJson.error && errJson.error.message) {
-                            errMsg = errJson.error.message;
-                        }
-                    } catch(e) {}
-                    throw new Error(errMsg);
-                }
-                return await response.json();
-            } catch (error) {
-                if (retries > 1) {
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    return fetchWithRetry(url, options, retries - 1, delay * 2);
-                } else {
-                    throw error;
+        // --- PARSER TEXT OCR (KTP / KK INDONESIA) ---
+        function parseOCRText(text) {
+            const lines = text.split('\n').map(line => line.trim());
+            let nama = "";
+            let nik = "";
+            let alamat = "";
+            let status = "Warga Tetap";
+
+            // Deteksi NIK (16 digit berurutan)
+            const nikMatch = text.match(/\b\d{16}\b/);
+            if (nikMatch) {
+                nik = nikMatch[0];
+            } else {
+                // Alternatif pendeteksian jika OCR sedikit salah membaca angka (misal angka 'O' terbaca '0' atau sebaliknya)
+                const looseNikMatch = text.match(/[0-9O]{16}/i);
+                if (looseNikMatch) {
+                    nik = looseNikMatch[0].replace(/O/ig, '0');
                 }
             }
+
+            // Parsing baris demi baris secara cerdas
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                // Cari NAMA Lengkap
+                if (/nama/i.test(line)) {
+                    let extractedName = line.replace(/.*nama\s*[:=-]?\s*/i, '').trim();
+                    if (extractedName.length > 2) {
+                        nama = extractedName;
+                    } else if (i + 1 < lines.length) {
+                        nama = lines[i + 1];
+                    }
+                }
+
+                // Cari ALAMAT
+                if (/alamat/i.test(line)) {
+                    let extractedAlamat = line.replace(/.*alamat\s*[:=-]?\s*/i, '').trim();
+                    if (extractedAlamat.length > 4) {
+                        alamat = extractedAlamat;
+                    } else if (i + 1 < lines.length) {
+                        alamat = lines[i + 1];
+                    }
+
+                    // Gabungkan baris tambahan setelah Alamat (seperti RT/RW, Kel, Kecamatan)
+                    let step = 1;
+                    while (i + step < lines.length && (/(rt\/rw|kel|desa|kec|prov|kota|kab|blok|no\.)/i.test(lines[i + step]))) {
+                        alamat += ", " + lines[i + step];
+                        step++;
+                    }
+                }
+            }
+
+            // Bersihkan sisa karakter aneh hasil OCR pada Nama
+            nama = nama.replace(/[^a-zA-Z\s]/g, '').trim();
+            // Format huruf kapital pada awal kata
+            if (nama) {
+                nama = nama.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+            }
+
+            // Bersihkan sisa karakter aneh pada Alamat
+            alamat = alamat.replace(/^\s*[:=-]\s*/, '').trim();
+
+            return { nama, nik, alamat, status };
         }
 
-        // --- INTEGRASI AI SCANNER GEMINI ---
-        async function runAIScanner(base64Data, mimeType) {
+        // --- INTEGRASI SCANNER OCR LOKAL TESSERACT (TANPA API KEY) ---
+        async function runLocalOCRScanner(file) {
             const scannerPrompt = document.getElementById('scanner-prompt');
             const scannerLoading = document.getElementById('scanner-loading');
+            const loadingText = document.getElementById('scanner-loading-text');
             
             scannerPrompt.classList.add('hidden');
             scannerLoading.classList.remove('hidden');
-
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-            const userPrompt = `Analisislah gambar Kartu Keluarga (KK) atau KTP Indonesia berikut. 
-Ekstrak data penting dan kembalikan secara terstruktur dalam format JSON dengan properti objek berikut:
-- nama: Nama lengkap pemilik KTP atau kepala keluarga / salah satu anggota keluarga jika KK.
-- nik: NIK 16 digit angka (pastikan angka bersih tanpa spasi atau karakter asing).
-- alamat: Tulis alamat lengkap secara utuh sesuai berkas (misal: "Jl. Merdeka No. 12, Blok A/04, RT 01/01").
-- status: Default ke "Warga Tetap". Jika ada indikasi sewa/kontrak, isi "Kontrak / Kos".
-
-Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema yang dideklarasikan. Jangan tambahkan kata pengantar apapun selain JSON.`;
-
-            const payload = {
-                contents: [
-                    {
-                        parts: [
-                            { text: userPrompt },
-                            {
-                                inlineData: {
-                                    mimeType: mimeType,
-                                    data: base64Data
-                                }
-                            }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "object",
-                        properties: {
-                            nama: { type: "string" },
-                            nik: { type: "string" },
-                            alamat: { type: "string" },
-                            status: { type: "string", enum: ["Warga Tetap", "Kontrak / Kos"] }
-                        },
-                        required: ["nama", "nik", "alamat"]
-                    }
-                }
-            };
+            loadingText.textContent = "Menginisialisasi Engine...";
 
             try {
-                const result = await fetchWithRetry(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                // Membuat worker Tesseract dengan bahasa Indonesia ('ind') dan Inggris ('eng')
+                const worker = await Tesseract.createWorker('ind+eng', 1, {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            const percent = Math.round(m.progress * 100);
+                            loadingText.textContent = `Memindai teks: ${percent}%`;
+                        } else {
+                            loadingText.textContent = "Menyiapkan Dokumen...";
+                        }
+                    }
                 });
 
-                const contentText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!contentText) throw new Error("Respons AI kosong.");
+                // Melakukan pemindaian OCR secara lokal di browser
+                const ret = await worker.recognize(file);
+                const rawText = ret.data.text;
+                await worker.terminate();
 
-                const parsedData = JSON.parse(contentText);
+                console.log("Raw OCR Text:", rawText);
 
-                if (parsedData.nama) document.getElementById('warga-nama').value = parsedData.nama;
-                if (parsedData.nik) document.getElementById('warga-nik').value = parsedData.nik;
-                if (parsedData.alamat) document.getElementById('warga-alamat').value = parsedData.alamat;
-                if (parsedData.status) document.getElementById('warga-status').value = parsedData.status;
+                // Ekstraksi data terstruktur dari teks mentah
+                const parsed = parseOCRText(rawText);
 
-                showNotification('AI Berhasil mengekstrak data KTP/KK secara instan!');
+                // Auto-fill field formulir
+                if (parsed.nama) document.getElementById('warga-nama').value = parsed.nama;
+                if (parsed.nik) document.getElementById('warga-nik').value = parsed.nik;
+                if (parsed.alamat) document.getElementById('warga-alamat').value = parsed.alamat;
+                if (parsed.status) document.getElementById('warga-status').value = parsed.status;
+
+                showNotification('AI Berhasil mendeteksi data dari dokumen Anda secara lokal!');
             } catch (err) {
-                console.error(err);
-                // Membaca dan menampilkan detail pesan error agar pengembang/pengguna mengerti alasannya
-                showNotification(`Gagal scan AI: ${err.message}`, false);
+                console.error("Kesalahan OCR Tesseract:", err);
+                showNotification('Gagal memproses dokumen secara lokal. Silakan isi data secara manual.', false);
             } finally {
                 scannerPrompt.classList.remove('hidden');
                 scannerLoading.classList.add('hidden');
@@ -1474,13 +1486,7 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
             aiScannerInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    const base64Data = evt.target.result.split(',')[1];
-                    runAIScanner(base64Data, file.type);
-                };
-                reader.readAsDataURL(file);
+                runLocalOCRScanner(file);
             });
 
             // Drag and Drop Zone support
@@ -1497,12 +1503,7 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                 dropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
                 const file = e.dataTransfer.files[0];
                 if (file && (file.type.startsWith('image/') || file.type === 'application/pdf')) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        const base64Data = evt.target.result.split(',')[1];
-                        runAIScanner(base64Data, file.type);
-                    };
-                    reader.readAsDataURL(file);
+                    runLocalOCRScanner(file);
                 } else {
                     showNotification('Silakan drop berkas Gambar atau PDF saja!', false);
                 }
@@ -1552,7 +1553,7 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                     `Mohon untuk segera diverifikasi dan diproses. Terima kasih banyak!`
                 );
 
-                const waURL = `https://api.whatsapp.com/send?phone=6289617777770&text=${waMessage}`;
+                const waURL = `https://api.whatsapp.com/send?phone=628961777770&text=${waMessage}`;
 
                 pengajuanAlert.className = 'p-4 rounded-2xl text-xs bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 shadow-sm space-y-3';
                 pengajuanAlert.innerHTML = `
@@ -1621,7 +1622,7 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                             `- *Status Saat Ini:* ${s.status}\n\n` +
                             `Terima kasih atas bantuannya.`
                         );
-                        const followUpURL = `https://api.whatsapp.com/send?phone=6289617777770&text=${followUpText}`;
+                        const followUpURL = `https://api.whatsapp.com/send?phone=628961777770&text=${followUpText}`;
 
                         listHtml += `
                             <div class="py-2 ${idx > 0 ? 'border-t border-dashed border-slate-200 dark:border-slate-800' : ''}">
