@@ -725,7 +725,7 @@
         // Menginisialisasi URL Google Apps Script Worker PDF.js secara offline
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // URL DEPLOY GOOGLE APPS SCRIPT WEB APP (Telah disinkronkan)
+        // URL DEPLOY GOOGLE APPS SCRIPT WEB APP
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
         // Database Mock Local Storage (Fallback jika GAS bermasalah)
@@ -1273,7 +1273,26 @@
             }
         }
 
+        // --- EXPONENTIAL BACKOFF FOR GEMINI API CALLS ---
+        async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                if (retries > 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithRetry(url, options, retries - 1, delay * 2);
+                } else {
+                    throw error;
+                }
+            }
+        }
+
         // --- PARSER TEXT OCR (KTP / KK INDONESIA) ---
+        // Diperbarui secara ketat agar hanya mengekstrak Nama Lengkap, NIK, dan Alamat Lengkap
         function parseOCRText(text) {
             const lines = text.split('\n').map(line => line.trim());
             let nama = "";
@@ -1281,62 +1300,72 @@
             let alamat = "";
             let status = "Warga Tetap";
 
-            // Deteksi NIK (16 digit angka berurutan)
-            const nikMatch = text.match(/\b\d{16}\b/);
+            // 1. Ekstrak NIK (16 digit angka bersih tanpa noise OCR)
+            let cleanedText = text
+                .replace(/[oO]/g, '0')
+                .replace(/[iIlI|]/g, '1')
+                .replace(/[bB]/g, '8')
+                .replace(/[sS]/g, '5');
+            
+            const nikMatch = cleanedText.match(/\b\d{16}\b/);
             if (nikMatch) {
                 nik = nikMatch[0];
-            } else {
-                // Penanganan jika digit angka terbaca huruf 'O' oleh engine OCR
-                const looseNikMatch = text.match(/[0-9O]{16}/i);
-                if (looseNikMatch) {
-                    nik = looseNikMatch[0].toUpperCase().replace(/O/g, '0');
-                }
             }
 
-            // Parsing baris secara cerdas & toleran
+            // 2. Ekstrak Nama Lengkap & Alamat Lengkap secara baris-per-baris
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
 
-                // Pencocokan Nama
-                if (/nam[aa]/i.test(line) && !/kepala/i.test(line)) {
-                    let val = line.replace(/.*nam[aa]\s*[:=-]?\s*/i, '').trim();
-                    if (val.length > 2) {
-                        nama = val;
-                    } else if (i + 1 < lines.length && lines[i + 1].length > 2) {
-                        nama = lines[i + 1];
+                // Deteksi dan potong Nama Lengkap
+                if (/nam[aa]/i.test(line) && !/kepala|keluarga|nik|ibu|bapak/i.test(line)) {
+                    let parts = line.split(/[:=-]/);
+                    let nameCandidate = "";
+                    if (parts.length > 1) {
+                        nameCandidate = parts.slice(1).join(' ').trim();
+                    }
+                    
+                    if (nameCandidate.length > 2 && !/nik|alamat|rt\/rw/i.test(nameCandidate)) {
+                        nama = nameCandidate;
+                    } else if (i + 1 < lines.length) {
+                        let nextLine = lines[i + 1].trim();
+                        if (nextLine.length > 2 && !/[:=-|]/.test(nextLine) && !/nik|alamat|rt\/rw/i.test(nextLine)) {
+                            nama = nextLine;
+                        }
                     }
                 }
 
-                // Pencocokan Alamat
+                // Deteksi dan potong Alamat Lengkap
                 if (/al[aa]mat/i.test(line)) {
-                    let val = line.replace(/.*al[aa]mat\s*[:=-]?\s*/i, '').trim();
-                    if (val.length > 4) {
-                        alamat = val;
-                    } else if (i + 1 < lines.length && lines[i + 1].length > 4) {
-                        alamat = lines[i + 1];
+                    let parts = line.split(/[:=-]/);
+                    if (parts.length > 1) {
+                        alamat = parts.slice(1).join(' ').trim();
+                    }
+                    if ((!alamat || alamat.length < 3) && i + 1 < lines.length) {
+                        alamat = lines[i + 1].trim();
                     }
 
-                    // Gabungkan baris tambahan setelah Alamat (seperti RT/RW, Kelurahan, Kecamatan)
+                    // Gabungkan baris tambahan setelah Alamat (RT/RW, Kelurahan, Kecamatan, dll)
                     let step = 1;
-                    while (i + step < lines.length && step < 4) {
-                        const nextLine = lines[i + step];
+                    while (i + step < lines.length && step < 5) {
+                        const nextLine = lines[i + step].trim();
                         if (/(rt\/rw|rt|rw|kel|desa|kec|prov|kab|blok|no\.)/i.test(nextLine)) {
-                            alamat += ", " + nextLine;
+                            if (alamat && !alamat.toLowerCase().includes(nextLine.toLowerCase())) {
+                                alamat += ", " + nextLine;
+                            }
                         }
                         step++;
                     }
                 }
             }
 
-            // Bersihkan Nama dari karakter simbol aneh
-            nama = nama.replace(/[^a-zA-Z\s]/g, '').trim();
+            // Standarisasi Nama (hanya alfabet dan spasi, ubah menjadi Title Case)
+            nama = nama.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ').trim();
             if (nama) {
-                // Format huruf kapital di setiap awal kata (Title Case)
                 nama = nama.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
             }
 
-            // Bersihkan Alamat dari tanda penghubung di depan
-            alamat = alamat.replace(/^\s*[:=-]\s*/, '').trim();
+            // Hilangkan pemisah baris di awal alamat jika ada
+            alamat = alamat.replace(/^\s*[:=-|]\s*/, '').trim();
 
             return { nama, nik, alamat, status };
         }
@@ -1345,7 +1374,6 @@
         async function performOCR(imageSource, loadingTextElement) {
             loadingTextElement.textContent = "Menginisialisasi Engine OCR...";
             try {
-                // Memanggil langsung Tesseract.recognize untuk melewatkan mode worker sandbox yang diblokir browser
                 const result = await Tesseract.recognize(
                     imageSource,
                     'ind',
@@ -1368,7 +1396,7 @@
 
                 const parsed = parseOCRText(rawText);
 
-                // Auto-fill fields formulir
+                // Mengisi data secara instan hanya pada tiga kolom pendaftaran tersebut
                 if (parsed.nama) document.getElementById('warga-nama').value = parsed.nama;
                 if (parsed.nik) document.getElementById('warga-nik').value = parsed.nik;
                 if (parsed.alamat) document.getElementById('warga-alamat').value = parsed.alamat;
@@ -1399,12 +1427,9 @@
                     reader.onload = async function() {
                         try {
                             const typedarray = new Uint8Array(this.result);
-                            
-                            // Load dokumen PDF menggunakan Mozilla PDF.js
                             const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                            const page = await pdf.getPage(1); // Ambil halaman pertama
+                            const page = await pdf.getPage(1);
                             
-                            // Render halaman PDF ke elemen canvas di latar belakang dengan resolusi tinggi (scale 2.0)
                             const viewport = page.getViewport({ scale: 2.0 });
                             const canvas = document.createElement('canvas');
                             const context = canvas.getContext('2d');
@@ -1414,7 +1439,6 @@
                             loadingText.textContent = "Merender halaman PDF...";
                             await page.render({ canvasContext: context, viewport: viewport }).promise;
                             
-                            // Jalankan OCR pada canvas renderan PDF tersebut
                             await performOCR(canvas, loadingText);
                         } catch (pdfError) {
                             console.error("PDF Render Error:", pdfError);
@@ -1424,7 +1448,6 @@
                     };
                     reader.readAsArrayBuffer(file);
                 } else {
-                    // Jika tipe file adalah gambar biasa, langsung jalankan OCR
                     await performOCR(file, loadingText);
                 }
             } catch (err) {
@@ -2013,5 +2036,20 @@
             showNotification('Unduhan Surat berhasil dibuat!');
         }
     </script>
+<script type="text/javascript">
+    // Menonaktifkan Klik Kanan
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Menonaktifkan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+U)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
+</script>
 </body>
 </html>
