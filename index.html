@@ -12,10 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- PDF.js (Membaca file PDF secara offline sebelum di-OCR) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <!-- Tesseract.js (Client-side OCR Tanpa API Key) -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -254,7 +250,7 @@
                 </div>
             </div>
 
-            <!-- Main Content Area Grid -->
+            <!-- Main Content Area Grid (Pengumuman & Laporan Keuangan) -->
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
                 
                 <!-- Left: Pengumuman Section -->
@@ -520,23 +516,13 @@
                             <!-- AI Scanner Card -->
                             <div class="rounded-2xl border-2 border-dashed border-brand-300 dark:border-brand-800 bg-brand-50/40 dark:bg-brand-950/10 p-5 shadow-sm">
                                 <h3 class="text-xs font-extrabold text-brand-700 dark:text-brand-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-wand-magic-sparkles text-brand-600 dark:text-brand-400 animate-pulse"></i> Pembaca AI KTP / KK (Offline & Privat)
+                                    <i class="fa-solid fa-wand-magic-sparkles text-brand-600 dark:text-brand-400 animate-pulse"></i> Pembaca AI KTP / KK
                                 </h3>
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                                    Unggah foto KTP atau Kartu Keluarga, serta dokumen PDF. AI memproses langsung di browser secara 100% aman dan privat tanpa memerlukan API Key internet.
+                                    Unggah foto KTP atau Kartu Keluarga, serta dokumen PDF. AI akan otomatis mendeteksi nama, NIK, alamat lengkap, dan mengisi formulir di bawah secara instan.
                                 </p>
                                 
-                                <div class="relative space-y-3">
-                                    <!-- Document Preview Box (Pindahkan ke luar label agar interaksinya independen) -->
-                                    <div class="hidden w-full relative group" id="document-preview-container">
-                                        <img id="document-preview-img" src="" class="max-h-40 mx-auto rounded-lg object-contain shadow border dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
-                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-lg">
-                                            <button type="button" id="btn-remove-preview" class="bg-red-600 hover:bg-red-700 text-white rounded-full p-2 text-xs font-bold shadow-md">
-                                                <i class="fa-solid fa-trash-can"></i> Hapus Berkas
-                                            </button>
-                                        </div>
-                                    </div>
-
+                                <div class="relative">
                                     <label id="drop-zone" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-5 bg-white dark:bg-slate-900 cursor-pointer hover:border-brand-500 dark:hover:border-brand-400 hover:bg-brand-50 dark:hover:bg-slate-800 transition relative overflow-hidden group">
                                         <div class="text-center space-y-1.5" id="scanner-prompt">
                                             <i class="fa-solid fa-camera-retro text-2xl text-slate-400 dark:text-slate-500 group-hover:text-brand-500 transition duration-200"></i>
@@ -546,11 +532,11 @@
                                         
                                         <!-- Spinner progress loading -->
                                         <div class="hidden flex-col items-center space-y-3 text-center py-2" id="scanner-loading">
-                                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-900">
-                                                <i class="fa-solid fa-circle-notch animate-spin text-xl text-brand-600 dark:text-brand-400"></i>
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50">
+                                                <i class="fa-solid fa-circle-notch animate-spin text-xl text-brand-600"></i>
                                             </div>
                                             <div>
-                                                <span class="text-xs font-extrabold text-brand-700 dark:text-brand-400 block" id="scanner-loading-text">AI Membaca Dokumen...</span>
+                                                <span class="text-xs font-extrabold text-brand-700 dark:text-brand-400 block">AI Sedang Membaca Dokumen</span>
                                                 <span class="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">Mengekstrak NIK, Nama & Alamat...</span>
                                             </div>
                                         </div>
@@ -582,7 +568,7 @@
                                         <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status Kependudukan</label>
                                         <select id="warga-status" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
                                             <option value="Warga Tetap">Warga Tetap</option>
-                                            <option value="Kontrak / Kos">Kontrak / Kos</option>
+                                            <option value="Contrak / Kos">Kontrak / Kos</option>
                                         </select>
                                     </div>
                                     <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
@@ -681,7 +667,7 @@
                             </form>
                         </div>
 
-                        <!-- Pengumuman List -->
+                        <!-- Pengumuman List (Col Span 2) -->
                         <div class="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
                             <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Kelola Daftar Pengumuman</h3>
                             <div class="overflow-x-auto max-h-[360px] custom-scrollbar">
@@ -732,10 +718,10 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        // Menginisialisasi URL Google Apps Script Worker PDF.js secara offline
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        // API KEY GOOGLE GEMINI UNTUK OCR GAMBAR & PDF
+        const apiKey = "AQ.Ab8RN6Irxy2IrUlkOJc1ObrlIfYsFml2yGXnuPIV9fc0qJae6A";
 
-        // URL DEPLOY GOOGLE APPS SCRIPT WEB APP
+        // URL DEPLOY GOOGLE APPS SCRIPT WEB APP (Telah disinkronkan)
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
         // Database Mock Local Storage (Fallback jika GAS bermasalah)
@@ -790,7 +776,7 @@
             toast.classList.remove('hidden');
             setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 5000);
+            }, 5000); // Diperlama ke 5 detik agar pengguna sempat membaca error detail
         }
 
         // --- FITUR HARI, TANGGAL, JAM REAL-TIME ---
@@ -950,8 +936,7 @@
                     if (window.isCloudConnected) {
                         showNotification("Koneksi Google Sheets berhasil disinkronkan!");
                     } else {
-                        // Diperbaiki: Melakukan silent fallback tanpa menampilkan pesan kesalahan merah besar yang mengganggu saat memuat halaman pertama kali
-                        console.warn("Koneksi Cloud gagal. Mode Simulasi Lokal diaktifkan.");
+                        showNotification("Gagal memuat Cloud. Mengaktifkan database lokal.", false);
                     }
                 } catch(e) {
                     console.error("Gagal sinkronisasi data paralel:", e);
@@ -1289,7 +1274,14 @@
             try {
                 const response = await fetch(url, options);
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    let errMsg = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errJson = await response.json();
+                        if (errJson.error && errJson.error.message) {
+                            errMsg = errJson.error.message;
+                        }
+                    } catch(e) {}
+                    throw new Error(errMsg);
                 }
                 return await response.json();
             } catch (error) {
@@ -1302,190 +1294,80 @@
             }
         }
 
-        // --- PARSER TEXT OCR (KTP / KK INDONESIA) ---
-        function parseOCRText(text) {
-            const lines = text.split('\n').map(line => line.trim());
-            let nama = "";
-            let nik = "";
-            let alamat = "";
-            let status = "Warga Tetap";
-
-            // 1. Ekstrak NIK (16 digit angka murni dengan menangani noise OCR)
-            let cleanedText = text
-                .replace(/[oO]/g, '0')
-                .replace(/[iIlI|]/g, '1')
-                .replace(/[bB]/g, '8')
-                .replace(/[sS]/g, '5');
-            
-            const nikMatch = cleanedText.match(/\b\d{16}\b/);
-            if (nikMatch) {
-                nik = nikMatch[0];
-            }
-
-            // 2. Ekstrak Nama Lengkap & Alamat Lengkap
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-
-                // Deteksi dan potong Nama Lengkap
-                if (/nam[aa]/i.test(line) && !/kepala|keluarga|nik|ibu|bapak/i.test(line)) {
-                    let parts = line.split(/[:=-]/);
-                    let nameCandidate = "";
-                    if (parts.length > 1) {
-                        nameCandidate = parts.slice(1).join(' ').trim();
-                    }
-                    
-                    if (nameCandidate.length > 2 && !/nik|alamat|rt\/rw/i.test(nameCandidate)) {
-                        nama = nameCandidate;
-                    } else if (i + 1 < lines.length) {
-                        let nextLine = lines[i + 1].trim();
-                        if (nextLine.length > 2 && !/[:=-|]/.test(nextLine) && !/nik|alamat|rt\/rw/i.test(nextLine)) {
-                            nama = nextLine;
-                        }
-                    }
-                }
-
-                // Deteksi dan potong Alamat Lengkap
-                if (/al[aa]mat/i.test(line)) {
-                    let parts = line.split(/[:=-]/);
-                    if (parts.length > 1) {
-                        alamat = parts.slice(1).join(' ').trim();
-                    }
-                    if ((!alamat || alamat.length < 3) && i + 1 < lines.length) {
-                        alamat = lines[i + 1].trim();
-                    }
-
-                    // Gabungkan baris tambahan setelah Alamat (RT/RW, Kelurahan, Kecamatan, dll)
-                    let step = 1;
-                    while (i + step < lines.length && step < 5) {
-                        const nextLine = lines[i + step].trim();
-                        if (/(rt\/rw|rt|rw|kel|desa|kec|prov|kab|blok|no\.)/i.test(nextLine)) {
-                            if (alamat && !alamat.toLowerCase().includes(nextLine.toLowerCase())) {
-                                alamat += ", " + nextLine;
-                            }
-                        }
-                        step++;
-                    }
-                }
-            }
-
-            // Standarisasi Nama (hanya alfabet dan spasi, ubah menjadi Title Case)
-            nama = nama.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ').trim();
-            if (nama) {
-                nama = nama.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-            }
-
-            // Hilangkan pemisah baris di awal alamat jika ada
-            alamat = alamat.replace(/^\s*[:=-|]\s*/, '').trim();
-
-            return { nama, nik, alamat, status };
-        }
-
-        // --- PEMROSES OCR OFFLINE (TESSERACT.JS RUNTIME DIRECT RECOGNIZE) ---
-        async function performOCR(imageSource, loadingTextElement) {
-            loadingTextElement.textContent = "Menginisialisasi Engine OCR...";
-            try {
-                const result = await Tesseract.recognize(
-                    imageSource,
-                    'ind',
-                    {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                const percent = Math.round(m.progress * 100);
-                                loadingTextElement.textContent = `Memindai teks: ${percent}%`;
-                            } else {
-                                loadingTextElement.textContent = "Menganalisis dokumen...";
-                            }
-                        }
-                    }
-                );
-
-                const rawText = result.data.text;
-                if (!rawText || rawText.trim().length === 0) {
-                    throw new Error("Teks tidak dapat dibaca dari dokumen.");
-                }
-
-                const parsed = parseOCRText(rawText);
-
-                // Mengisi data secara instan hanya pada tiga kolom pendaftaran tersebut
-                if (parsed.nama) document.getElementById('warga-nama').value = parsed.nama;
-                if (parsed.nik) document.getElementById('warga-nik').value = parsed.nik;
-                if (parsed.alamat) document.getElementById('warga-alamat').value = parsed.alamat;
-                if (parsed.status) document.getElementById('warga-status').value = parsed.status;
-
-                showNotification('AI Berhasil mendeteksi data dari dokumen Anda secara lokal!');
-            } catch (ocrError) {
-                console.error("OCR Error:", ocrError);
-                showNotification('Gagal mengenali teks. Pastikan gambar terlihat jelas dan terang.', false);
-            } finally {
-                resetScannerUI();
-            }
-        }
-
-        async function runLocalOCRScanner(file) {
+        // --- INTEGRASI AI SCANNER GEMINI ---
+        async function runAIScanner(base64Data, mimeType) {
             const scannerPrompt = document.getElementById('scanner-prompt');
             const scannerLoading = document.getElementById('scanner-loading');
-            const loadingText = document.getElementById('scanner-loading-text');
-            const previewContainer = document.getElementById('document-preview-container');
-            const previewImg = document.getElementById('document-preview-img');
             
             scannerPrompt.classList.add('hidden');
             scannerLoading.classList.remove('hidden');
-            loadingText.textContent = "Mempersiapkan berkas...";
 
-            // Tampilkan Live Preview Gambar/PDF yang diunggah
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            } else if (file.type === 'application/pdf') {
-                // Gunakan PDF.js placeholder thumbnail icon
-                previewImg.src = "https://cdn-icons-png.flaticon.com/512/337/337946.png";
-                previewContainer.classList.remove('hidden');
-            }
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const userPrompt = `Analisislah gambar Kartu Keluarga (KK) atau KTP Indonesia berikut. 
+Ekstrak data penting dan kembalikan secara terstruktur dalam format JSON dengan properti objek berikut:
+- nama: Nama lengkap pemilik KTP atau kepala keluarga / salah satu anggota keluarga jika KK.
+- nik: NIK 16 digit angka (pastikan angka bersih tanpa spasi atau karakter asing).
+- alamat: Tulis alamat lengkap secara utuh sesuai berkas (misal: "Jl. Merdeka No. 12, Blok A/04, RT 01/01").
+- status: Default ke "Warga Tetap". Jika ada indikasi sewa/kontrak, isi "Kontrak / Kos".
+
+Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema yang dideklarasikan. Jangan tambahkan kata pengantar apapun selain JSON.`;
+
+            const payload = {
+                contents: [
+                    {
+                        parts: [
+                            { text: userPrompt },
+                            {
+                                inlineData: {
+                                    mimeType: mimeType,
+                                    data: base64Data
+                                }
+                            }
+                        ]
+                    }
+                ],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "object",
+                        properties: {
+                            nama: { type: "string" },
+                            nik: { type: "string" },
+                            alamat: { type: "string" },
+                            status: { type: "string", enum: ["Warga Tetap", "Kontrak / Kos"] }
+                        },
+                        required: ["nama", "nik", "alamat"]
+                    }
+                }
+            };
 
             try {
-                if (file.type === 'application/pdf') {
-                    loadingText.textContent = "Membaca berkas PDF...";
-                    const reader = new FileReader();
-                    reader.onload = async function() {
-                        try {
-                            const typedarray = new Uint8Array(this.result);
-                            const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                            const page = await pdf.getPage(1);
-                            
-                            const viewport = page.getViewport({ scale: 2.0 });
-                            const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
-                            canvas.height = viewport.height;
-                            canvas.width = viewport.width;
-                            
-                            loadingText.textContent = "Merender halaman PDF...";
-                            await page.render({ canvasContext: context, viewport: viewport }).promise;
-                            
-                            await performOCR(canvas, loadingText);
-                        } catch (pdfError) {
-                            console.error("PDF Render Error:", pdfError);
-                            showNotification('Gagal membaca dokumen PDF. Pastikan file tidak rusak.', false);
-                            resetScannerUI();
-                        }
-                    };
-                    reader.readAsArrayBuffer(file);
-                } else {
-                    await performOCR(file, loadingText);
-                }
-            } catch (err) {
-                console.error("Kesalahan scanner utama:", err);
-                showNotification('Gagal memproses dokumen secara lokal. Silakan isi data secara manual.', false);
-                resetScannerUI();
-            }
-        }
+                const result = await fetchWithRetry(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-        function resetScannerUI() {
-            document.getElementById('scanner-prompt').classList.remove('hidden');
-            document.getElementById('scanner-loading').classList.add('hidden');
+                const contentText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!contentText) throw new Error("Respons AI kosong.");
+
+                const parsedData = JSON.parse(contentText);
+
+                if (parsedData.nama) document.getElementById('warga-nama').value = parsedData.nama;
+                if (parsedData.nik) document.getElementById('warga-nik').value = parsedData.nik;
+                if (parsedData.alamat) document.getElementById('warga-alamat').value = parsedData.alamat;
+                if (parsedData.status) document.getElementById('warga-status').value = parsedData.status;
+
+                showNotification('AI Berhasil mengekstrak data KTP/KK secara instan!');
+            } catch (err) {
+                console.error(err);
+                // Membaca dan menampilkan detail pesan error agar pengembang/pengguna mengerti alasannya
+                showNotification(`Gagal scan AI: ${err.message}`, false);
+            } finally {
+                scannerPrompt.classList.remove('hidden');
+                scannerLoading.classList.add('hidden');
+            }
         }
 
         // --- APP HANDLERS AND EVENT LISTENERS ---
@@ -1592,17 +1474,13 @@
             aiScannerInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                runLocalOCRScanner(file);
-            });
 
-            // Remove preview image
-            document.getElementById('btn-remove-preview').addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                document.getElementById('document-preview-container').classList.add('hidden');
-                document.getElementById('document-preview-img').src = "";
-                aiScannerInput.value = "";
-                showNotification("Berkas dihapus");
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const base64Data = evt.target.result.split(',')[1];
+                    runAIScanner(base64Data, file.type);
+                };
+                reader.readAsDataURL(file);
             });
 
             // Drag and Drop Zone support
@@ -1619,7 +1497,12 @@
                 dropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
                 const file = e.dataTransfer.files[0];
                 if (file && (file.type.startsWith('image/') || file.type === 'application/pdf')) {
-                    runLocalOCRScanner(file);
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const base64Data = evt.target.result.split(',')[1];
+                        runAIScanner(base64Data, file.type);
+                    };
+                    reader.readAsDataURL(file);
                 } else {
                     showNotification('Silakan drop berkas Gambar atau PDF saja!', false);
                 }
@@ -2059,7 +1942,7 @@
             doc.setFont('Helvetica', 'normal');
             rowY += 15;
             doc.text("Demikian Surat Pengantar Keterangan ini diberikan kepada yang bersangkutan agar dapat", 20, rowY);
-            doc.text("dipergunakan sebagaimana mestinya and penuh tanggung jawab.", 20, rowY + 6);
+            doc.text("dipergunakan sebagaimana mestinya dan penuh tanggung jawab.", 20, rowY + 6);
 
             rowY += 25;
             doc.text("Hormat kami,", 130, rowY);
@@ -2072,5 +1955,20 @@
             showNotification('Unduhan Surat berhasil dibuat!');
         }
     </script>
+<script type="text/javascript">
+    // Menonaktifkan Klik Kanan
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Menonaktifkan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+U)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
+</script>
 </body>
 </html>
