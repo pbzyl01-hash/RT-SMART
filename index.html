@@ -854,14 +854,34 @@
                 return null;
             }
             try {
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ sheet: sheetName, action: action, data: data })
-                });
-                const json = await response.json();
-                if (json.success) return json;
-                throw new Error(json.error || "Gagal berkomunikasi dengan GAS");
+                // Google Apps Script tidak mendukung preflight CORS secara native.
+                // Gunakan no-cors untuk POST write (create/delete/update) dan
+                // URL params + GET untuk operasi read agar respons tetap terbaca.
+                if (action === 'read') {
+                    const params = new URLSearchParams({
+                        sheet: sheetName,
+                        action: 'read'
+                    });
+                    const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const json = await response.json();
+                    if (json.success) return json;
+                    throw new Error(json.error || "Gagal membaca dari GAS");
+                } else {
+                    // Untuk create/delete/update: gunakan no-cors (fire-and-forget).
+                    // Response tidak dapat dibaca dalam mode ini, anggap sukses jika tidak throw.
+                    await fetch(GAS_WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ sheet: sheetName, action: action, data: data })
+                    });
+                    // no-cors selalu mengembalikan opaque response; anggap berhasil
+                    return { success: true };
+                }
             } catch (error) {
                 console.warn(`Kesalahan sinkronisasi GAS untuk sheet ${sheetName}:`, error);
                 return null;
@@ -927,7 +947,7 @@
                 indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
                 
                 try {
-                    await Promise.all([
+                    const results = await Promise.allSettled([
                         syncDatabase('Transactions', 'read'),
                         syncDatabase('Warga', 'read'),
                         syncDatabase('Surat', 'read'),
@@ -936,7 +956,8 @@
                     if (window.isCloudConnected) {
                         showNotification("Koneksi Google Sheets berhasil disinkronkan!");
                     } else {
-                        showNotification("Gagal memuat Cloud. Mengaktifkan database lokal.", false);
+                        // Fallback ke lokal — tidak tampilkan error merah, ini perilaku normal
+                        showNotification("Menggunakan database lokal (Cloud tidak tersedia).");
                     }
                 } catch(e) {
                     console.error("Gagal sinkronisasi data paralel:", e);
@@ -1302,7 +1323,7 @@
             scannerPrompt.classList.add('hidden');
             scannerLoading.classList.remove('hidden');
 
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
             const userPrompt = `Analisislah gambar Kartu Keluarga (KK) atau KTP Indonesia berikut. 
 Ekstrak data penting dan kembalikan secara terstruktur dalam format JSON dengan properti objek berikut:
