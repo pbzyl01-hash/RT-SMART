@@ -783,8 +783,7 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        // API KEY GOOGLE GEMINI UNTUK OCR GAMBAR & PDF
-        const apiKey = "AQ.Ab8RN6L5HNMIV-BZ4vMqUMcNXE-jmEAGSGoC92tuBOxT6Kq2Jw";
+        // AI SCANNER: Menggunakan Anthropic Claude API (tanpa API key tambahan)
 
         // URL DEPLOY GOOGLE APPS SCRIPT WEB APP (Telah disinkronkan)
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
@@ -1334,29 +1333,89 @@
             }
         }
 
-        // --- EXPONENTIAL BACKOFF FOR GEMINI API CALLS ---
-        async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) {
-                    let errMsg = `HTTP error! status: ${response.status}`;
-                    try {
-                        const errJson = await response.json();
-                        if (errJson.error && errJson.error.message) {
-                            errMsg = errJson.error.message;
-                        }
-                    } catch(e) {}
-                    throw new Error(errMsg);
-                }
-                return await response.json();
-            } catch (error) {
-                if (retries > 1) {
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    return fetchWithRetry(url, options, retries - 1, delay * 2);
-                } else {
-                    throw error;
-                }
+        // --- CLAUDE API: Scan KTP/KK via Anthropic ---
+        async function callClaudeVision(base64Data, mimeType) {
+            // Pastikan mimeType adalah image (PDF dikonversi di sisi client)
+            const supportedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            const isImage = supportedImageTypes.includes(mimeType);
+            const isPDF = mimeType === 'application/pdf';
+
+            if (!isImage && !isPDF) {
+                throw new Error('Format file tidak didukung. Gunakan gambar (JPG/PNG/WEBP) atau PDF.');
             }
+
+            const userPrompt = `Analisislah gambar dokumen identitas Indonesia berikut (KTP atau Kartu Keluarga / KK).
+
+1. Tentukan jenis dokumen: "KTP" atau "KK".
+
+2. Jika KTP, ekstrak semua field yang terlihat:
+   jenis_dokumen, nik, nama, tempat_lahir, tanggal_lahir, jenis_kelamin, gol_darah, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi, agama, status_perkawinan, pekerjaan, kewarganegaraan, berlaku_hingga, status (default "Warga Tetap")
+
+3. Jika KK, ekstrak:
+   jenis_dokumen, no_kk, kepala_keluarga, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi
+   anggota: array semua anggota dengan field: nama, nik, hubungan_keluarga, tanggal_lahir, jenis_kelamin, agama, pendidikan, pekerjaan
+
+Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backtick. Contoh format:
+{"jenis_dokumen":"KTP","nik":"3201...","nama":"BUDI SANTOSO",...}`;
+
+            const messageContent = [];
+
+            if (isImage) {
+                messageContent.push({
+                    type: "image",
+                    source: {
+                        type: "base64",
+                        media_type: mimeType,
+                        data: base64Data
+                    }
+                });
+            } else if (isPDF) {
+                messageContent.push({
+                    type: "document",
+                    source: {
+                        type: "base64",
+                        media_type: "application/pdf",
+                        data: base64Data
+                    }
+                });
+            }
+
+            messageContent.push({ type: "text", text: userPrompt });
+
+            const response = await fetch("https://api.anthropic.com/v1/messages", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "anthropic-version": "2023-06-01",
+                    "anthropic-dangerous-direct-browser-access": "true"
+                },
+                body: JSON.stringify({
+                    model: "claude-sonnet-4-6",
+                    max_tokens: 1500,
+                    messages: [
+                        { role: "user", content: messageContent }
+                    ]
+                })
+            });
+
+            if (!response.ok) {
+                let errMsg = `HTTP error! status: ${response.status}`;
+                try {
+                    const errJson = await response.json();
+                    if (errJson.error && errJson.error.message) {
+                        errMsg = errJson.error.message;
+                    }
+                } catch(e) {}
+                throw new Error(errMsg);
+            }
+
+            const data = await response.json();
+            const rawText = data.content?.map(b => b.text || '').join('').trim();
+            if (!rawText) throw new Error("Respons AI kosong.");
+
+            // Bersihkan markdown jika ada
+            const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+            return JSON.parse(cleanJson);
         }
 
         // --- HELPER: ISI FORMULIR DARI DATA SCAN ---
@@ -1475,125 +1534,36 @@
             document.getElementById('scan-ktp-result').classList.add('hidden');
         }
 
-        // --- INTEGRASI AI SCANNER GEMINI ---
+        // --- INTEGRASI AI SCANNER (Claude Anthropic - Tanpa API Key Tambahan) ---
         async function runAIScanner(base64Data, mimeType) {
             const scannerPrompt = document.getElementById('scanner-prompt');
             const scannerLoading = document.getElementById('scanner-loading');
             const scanResultContainer = document.getElementById('scan-result-container');
             const scanDocType = document.getElementById('scan-doc-type');
-            
+
             scannerPrompt.classList.add('hidden');
             scannerLoading.classList.remove('hidden');
             scanResultContainer.classList.add('hidden');
             document.getElementById('scan-ktp-result').classList.add('hidden');
             document.getElementById('scan-kk-result').classList.add('hidden');
 
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-            const userPrompt = `Analisislah gambar dokumen identitas Indonesia berikut (KTP atau Kartu Keluarga / KK).
-
-1. Tentukan jenis dokumen: "KTP" atau "KK".
-
-2. Jika KTP, ekstrak semua field berikut:
-   - jenis_dokumen: "KTP"
-   - nik, nama, tempat_lahir, tanggal_lahir, jenis_kelamin, gol_darah, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi, agama, status_perkawinan, pekerjaan, kewarganegaraan, berlaku_hingga, status (default "Warga Tetap")
-
-3. Jika KK, ekstrak:
-   - jenis_dokumen: "KK"
-   - no_kk, kepala_keluarga, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi
-   - anggota: array semua anggota dengan field: nama, nik, hubungan_keluarga, tanggal_lahir, jenis_kelamin, agama, pendidikan, pekerjaan
-
-Kembalikan hanya JSON valid murni sesuai schema, tanpa kata pengantar apapun.`;
-
-            // Use a flexible schema to handle both KTP and KK
-            const payload = {
-                contents: [
-                    {
-                        parts: [
-                            { text: userPrompt },
-                            {
-                                inlineData: {
-                                    mimeType: mimeType,
-                                    data: base64Data
-                                }
-                            }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "object",
-                        properties: {
-                            jenis_dokumen: { type: "string", enum: ["KTP", "KK"] },
-                            // KTP fields
-                            nik: { type: "string" },
-                            nama: { type: "string" },
-                            tempat_lahir: { type: "string" },
-                            tanggal_lahir: { type: "string" },
-                            jenis_kelamin: { type: "string" },
-                            gol_darah: { type: "string" },
-                            alamat: { type: "string" },
-                            rt_rw: { type: "string" },
-                            kelurahan: { type: "string" },
-                            kecamatan: { type: "string" },
-                            kota: { type: "string" },
-                            provinsi: { type: "string" },
-                            agama: { type: "string" },
-                            status_perkawinan: { type: "string" },
-                            pekerjaan: { type: "string" },
-                            kewarganegaraan: { type: "string" },
-                            berlaku_hingga: { type: "string" },
-                            status: { type: "string" },
-                            // KK fields
-                            no_kk: { type: "string" },
-                            kepala_keluarga: { type: "string" },
-                            anggota: {
-                                type: "array",
-                                items: {
-                                    type: "object",
-                                    properties: {
-                                        nama: { type: "string" },
-                                        nik: { type: "string" },
-                                        hubungan_keluarga: { type: "string" },
-                                        tanggal_lahir: { type: "string" },
-                                        jenis_kelamin: { type: "string" },
-                                        agama: { type: "string" },
-                                        pendidikan: { type: "string" },
-                                        pekerjaan: { type: "string" }
-                                    }
-                                }
-                            }
-                        },
-                        required: ["jenis_dokumen"]
-                    }
-                }
-            };
-
             try {
-                const result = await fetchWithRetry(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const contentText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!contentText) throw new Error("Respons AI kosong.");
-
-                const parsedData = JSON.parse(contentText);
+                const parsedData = await callClaudeVision(base64Data, mimeType);
                 const docType = parsedData.jenis_dokumen || 'KTP';
 
-                // Show document type badge
-                const badgeColor = docType === 'KK' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 ring-emerald-600/20' : 'bg-brand-100 text-brand-700 dark:bg-brand-950/40 dark:text-brand-400 ring-brand-600/20';
+                // Tampilkan badge jenis dokumen
+                const badgeColor = docType === 'KK'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 ring-emerald-600/20'
+                    : 'bg-brand-100 text-brand-700 dark:bg-brand-950/40 dark:text-brand-400 ring-brand-600/20';
                 const badgeIcon = docType === 'KK' ? 'fa-users' : 'fa-id-card';
                 const badgeLabel = docType === 'KK' ? 'Kartu Keluarga (KK) Terdeteksi' : 'KTP (E-KTP) Terdeteksi';
                 scanDocType.innerHTML = `
                     <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset ${badgeColor}">
                         <i class="fa-solid ${badgeIcon}"></i> ${badgeLabel}
+                        <span class="ml-1 text-[9px] opacity-60 font-normal">via Claude AI</span>
                     </span>
                 `;
 
-                // Show result container
                 scanResultContainer.classList.remove('hidden');
 
                 if (docType === 'KK') {
@@ -1607,7 +1577,7 @@ Kembalikan hanya JSON valid murni sesuai schema, tanpa kata pengantar apapun.`;
 
             } catch (err) {
                 console.error(err);
-                showNotification(`Gagal scan AI: ${err.message}`, false);
+                showNotification(`Gagal scan: ${err.message}`, false);
             } finally {
                 scannerPrompt.classList.remove('hidden');
                 scannerLoading.classList.add('hidden');
