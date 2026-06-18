@@ -1221,9 +1221,14 @@
                                 <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${statusClass}">${item.status}</span>
                             </td>
                             <td class="py-3 px-4 text-center">
-                                <button onclick="deleteWarga('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus Data">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
+                                <div class="flex items-center justify-center gap-1">
+                                    <button onclick="openEditWarga('${item.id}')" class="text-brand-500 hover:text-brand-700 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="confirmDeleteWarga('${item.id}', '${item.nama.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus Data">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1610,46 +1615,33 @@
             showNotification('Data telah diisi ke formulir. Silakan periksa kembali!');
         }
 
-        // --- HELPER: RENDER TABEL HASIL SCAN KTP ---
+        // --- HELPER: RENDER TABEL HASIL SCAN KTP (ringkas sesuai form) ---
         function renderKTPResult(data) {
+            const alamatLengkap = [data.alamat, data.rt_rw ? 'RT/RW ' + data.rt_rw : '', data.kelurahan, data.kecamatan, data.kota, data.provinsi].filter(Boolean).join(', ');
             const fields = [
-                { label: 'NIK', value: data.nik || '-', icon: 'fa-id-card', mono: true },
                 { label: 'Nama Lengkap', value: data.nama || '-', icon: 'fa-user', bold: true },
-                { label: 'Tempat / Tgl Lahir', value: [data.tempat_lahir, data.tanggal_lahir].filter(Boolean).join(', ') || '-', icon: 'fa-cake-candles' },
-                { label: 'Jenis Kelamin', value: data.jenis_kelamin || '-', icon: 'fa-venus-mars' },
-                { label: 'Golongan Darah', value: data.gol_darah || '-', icon: 'fa-droplet' },
-                { label: 'Alamat', value: data.alamat || '-', icon: 'fa-location-dot' },
-                { label: 'RT / RW', value: data.rt_rw || '-', icon: 'fa-signs-post' },
-                { label: 'Kel / Desa', value: data.kelurahan || '-', icon: 'fa-house-flag' },
-                { label: 'Kecamatan', value: data.kecamatan || '-', icon: 'fa-map' },
-                { label: 'Kabupaten / Kota', value: data.kota || '-', icon: 'fa-city' },
-                { label: 'Provinsi', value: data.provinsi || '-', icon: 'fa-map-location-dot' },
-                { label: 'Agama', value: data.agama || '-', icon: 'fa-star-and-crescent' },
-                { label: 'Status Perkawinan', value: data.status_perkawinan || '-', icon: 'fa-ring' },
-                { label: 'Pekerjaan', value: data.pekerjaan || '-', icon: 'fa-briefcase' },
-                { label: 'Kewarganegaraan', value: data.kewarganegaraan || 'WNI', icon: 'fa-flag' },
-                { label: 'Berlaku Hingga', value: data.berlaku_hingga || '-', icon: 'fa-calendar-check' },
+                { label: 'NIK', value: data.nik || '-', icon: 'fa-id-card', mono: true },
+                { label: 'Alamat Lengkap', value: alamatLengkap || data.alamat || '-', icon: 'fa-location-dot' },
+                { label: 'Status', value: data.status || 'Warga Tetap', icon: 'fa-house-circle-check' },
             ];
 
             const tbody = document.getElementById('scan-ktp-tbody');
             tbody.innerHTML = fields.map(f => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="py-2 px-3 text-slate-500 dark:text-slate-400">
+                    <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 w-2/5">
                         <span class="flex items-center gap-1.5">
                             <i class="fa-solid ${f.icon} text-brand-400 w-3 text-center"></i>
                             ${f.label}
                         </span>
                     </td>
-                    <td class="py-2 px-3 ${f.bold ? 'font-bold text-slate-800 dark:text-white' : ''} ${f.mono ? 'font-mono tracking-wide' : ''}">${f.value}</td>
+                    <td class="py-2.5 px-3 ${f.bold ? 'font-bold text-slate-800 dark:text-white' : 'text-slate-700 dark:text-slate-200'} ${f.mono ? 'font-mono tracking-wide' : ''}">${f.value}</td>
                 </tr>
             `).join('');
 
             document.getElementById('scan-ktp-result').classList.remove('hidden');
             document.getElementById('scan-kk-result').classList.add('hidden');
 
-            // Wire up "use data" button
             document.getElementById('btn-use-ktp-data').onclick = () => {
-                const alamatLengkap = [data.alamat, data.rt_rw ? 'RT/RW ' + data.rt_rw : '', data.kelurahan, data.kecamatan, data.kota, data.provinsi].filter(Boolean).join(', ');
                 fillFormFromScanData(data.nama, data.nik, alamatLengkap || data.alamat, data.status || 'Warga Tetap');
             };
         }
@@ -2364,6 +2356,152 @@
             e.preventDefault();
         }
     });
+</script>
+
+<!-- ===== MODAL KONFIRMASI HAPUS WARGA ===== -->
+<div id="modal-confirm-delete" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-fade-in">
+        <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-950/40 flex items-center justify-center">
+                <i class="fa-solid fa-trash-can text-2xl text-red-500"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-extrabold text-slate-800 dark:text-white">Hapus Data Warga?</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data <strong id="modal-delete-nama" class="text-slate-700 dark:text-slate-200"></strong> akan dihapus permanen dari database dan tidak dapat dikembalikan.</p>
+            </div>
+            <div class="flex gap-3 w-full mt-2">
+                <button onclick="closeDeleteModal()" class="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                    Batal
+                </button>
+                <button id="modal-delete-confirm-btn" class="flex-1 rounded-xl bg-red-600 hover:bg-red-700 py-2.5 text-sm font-bold text-white shadow transition">
+                    <i class="fa-solid fa-trash-can mr-1.5"></i> Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL EDIT DATA WARGA ===== -->
+<div id="modal-edit-warga" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeEditModal()"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-brand-500"></i> Edit Data Warga
+            </h3>
+            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <input type="hidden" id="edit-warga-id">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nama Lengkap</label>
+                <input type="text" id="edit-warga-nama" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Nama Lengkap" required>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">NIK</label>
+                <input type="text" id="edit-warga-nik" maxlength="16" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white font-mono focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="16 Digit NIK" required>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Alamat Lengkap</label>
+                <textarea id="edit-warga-alamat" rows="2" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Alamat sesuai KTP/KK"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status Kependudukan</label>
+                <select id="edit-warga-status" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
+                    <option value="Warga Tetap">Warga Tetap</option>
+                    <option value="Kontrak / Kos">Kontrak / Kos</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-1">
+                <button onclick="closeEditModal()" class="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                    Batal
+                </button>
+                <button onclick="saveEditWarga()" class="flex-1 rounded-xl bg-brand-600 hover:bg-brand-700 py-2.5 text-sm font-bold text-white shadow transition">
+                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Perubahan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== MODAL KONFIRMASI HAPUS =====
+let _pendingDeleteId = null;
+
+function confirmDeleteWarga(id, nama) {
+    _pendingDeleteId = id;
+    document.getElementById('modal-delete-nama').textContent = nama;
+    document.getElementById('modal-confirm-delete').classList.remove('hidden');
+    document.getElementById('modal-delete-confirm-btn').onclick = async () => {
+        closeDeleteModal();
+        await deleteWarga(_pendingDeleteId);
+    };
+}
+
+function closeDeleteModal() {
+    document.getElementById('modal-confirm-delete').classList.add('hidden');
+    _pendingDeleteId = null;
+}
+
+// ===== MODAL EDIT WARGA =====
+function openEditWarga(id) {
+    const warga = dbWarga.find(w => w.id === id);
+    if (!warga) return;
+    document.getElementById('edit-warga-id').value = warga.id;
+    document.getElementById('edit-warga-nama').value = warga.nama;
+    document.getElementById('edit-warga-nik').value = warga.nik;
+    document.getElementById('edit-warga-alamat').value = warga.alamat;
+    document.getElementById('edit-warga-status').value = warga.status;
+    document.getElementById('modal-edit-warga').classList.remove('hidden');
+}
+
+function closeEditModal() {
+    document.getElementById('modal-edit-warga').classList.add('hidden');
+}
+
+async function saveEditWarga() {
+    const id = document.getElementById('edit-warga-id').value;
+    const nama = document.getElementById('edit-warga-nama').value.trim();
+    const nik = document.getElementById('edit-warga-nik').value.trim();
+    const alamat = document.getElementById('edit-warga-alamat').value.trim();
+    const status = document.getElementById('edit-warga-status').value;
+
+    if (!nama || !nik) {
+        showNotification('Nama dan NIK wajib diisi!', false);
+        return;
+    }
+    if (nik.length !== 16 || isNaN(nik)) {
+        showNotification('NIK harus 16 digit angka!', false);
+        return;
+    }
+    // Cek duplikat NIK (kecuali diri sendiri)
+    if (dbWarga.some(w => w.nik === nik && w.id !== id)) {
+        showNotification('NIK sudah digunakan warga lain!', false);
+        return;
+    }
+
+    const warga = dbWarga.find(w => w.id === id);
+    if (warga) {
+        warga.nama = nama;
+        warga.nik = nik;
+        warga.alamat = alamat;
+        warga.status = status;
+        await syncDatabase('Warga', 'update', { id: id, newData: { nama, nik, alamat, status } });
+        closeEditModal();
+        showNotification(`Data ${nama} berhasil diperbarui!`);
+    }
+}
+
+// Tutup modal dengan ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+        closeEditModal();
+    }
+});
 </script>
 </body>
 </html>
