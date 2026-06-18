@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Tesseract.js OCR (lokal, tanpa API key) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -786,7 +788,8 @@
         // AI SCANNER: Menggunakan Anthropic Claude API (tanpa API key tambahan)
 
         // URL DEPLOY GOOGLE APPS SCRIPT WEB APP (Telah disinkronkan)
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec";
+        const SPREADSHEET_ID = "1srGTaw3wUf0rGEtwbds8jz8txYByKe6O9Jd-EnnibJA"; 
 
         // Database Mock Local Storage (Fallback jika GAS bermasalah)
         let dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [
@@ -1333,89 +1336,216 @@
             }
         }
 
-        // --- CLAUDE API: Scan KTP/KK via Anthropic ---
-        async function callClaudeVision(base64Data, mimeType) {
-            // Pastikan mimeType adalah image (PDF dikonversi di sisi client)
-            const supportedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-            const isImage = supportedImageTypes.includes(mimeType);
-            const isPDF = mimeType === 'application/pdf';
+        // =============================================
+        // OCR LOKAL: Tesseract.js — Tanpa API Key
+        // =============================================
 
-            if (!isImage && !isPDF) {
-                throw new Error('Format file tidak didukung. Gunakan gambar (JPG/PNG/WEBP) atau PDF.');
-            }
+        // Update loading text di spinner
+        function setLoadingText(title, sub) {
+            const el = document.querySelector('#scanner-loading span:first-of-type');
+            const el2 = document.querySelector('#scanner-loading span:last-of-type');
+            if (el) el.textContent = title;
+            if (el2) el2.textContent = sub;
+        }
 
-            const userPrompt = `Analisislah gambar dokumen identitas Indonesia berikut (KTP atau Kartu Keluarga / KK).
-
-1. Tentukan jenis dokumen: "KTP" atau "KK".
-
-2. Jika KTP, ekstrak semua field yang terlihat:
-   jenis_dokumen, nik, nama, tempat_lahir, tanggal_lahir, jenis_kelamin, gol_darah, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi, agama, status_perkawinan, pekerjaan, kewarganegaraan, berlaku_hingga, status (default "Warga Tetap")
-
-3. Jika KK, ekstrak:
-   jenis_dokumen, no_kk, kepala_keluarga, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi
-   anggota: array semua anggota dengan field: nama, nik, hubungan_keluarga, tanggal_lahir, jenis_kelamin, agama, pendidikan, pekerjaan
-
-Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backtick. Contoh format:
-{"jenis_dokumen":"KTP","nik":"3201...","nama":"BUDI SANTOSO",...}`;
-
-            const messageContent = [];
-
-            if (isImage) {
-                messageContent.push({
-                    type: "image",
-                    source: {
-                        type: "base64",
-                        media_type: mimeType,
-                        data: base64Data
+        // Ambil nilai dari baris OCR berdasarkan keyword
+        function extractAfterKeyword(lines, ...keywords) {
+            for (const kw of keywords) {
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].toUpperCase();
+                    if (line.includes(kw.toUpperCase())) {
+                        // Coba ambil nilai setelah tanda ":" di baris yang sama
+                        const colonIdx = lines[i].indexOf(':');
+                        if (colonIdx !== -1) {
+                            const val = lines[i].substring(colonIdx + 1).trim();
+                            if (val.length > 0) return val;
+                        }
+                        // Jika tidak ada ":", ambil baris berikutnya
+                        if (i + 1 < lines.length) {
+                            const next = lines[i + 1].trim();
+                            if (next.length > 1 && !next.toUpperCase().includes('NIK') && !next.toUpperCase().includes('NAMA')) {
+                                return next;
+                            }
+                        }
                     }
-                });
-            } else if (isPDF) {
-                messageContent.push({
-                    type: "document",
-                    source: {
-                        type: "base64",
-                        media_type: "application/pdf",
-                        data: base64Data
-                    }
-                });
+                }
             }
+            return '';
+        }
 
-            messageContent.push({ type: "text", text: userPrompt });
+        // Ekstrak NIK: 16 digit angka berturutan
+        function extractNIK(text) {
+            const clean = text.replace(/\s+/g, ' ');
+            // Cari pola 16 digit
+            const match = clean.match(/\b(\d[\d\s]{14,17}\d)\b/);
+            if (match) {
+                const digits = match[1].replace(/\s/g, '');
+                if (digits.length === 16) return digits;
+            }
+            // Fallback: cari 16 digit berurutan
+            const m2 = clean.match(/\d{16}/);
+            return m2 ? m2[0] : '';
+        }
 
-            const response = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "anthropic-version": "2023-06-01",
-                    "anthropic-dangerous-direct-browser-access": "true"
-                },
-                body: JSON.stringify({
-                    model: "claude-sonnet-4-6",
-                    max_tokens: 1500,
-                    messages: [
-                        { role: "user", content: messageContent }
-                    ]
-                })
+        // Ekstrak nomor KK: biasanya 16 digit juga, dekat kata "KARTU KELUARGA"
+        function extractNoKK(lines) {
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].toUpperCase().includes('KARTU KELUARGA') || lines[i].toUpperCase().includes('NOMOR')) {
+                    // cek baris ini dan berikutnya untuk 16 digit
+                    for (let j = i; j <= i + 2 && j < lines.length; j++) {
+                        const m = lines[j].match(/\d{16}/);
+                        if (m) return m[0];
+                    }
+                }
+            }
+            return extractNIK(lines.join(' '));
+        }
+
+        // Deteksi apakah dokumen KTP atau KK
+        function detectDocType(text) {
+            const up = text.toUpperCase();
+            const kkScore = (up.includes('KARTU KELUARGA') ? 3 : 0) +
+                            (up.includes('KEPALA KELUARGA') ? 2 : 0) +
+                            (up.includes('NO. KK') ? 2 : 0) +
+                            (up.includes('HUBUNGAN') ? 2 : 0) +
+                            (up.includes('ANGGOTA') ? 1 : 0);
+            const ktpScore = (up.includes('KARTU TANDA PENDUDUK') ? 3 : 0) +
+                             (up.includes('E-KTP') ? 2 : 0) +
+                             (up.includes('GOLONGAN DARAH') ? 2 : 0) +
+                             (up.includes('STATUS PERKAWINAN') ? 2 : 0) +
+                             (up.includes('PEKERJAAN') ? 1 : 0);
+            return kkScore > ktpScore ? 'KK' : 'KTP';
+        }
+
+        // Parse KTP dari teks OCR
+        function parseKTPFromText(text) {
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const nik = extractNIK(text);
+            const nama = extractAfterKeyword(lines, 'NAMA', 'Name');
+            const ttl = extractAfterKeyword(lines, 'TEMPAT', 'TGL LAHIR', 'Tempat');
+            let tempat_lahir = '', tanggal_lahir = '';
+            if (ttl) {
+                const parts = ttl.split(',');
+                tempat_lahir = parts[0]?.trim() || '';
+                tanggal_lahir = parts[1]?.trim() || '';
+            }
+            const jenis_kelamin = extractAfterKeyword(lines, 'JENIS KELAMIN', 'Jenis Kelamin');
+            const gol_darah = extractAfterKeyword(lines, 'GOL. DARAH', 'GOL DARAH', 'Gol. Darah');
+            const alamat = extractAfterKeyword(lines, 'ALAMAT', 'Alamat');
+            const rt_rw = extractAfterKeyword(lines, 'RT/RW', 'RT / RW', 'RT RW');
+            const kelurahan = extractAfterKeyword(lines, 'KEL/DESA', 'KELURAHAN', 'Kel/Desa');
+            const kecamatan = extractAfterKeyword(lines, 'KECAMATAN', 'Kecamatan');
+            const kota = extractAfterKeyword(lines, 'KABUPATEN', 'KOTA', 'Kab/Kota');
+            const provinsi = extractAfterKeyword(lines, 'PROVINSI', 'Provinsi');
+            const agama = extractAfterKeyword(lines, 'AGAMA', 'Agama');
+            const status_perkawinan = extractAfterKeyword(lines, 'STATUS PERKAWINAN', 'Status Perkawinan', 'PERKAWINAN');
+            const pekerjaan = extractAfterKeyword(lines, 'PEKERJAAN', 'Pekerjaan');
+            const kewarganegaraan = extractAfterKeyword(lines, 'KEWARGANEGARAAN') || 'WNI';
+            const berlaku_hingga = extractAfterKeyword(lines, 'BERLAKU HINGGA', 'Berlaku Hingga') || 'SEUMUR HIDUP';
+
+            return {
+                jenis_dokumen: 'KTP', nik, nama, tempat_lahir, tanggal_lahir,
+                jenis_kelamin, gol_darah, alamat, rt_rw, kelurahan, kecamatan,
+                kota, provinsi, agama, status_perkawinan, pekerjaan,
+                kewarganegaraan, berlaku_hingga, status: 'Warga Tetap'
+            };
+        }
+
+        // Parse KK dari teks OCR — ekstrak kepala & anggota keluarga
+        function parseKKFromText(text) {
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const no_kk = extractNoKK(lines);
+            const kepala_keluarga = extractAfterKeyword(lines, 'KEPALA KELUARGA', 'Kepala Keluarga', 'NAMA KEPALA');
+            const alamat = extractAfterKeyword(lines, 'ALAMAT', 'Alamat');
+            const rt_rw = extractAfterKeyword(lines, 'RT/RW', 'RT RW', 'RT / RW');
+            const kelurahan = extractAfterKeyword(lines, 'KEL/DESA', 'KELURAHAN', 'Desa');
+            const kecamatan = extractAfterKeyword(lines, 'KECAMATAN');
+            const kota = extractAfterKeyword(lines, 'KABUPATEN', 'KOTA');
+            const provinsi = extractAfterKeyword(lines, 'PROVINSI');
+
+            // Coba parse anggota dari tabel: cari baris dengan NIK 16 digit
+            const anggota = [];
+            const nikPattern = /\d{16}/g;
+            const usedLines = new Set();
+
+            lines.forEach((line, idx) => {
+                const nikMatch = line.match(/\d{16}/);
+                if (nikMatch && !usedLines.has(idx)) {
+                    usedLines.add(idx);
+                    const nik = nikMatch[0];
+                    // Nama biasanya di baris sebelum atau setelah NIK
+                    let nama = '';
+                    if (idx > 0 && !lines[idx-1].match(/\d{16}/) && lines[idx-1].length > 3) {
+                        nama = lines[idx-1].replace(/^\d+[\.\)]\s*/, '').trim();
+                    } else if (idx + 1 < lines.length && !lines[idx+1].match(/\d{16}/)) {
+                        nama = lines[idx+1].replace(/^\d+[\.\)]\s*/, '').trim();
+                    }
+                    // Hubungan keluarga
+                    const hubKeywords = ['KEPALA KELUARGA','ISTRI','SUAMI','ANAK','MENANTU','CUCU','ORANG TUA','FAMILI'];
+                    let hubungan_keluarga = '';
+                    for (let j = Math.max(0, idx-2); j <= Math.min(lines.length-1, idx+3); j++) {
+                        const up = lines[j].toUpperCase();
+                        for (const hk of hubKeywords) {
+                            if (up.includes(hk)) { hubungan_keluarga = hk; break; }
+                        }
+                        if (hubungan_keluarga) break;
+                    }
+                    // Tanggal lahir: cari pola dd-mm-yyyy atau dd/mm/yyyy
+                    let tanggal_lahir = '';
+                    for (let j = Math.max(0, idx-2); j <= Math.min(lines.length-1, idx+3); j++) {
+                        const dtm = lines[j].match(/\d{2}[-\/]\d{2}[-\/]\d{4}/);
+                        if (dtm) { tanggal_lahir = dtm[0]; break; }
+                    }
+                    if (nik && nama) {
+                        anggota.push({ nama, nik, hubungan_keluarga, tanggal_lahir, jenis_kelamin: '', agama: '', pendidikan: '', pekerjaan: '' });
+                    }
+                }
             });
 
-            if (!response.ok) {
-                let errMsg = `HTTP error! status: ${response.status}`;
-                try {
-                    const errJson = await response.json();
-                    if (errJson.error && errJson.error.message) {
-                        errMsg = errJson.error.message;
-                    }
-                } catch(e) {}
-                throw new Error(errMsg);
+            // Jika tidak bisa parse anggota, buat minimal dari kepala keluarga
+            if (anggota.length === 0 && kepala_keluarga) {
+                anggota.push({ nama: kepala_keluarga, nik: no_kk, hubungan_keluarga: 'KEPALA KELUARGA', tanggal_lahir: '', jenis_kelamin: '', agama: '', pendidikan: '', pekerjaan: '' });
             }
 
-            const data = await response.json();
-            const rawText = data.content?.map(b => b.text || '').join('').trim();
-            if (!rawText) throw new Error("Respons AI kosong.");
+            return { jenis_dokumen: 'KK', no_kk, kepala_keluarga, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi, anggota };
+        }
 
-            // Bersihkan markdown jika ada
-            const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-            return JSON.parse(cleanJson);
+        // MAIN: Jalankan OCR Tesseract lokal pada file gambar
+        async function runOCRLocal(file) {
+            setLoadingText('Memproses Gambar...', 'Menginisialisasi OCR lokal...');
+
+            let imageUrl;
+            if (file.type === 'application/pdf') {
+                throw new Error('PDF belum didukung mode lokal. Gunakan foto/screenshot dokumen (JPG/PNG).');
+            }
+            imageUrl = URL.createObjectURL(file);
+
+            setLoadingText('OCR Sedang Berjalan', 'Membaca teks dari dokumen...');
+
+            const result = await Tesseract.recognize(imageUrl, 'ind+eng', {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        const pct = Math.round((m.progress || 0) * 100);
+                        setLoadingText(`OCR: ${pct}%`, 'Mengekstrak teks dari gambar...');
+                    }
+                }
+            });
+
+            URL.revokeObjectURL(imageUrl);
+
+            const rawText = result.data.text;
+            if (!rawText || rawText.trim().length < 10) {
+                throw new Error('Teks tidak terdeteksi. Pastikan foto jelas dan tidak buram.');
+            }
+
+            setLoadingText('Menganalisis Data...', 'Mencocokkan field KTP/KK...');
+
+            const docType = detectDocType(rawText);
+            if (docType === 'KK') {
+                return parseKKFromText(rawText);
+            } else {
+                return parseKTPFromText(rawText);
+            }
         }
 
         // --- HELPER: ISI FORMULIR DARI DATA SCAN ---
@@ -1534,8 +1664,8 @@ Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backti
             document.getElementById('scan-ktp-result').classList.add('hidden');
         }
 
-        // --- INTEGRASI AI SCANNER (Claude Anthropic - Tanpa API Key Tambahan) ---
-        async function runAIScanner(base64Data, mimeType) {
+        // --- SCANNER UTAMA: gunakan OCR Lokal (Tesseract.js) ---
+        async function runAIScanner(base64Data, mimeType, originalFile) {
             const scannerPrompt = document.getElementById('scanner-prompt');
             const scannerLoading = document.getElementById('scanner-loading');
             const scanResultContainer = document.getElementById('scan-result-container');
@@ -1548,10 +1678,9 @@ Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backti
             document.getElementById('scan-kk-result').classList.add('hidden');
 
             try {
-                const parsedData = await callClaudeVision(base64Data, mimeType);
+                const parsedData = await runOCRLocal(originalFile);
                 const docType = parsedData.jenis_dokumen || 'KTP';
 
-                // Tampilkan badge jenis dokumen
                 const badgeColor = docType === 'KK'
                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 ring-emerald-600/20'
                     : 'bg-brand-100 text-brand-700 dark:bg-brand-950/40 dark:text-brand-400 ring-brand-600/20';
@@ -1560,7 +1689,7 @@ Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backti
                 scanDocType.innerHTML = `
                     <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset ${badgeColor}">
                         <i class="fa-solid ${badgeIcon}"></i> ${badgeLabel}
-                        <span class="ml-1 text-[9px] opacity-60 font-normal">via Claude AI</span>
+                        <span class="ml-1 text-[9px] opacity-60 font-normal">via OCR Lokal</span>
                     </span>
                 `;
 
@@ -1572,7 +1701,7 @@ Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backti
                     showNotification(`KK Berhasil dibaca! Ditemukan ${jumlahAnggota} anggota keluarga.`);
                 } else {
                     renderKTPResult(parsedData);
-                    showNotification('KTP Berhasil dibaca! Data lengkap telah diekstrak.');
+                    showNotification('KTP Berhasil dibaca! Silakan periksa & koreksi data jika perlu.');
                 }
 
             } catch (err) {
@@ -1581,6 +1710,7 @@ Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backti
             } finally {
                 scannerPrompt.classList.remove('hidden');
                 scannerLoading.classList.add('hidden');
+                setLoadingText('AI Sedang Membaca Dokumen', 'Mengekstrak NIK, Nama & Alamat...');
             }
         }
 
@@ -1688,13 +1818,7 @@ Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backti
             aiScannerInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    const base64Data = evt.target.result.split(',')[1];
-                    runAIScanner(base64Data, file.type);
-                };
-                reader.readAsDataURL(file);
+                runAIScanner(null, file.type, file);
             });
 
             // Clear scan result button
@@ -1722,12 +1846,7 @@ Kembalikan HANYA JSON valid murni tanpa markdown, tanpa penjelasan, tanpa backti
                 dropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
                 const file = e.dataTransfer.files[0];
                 if (file && (file.type.startsWith('image/') || file.type === 'application/pdf')) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        const base64Data = evt.target.result.split(',')[1];
-                        runAIScanner(base64Data, file.type);
-                    };
-                    reader.readAsDataURL(file);
+                    runAIScanner(null, file.type, file);
                 } else {
                     showNotification('Silakan drop berkas Gambar atau PDF saja!', false);
                 }
