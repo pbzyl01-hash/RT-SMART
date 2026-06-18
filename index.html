@@ -953,11 +953,13 @@
                 const gasResult = await fetchFromGAS(sheetName, action, data);
                 if (gasResult) {
                     gasSuccess = true;
+                    // Hanya overwrite data lokal saat action READ
+                    // Saat delete/create/update, data lokal sudah diubah duluan — jangan overwrite
                     if (action === 'read') {
-                        if (sheetName === 'Transactions') dbTransactions = gasResult.data;
-                        if (sheetName === 'Warga') dbWarga = gasResult.data;
-                        if (sheetName === 'Surat') dbSurat = gasResult.data;
-                        if (sheetName === 'Pengumuman') dbPengumuman = gasResult.data;
+                        if (sheetName === 'Transactions') dbTransactions = gasResult.data || dbTransactions;
+                        if (sheetName === 'Warga') dbWarga = gasResult.data || dbWarga;
+                        if (sheetName === 'Surat') dbSurat = gasResult.data || dbSurat;
+                        if (sheetName === 'Pengumuman') dbPengumuman = gasResult.data || dbPengumuman;
                     }
                 }
             }
@@ -1604,15 +1606,19 @@
             }
         }
 
-        // --- HELPER: ISI FORMULIR DARI DATA SCAN ---
+        // --- HELPER: ISI FORMULIR DARI DATA SCAN (AUTO-FILL) ---
         function fillFormFromScanData(nama, nik, alamat, status) {
             if (nama) document.getElementById('warga-nama').value = nama;
             if (nik) document.getElementById('warga-nik').value = nik;
             if (alamat) document.getElementById('warga-alamat').value = alamat;
-            if (status) document.getElementById('warga-status').value = status;
-            // Scroll ke form
+            if (status) {
+                const sel = document.getElementById('warga-status');
+                // Cocokkan nilai status ke option yang tersedia
+                const opts = Array.from(sel.options).map(o => o.value.toLowerCase());
+                const match = opts.findIndex(o => o.includes(status.toLowerCase()) || status.toLowerCase().includes(o.split('/')[0].trim()));
+                sel.selectedIndex = match >= 0 ? match : 0;
+            }
             document.getElementById('form-admin-warga').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            showNotification('Data telah diisi ke formulir. Silakan periksa kembali!');
         }
 
         // --- HELPER: RENDER TABEL HASIL SCAN KTP (ringkas sesuai form) ---
@@ -1641,8 +1647,13 @@
             document.getElementById('scan-ktp-result').classList.remove('hidden');
             document.getElementById('scan-kk-result').classList.add('hidden');
 
+            // Auto-fill form langsung tanpa perlu klik tombol
+            fillFormFromScanData(data.nama, data.nik, alamatLengkap || data.alamat, data.status || 'Warga Tetap');
+
+            // Tombol tetap tersedia untuk mengisi ulang jika dibutuhkan
             document.getElementById('btn-use-ktp-data').onclick = () => {
                 fillFormFromScanData(data.nama, data.nik, alamatLengkap || data.alamat, data.status || 'Warga Tetap');
+                showNotification('Data diisi ulang ke formulir.');
             };
         }
 
@@ -1693,7 +1704,7 @@
                             <td class="py-2 px-3 text-slate-500 dark:text-slate-400">${m.hubungan_keluarga || '-'}</td>
                             <td class="py-2 px-3 text-slate-500 dark:text-slate-400">${m.tanggal_lahir || '-'}</td>
                             <td class="py-2 px-3 text-center">
-                                <button type="button" onclick="fillFormFromScanData('${(m.nama||'').replace(/'/g,"\\'")}', '${m.nik||''}', '${alamatLengkap.replace(/'/g,"\\'")}', 'Warga Tetap')"
+                                <button type="button" onclick="fillFormFromScanData('${(m.nama||'').replace(/'/g,"\\'")}', '${m.nik||''}', '${alamatLengkap.replace(/'/g,"\\'")}', 'Warga Tetap'); showNotification('Data ${(m.nama||'').replace(/'/g,"\\'")} diisi ke formulir!');"
                                     class="bg-brand-600 hover:bg-brand-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition">
                                     <i class="fa-solid fa-arrow-right-to-bracket mr-0.5"></i> Pilih
                                 </button>
