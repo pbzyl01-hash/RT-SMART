@@ -544,6 +544,71 @@
                                         <input type="file" id="ai-scanner-input" accept="image/*,application/pdf" class="hidden">
                                     </label>
                                 </div>
+
+                                <!-- Scan Result Table (hidden by default, shown after scan) -->
+                                <div id="scan-result-container" class="hidden mt-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h4 class="text-xs font-extrabold text-brand-700 dark:text-brand-400 uppercase tracking-widest flex items-center gap-1.5">
+                                            <i class="fa-solid fa-table-list"></i> Hasil Deteksi AI
+                                        </h4>
+                                        <button id="btn-clear-scan" type="button" class="text-[10px] text-slate-400 hover:text-red-500 transition font-semibold flex items-center gap-1">
+                                            <i class="fa-solid fa-xmark"></i> Hapus Hasil
+                                        </button>
+                                    </div>
+
+                                    <!-- Document type badge -->
+                                    <div id="scan-doc-type" class="mb-2"></div>
+
+                                    <!-- KTP Result (single person) -->
+                                    <div id="scan-ktp-result" class="hidden">
+                                        <div class="rounded-xl border border-brand-200 dark:border-brand-900/40 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="bg-brand-50 dark:bg-brand-950/30">
+                                                        <th class="py-2 px-3 text-left text-[10px] uppercase tracking-wider text-brand-700 dark:text-brand-400 font-bold w-2/5">Field</th>
+                                                        <th class="py-2 px-3 text-left text-[10px] uppercase tracking-wider text-brand-700 dark:text-brand-400 font-bold">Nilai</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="scan-ktp-tbody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <button id="btn-use-ktp-data" type="button" class="mt-2 w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-2 text-center text-xs font-bold text-white shadow-sm transition flex items-center justify-center gap-1.5">
+                                            <i class="fa-solid fa-arrow-down"></i> Gunakan Data Ini ke Formulir
+                                        </button>
+                                    </div>
+
+                                    <!-- KK Result (family members table) -->
+                                    <div id="scan-kk-result" class="hidden">
+                                        <!-- Family info header -->
+                                        <div id="scan-kk-header" class="rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-950/10 p-3 mb-3 text-xs text-slate-700 dark:text-slate-300"></div>
+                                        
+                                        <!-- Members table -->
+                                        <div class="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                                            <div class="bg-emerald-600 dark:bg-emerald-900 px-3 py-2 flex items-center gap-2">
+                                                <i class="fa-solid fa-users text-white text-xs"></i>
+                                                <span class="text-xs font-bold text-white">Daftar Anggota Keluarga</span>
+                                            </div>
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full text-xs">
+                                                    <thead>
+                                                        <tr class="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                                                            <th class="py-2 px-3 text-left text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">#</th>
+                                                            <th class="py-2 px-3 text-left text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">Nama</th>
+                                                            <th class="py-2 px-3 text-left text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">NIK</th>
+                                                            <th class="py-2 px-3 text-left text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">Hub. Keluarga</th>
+                                                            <th class="py-2 px-3 text-left text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">Tgl. Lahir</th>
+                                                            <th class="py-2 px-3 text-center text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">Pilih</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="scan-kk-tbody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <p class="mt-2 text-[10px] text-slate-400 dark:text-slate-500 text-center">Klik tombol <strong>Pilih</strong> untuk mengisi formulir dengan data anggota tersebut.</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Input Warga Form -->
@@ -854,34 +919,14 @@
                 return null;
             }
             try {
-                // Google Apps Script tidak mendukung preflight CORS secara native.
-                // Gunakan no-cors untuk POST write (create/delete/update) dan
-                // URL params + GET untuk operasi read agar respons tetap terbaca.
-                if (action === 'read') {
-                    const params = new URLSearchParams({
-                        sheet: sheetName,
-                        action: 'read'
-                    });
-                    const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                    });
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const json = await response.json();
-                    if (json.success) return json;
-                    throw new Error(json.error || "Gagal membaca dari GAS");
-                } else {
-                    // Untuk create/delete/update: gunakan no-cors (fire-and-forget).
-                    // Response tidak dapat dibaca dalam mode ini, anggap sukses jika tidak throw.
-                    await fetch(GAS_WEB_APP_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ sheet: sheetName, action: action, data: data })
-                    });
-                    // no-cors selalu mengembalikan opaque response; anggap berhasil
-                    return { success: true };
-                }
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ sheet: sheetName, action: action, data: data })
+                });
+                const json = await response.json();
+                if (json.success) return json;
+                throw new Error(json.error || "Gagal berkomunikasi dengan GAS");
             } catch (error) {
                 console.warn(`Kesalahan sinkronisasi GAS untuk sheet ${sheetName}:`, error);
                 return null;
@@ -947,7 +992,7 @@
                 indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
                 
                 try {
-                    const results = await Promise.allSettled([
+                    await Promise.all([
                         syncDatabase('Transactions', 'read'),
                         syncDatabase('Warga', 'read'),
                         syncDatabase('Surat', 'read'),
@@ -956,8 +1001,7 @@
                     if (window.isCloudConnected) {
                         showNotification("Koneksi Google Sheets berhasil disinkronkan!");
                     } else {
-                        // Fallback ke lokal — tidak tampilkan error merah, ini perilaku normal
-                        showNotification("Menggunakan database lokal (Cloud tidak tersedia).");
+                        showNotification("Gagal memuat Cloud. Mengaktifkan database lokal.", false);
                     }
                 } catch(e) {
                     console.error("Gagal sinkronisasi data paralel:", e);
@@ -1315,25 +1359,153 @@
             }
         }
 
+        // --- HELPER: ISI FORMULIR DARI DATA SCAN ---
+        function fillFormFromScanData(nama, nik, alamat, status) {
+            if (nama) document.getElementById('warga-nama').value = nama;
+            if (nik) document.getElementById('warga-nik').value = nik;
+            if (alamat) document.getElementById('warga-alamat').value = alamat;
+            if (status) document.getElementById('warga-status').value = status;
+            // Scroll ke form
+            document.getElementById('form-admin-warga').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showNotification('Data telah diisi ke formulir. Silakan periksa kembali!');
+        }
+
+        // --- HELPER: RENDER TABEL HASIL SCAN KTP ---
+        function renderKTPResult(data) {
+            const fields = [
+                { label: 'NIK', value: data.nik || '-', icon: 'fa-id-card', mono: true },
+                { label: 'Nama Lengkap', value: data.nama || '-', icon: 'fa-user', bold: true },
+                { label: 'Tempat / Tgl Lahir', value: [data.tempat_lahir, data.tanggal_lahir].filter(Boolean).join(', ') || '-', icon: 'fa-cake-candles' },
+                { label: 'Jenis Kelamin', value: data.jenis_kelamin || '-', icon: 'fa-venus-mars' },
+                { label: 'Golongan Darah', value: data.gol_darah || '-', icon: 'fa-droplet' },
+                { label: 'Alamat', value: data.alamat || '-', icon: 'fa-location-dot' },
+                { label: 'RT / RW', value: data.rt_rw || '-', icon: 'fa-signs-post' },
+                { label: 'Kel / Desa', value: data.kelurahan || '-', icon: 'fa-house-flag' },
+                { label: 'Kecamatan', value: data.kecamatan || '-', icon: 'fa-map' },
+                { label: 'Kabupaten / Kota', value: data.kota || '-', icon: 'fa-city' },
+                { label: 'Provinsi', value: data.provinsi || '-', icon: 'fa-map-location-dot' },
+                { label: 'Agama', value: data.agama || '-', icon: 'fa-star-and-crescent' },
+                { label: 'Status Perkawinan', value: data.status_perkawinan || '-', icon: 'fa-ring' },
+                { label: 'Pekerjaan', value: data.pekerjaan || '-', icon: 'fa-briefcase' },
+                { label: 'Kewarganegaraan', value: data.kewarganegaraan || 'WNI', icon: 'fa-flag' },
+                { label: 'Berlaku Hingga', value: data.berlaku_hingga || '-', icon: 'fa-calendar-check' },
+            ];
+
+            const tbody = document.getElementById('scan-ktp-tbody');
+            tbody.innerHTML = fields.map(f => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td class="py-2 px-3 text-slate-500 dark:text-slate-400">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid ${f.icon} text-brand-400 w-3 text-center"></i>
+                            ${f.label}
+                        </span>
+                    </td>
+                    <td class="py-2 px-3 ${f.bold ? 'font-bold text-slate-800 dark:text-white' : ''} ${f.mono ? 'font-mono tracking-wide' : ''}">${f.value}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('scan-ktp-result').classList.remove('hidden');
+            document.getElementById('scan-kk-result').classList.add('hidden');
+
+            // Wire up "use data" button
+            document.getElementById('btn-use-ktp-data').onclick = () => {
+                const alamatLengkap = [data.alamat, data.rt_rw ? 'RT/RW ' + data.rt_rw : '', data.kelurahan, data.kecamatan, data.kota, data.provinsi].filter(Boolean).join(', ');
+                fillFormFromScanData(data.nama, data.nik, alamatLengkap || data.alamat, data.status || 'Warga Tetap');
+            };
+        }
+
+        // --- HELPER: RENDER TABEL HASIL SCAN KK ---
+        function renderKKResult(data) {
+            // Header info keluarga
+            const headerDiv = document.getElementById('scan-kk-header');
+            const infoRows = [
+                ['No. KK', data.no_kk || '-'],
+                ['Kepala Keluarga', data.kepala_keluarga || '-'],
+                ['Alamat', data.alamat || '-'],
+                ['RT/RW', data.rt_rw || '-'],
+                ['Kel/Desa', data.kelurahan || '-'],
+                ['Kecamatan', data.kecamatan || '-'],
+                ['Kab/Kota', data.kota || '-'],
+                ['Provinsi', data.provinsi || '-'],
+            ];
+            headerDiv.innerHTML = `
+                <div class="font-bold text-emerald-700 dark:text-emerald-400 text-xs mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-house-user"></i> Informasi Kartu Keluarga
+                </div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                    ${infoRows.map(([label, val]) => `
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400">${label}</div>
+                        <div class="text-[10px] font-semibold text-slate-700 dark:text-slate-200">${val}</div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Anggota keluarga
+            const members = data.anggota || [];
+            const tbody = document.getElementById('scan-kk-tbody');
+            const alamatLengkap = [data.alamat, data.rt_rw ? 'RT ' + data.rt_rw : '', data.kelurahan, data.kecamatan, data.kota, data.provinsi].filter(Boolean).join(', ');
+
+            if (members.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-400">Tidak ada data anggota terdeteksi</td></tr>`;
+            } else {
+                tbody.innerHTML = members.map((m, idx) => {
+                    const isKepala = (m.hubungan_keluarga || '').toLowerCase().includes('kepala');
+                    return `
+                        <tr class="hover:bg-blue-50 dark:hover:bg-slate-800/50 transition ${isKepala ? 'bg-brand-50/40 dark:bg-brand-950/10' : ''}">
+                            <td class="py-2 px-3 text-slate-400 dark:text-slate-500 font-semibold">${idx + 1}</td>
+                            <td class="py-2 px-3 font-bold text-slate-800 dark:text-white">
+                                ${m.nama || '-'}
+                                ${isKepala ? '<span class="ml-1 text-[9px] bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-400 px-1.5 py-0.5 rounded-full font-semibold">KK</span>' : ''}
+                            </td>
+                            <td class="py-2 px-3 font-mono text-slate-600 dark:text-slate-300 text-[11px] tracking-wide">${m.nik || '-'}</td>
+                            <td class="py-2 px-3 text-slate-500 dark:text-slate-400">${m.hubungan_keluarga || '-'}</td>
+                            <td class="py-2 px-3 text-slate-500 dark:text-slate-400">${m.tanggal_lahir || '-'}</td>
+                            <td class="py-2 px-3 text-center">
+                                <button type="button" onclick="fillFormFromScanData('${(m.nama||'').replace(/'/g,"\\'")}', '${m.nik||''}', '${alamatLengkap.replace(/'/g,"\\'")}', 'Warga Tetap')"
+                                    class="bg-brand-600 hover:bg-brand-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition">
+                                    <i class="fa-solid fa-arrow-right-to-bracket mr-0.5"></i> Pilih
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('scan-kk-result').classList.remove('hidden');
+            document.getElementById('scan-ktp-result').classList.add('hidden');
+        }
+
         // --- INTEGRASI AI SCANNER GEMINI ---
         async function runAIScanner(base64Data, mimeType) {
             const scannerPrompt = document.getElementById('scanner-prompt');
             const scannerLoading = document.getElementById('scanner-loading');
+            const scanResultContainer = document.getElementById('scan-result-container');
+            const scanDocType = document.getElementById('scan-doc-type');
             
             scannerPrompt.classList.add('hidden');
             scannerLoading.classList.remove('hidden');
+            scanResultContainer.classList.add('hidden');
+            document.getElementById('scan-ktp-result').classList.add('hidden');
+            document.getElementById('scan-kk-result').classList.add('hidden');
 
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-            const userPrompt = `Analisislah gambar Kartu Keluarga (KK) atau KTP Indonesia berikut. 
-Ekstrak data penting dan kembalikan secara terstruktur dalam format JSON dengan properti objek berikut:
-- nama: Nama lengkap pemilik KTP atau kepala keluarga / salah satu anggota keluarga jika KK.
-- nik: NIK 16 digit angka (pastikan angka bersih tanpa spasi atau karakter asing).
-- alamat: Tulis alamat lengkap secara utuh sesuai berkas (misal: "Jl. Merdeka No. 12, Blok A/04, RT 01/01").
-- status: Default ke "Warga Tetap". Jika ada indikasi sewa/kontrak, isi "Kontrak / Kos".
+            const userPrompt = `Analisislah gambar dokumen identitas Indonesia berikut (KTP atau Kartu Keluarga / KK).
 
-Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema yang dideklarasikan. Jangan tambahkan kata pengantar apapun selain JSON.`;
+1. Tentukan jenis dokumen: "KTP" atau "KK".
 
+2. Jika KTP, ekstrak semua field berikut:
+   - jenis_dokumen: "KTP"
+   - nik, nama, tempat_lahir, tanggal_lahir, jenis_kelamin, gol_darah, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi, agama, status_perkawinan, pekerjaan, kewarganegaraan, berlaku_hingga, status (default "Warga Tetap")
+
+3. Jika KK, ekstrak:
+   - jenis_dokumen: "KK"
+   - no_kk, kepala_keluarga, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi
+   - anggota: array semua anggota dengan field: nama, nik, hubungan_keluarga, tanggal_lahir, jenis_kelamin, agama, pendidikan, pekerjaan
+
+Kembalikan hanya JSON valid murni sesuai schema, tanpa kata pengantar apapun.`;
+
+            // Use a flexible schema to handle both KTP and KK
             const payload = {
                 contents: [
                     {
@@ -1353,12 +1525,47 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                     responseSchema: {
                         type: "object",
                         properties: {
-                            nama: { type: "string" },
+                            jenis_dokumen: { type: "string", enum: ["KTP", "KK"] },
+                            // KTP fields
                             nik: { type: "string" },
+                            nama: { type: "string" },
+                            tempat_lahir: { type: "string" },
+                            tanggal_lahir: { type: "string" },
+                            jenis_kelamin: { type: "string" },
+                            gol_darah: { type: "string" },
                             alamat: { type: "string" },
-                            status: { type: "string", enum: ["Warga Tetap", "Kontrak / Kos"] }
+                            rt_rw: { type: "string" },
+                            kelurahan: { type: "string" },
+                            kecamatan: { type: "string" },
+                            kota: { type: "string" },
+                            provinsi: { type: "string" },
+                            agama: { type: "string" },
+                            status_perkawinan: { type: "string" },
+                            pekerjaan: { type: "string" },
+                            kewarganegaraan: { type: "string" },
+                            berlaku_hingga: { type: "string" },
+                            status: { type: "string" },
+                            // KK fields
+                            no_kk: { type: "string" },
+                            kepala_keluarga: { type: "string" },
+                            anggota: {
+                                type: "array",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        nama: { type: "string" },
+                                        nik: { type: "string" },
+                                        hubungan_keluarga: { type: "string" },
+                                        tanggal_lahir: { type: "string" },
+                                        jenis_kelamin: { type: "string" },
+                                        agama: { type: "string" },
+                                        pendidikan: { type: "string" },
+                                        pekerjaan: { type: "string" }
+                                    }
+                                }
+                            }
                         },
-                        required: ["nama", "nik", "alamat"]
+                        required: ["jenis_dokumen"]
                     }
                 }
             };
@@ -1374,16 +1581,32 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                 if (!contentText) throw new Error("Respons AI kosong.");
 
                 const parsedData = JSON.parse(contentText);
+                const docType = parsedData.jenis_dokumen || 'KTP';
 
-                if (parsedData.nama) document.getElementById('warga-nama').value = parsedData.nama;
-                if (parsedData.nik) document.getElementById('warga-nik').value = parsedData.nik;
-                if (parsedData.alamat) document.getElementById('warga-alamat').value = parsedData.alamat;
-                if (parsedData.status) document.getElementById('warga-status').value = parsedData.status;
+                // Show document type badge
+                const badgeColor = docType === 'KK' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 ring-emerald-600/20' : 'bg-brand-100 text-brand-700 dark:bg-brand-950/40 dark:text-brand-400 ring-brand-600/20';
+                const badgeIcon = docType === 'KK' ? 'fa-users' : 'fa-id-card';
+                const badgeLabel = docType === 'KK' ? 'Kartu Keluarga (KK) Terdeteksi' : 'KTP (E-KTP) Terdeteksi';
+                scanDocType.innerHTML = `
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset ${badgeColor}">
+                        <i class="fa-solid ${badgeIcon}"></i> ${badgeLabel}
+                    </span>
+                `;
 
-                showNotification('AI Berhasil mengekstrak data KTP/KK secara instan!');
+                // Show result container
+                scanResultContainer.classList.remove('hidden');
+
+                if (docType === 'KK') {
+                    renderKKResult(parsedData);
+                    const jumlahAnggota = (parsedData.anggota || []).length;
+                    showNotification(`KK Berhasil dibaca! Ditemukan ${jumlahAnggota} anggota keluarga.`);
+                } else {
+                    renderKTPResult(parsedData);
+                    showNotification('KTP Berhasil dibaca! Data lengkap telah diekstrak.');
+                }
+
             } catch (err) {
                 console.error(err);
-                // Membaca dan menampilkan detail pesan error agar pengembang/pengguna mengerti alasannya
                 showNotification(`Gagal scan AI: ${err.message}`, false);
             } finally {
                 scannerPrompt.classList.remove('hidden');
@@ -1503,6 +1726,17 @@ Pastikan output yang Anda berikan berupa JSON valid murni sesuai dengan schema y
                 };
                 reader.readAsDataURL(file);
             });
+
+            // Clear scan result button
+            const btnClearScan = document.getElementById('btn-clear-scan');
+            if (btnClearScan) {
+                btnClearScan.addEventListener('click', () => {
+                    document.getElementById('scan-result-container').classList.add('hidden');
+                    document.getElementById('scan-ktp-result').classList.add('hidden');
+                    document.getElementById('scan-kk-result').classList.add('hidden');
+                    document.getElementById('ai-scanner-input').value = '';
+                });
+            }
 
             // Drag and Drop Zone support
             const dropZone = document.getElementById('drop-zone');
