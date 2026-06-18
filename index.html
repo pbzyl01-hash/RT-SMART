@@ -12,6 +12,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- PDF.js: konversi halaman PDF ke canvas/gambar untuk OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script>
+        // Set worker PDF.js
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        }
+    </script>
     <!-- Tesseract.js OCR (lokal, tanpa API key) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Google Fonts -->
@@ -1510,41 +1518,84 @@
             return { jenis_dokumen: 'KK', no_kk, kepala_keluarga, alamat, rt_rw, kelurahan, kecamatan, kota, provinsi, anggota };
         }
 
-        // MAIN: Jalankan OCR Tesseract lokal pada file gambar
+        // MAIN: Jalankan OCR Tesseract lokal — mendukung Gambar & PDF
         async function runOCRLocal(file) {
-            setLoadingText('Memproses Gambar...', 'Menginisialisasi OCR lokal...');
+            setLoadingText('Memproses Dokumen...', 'Menginisialisasi OCR lokal...');
 
-            let imageUrl;
+            let allText = '';
+
             if (file.type === 'application/pdf') {
-                throw new Error('PDF belum didukung mode lokal. Gunakan foto/screenshot dokumen (JPG/PNG).');
-            }
-            imageUrl = URL.createObjectURL(file);
+                // ---- PDF: render tiap halaman ke canvas, OCR per halaman ----
+                setLoadingText('Membaca PDF...', 'Mengonversi halaman PDF ke gambar...');
 
-            setLoadingText('OCR Sedang Berjalan', 'Membaca teks dari dokumen...');
-
-            const result = await Tesseract.recognize(imageUrl, 'ind+eng', {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        const pct = Math.round((m.progress || 0) * 100);
-                        setLoadingText(`OCR: ${pct}%`, 'Mengekstrak teks dari gambar...');
-                    }
+                if (typeof pdfjsLib === 'undefined') {
+                    throw new Error('PDF.js belum dimuat. Coba refresh halaman dan upload ulang.');
                 }
-            });
 
-            URL.revokeObjectURL(imageUrl);
+                const arrayBuffer = await file.arrayBuffer();
+                const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdfDoc.numPages;
 
-            const rawText = result.data.text;
-            if (!rawText || rawText.trim().length < 10) {
-                throw new Error('Teks tidak terdeteksi. Pastikan foto jelas dan tidak buram.');
+                for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                    setLoadingText(`Halaman ${pageNum}/${totalPages}`, `Memproses halaman PDF ke-${pageNum}...`);
+
+                    const page = await pdfDoc.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: 2.5 }); // scale 2.5x untuk ketajaman OCR
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext('2d');
+
+                    await page.render({ canvasContext: ctx, viewport }).promise;
+
+                    // Konversi canvas ke blob URL untuk Tesseract
+                    const pageImageUrl = canvas.toDataURL('image/png');
+
+                    setLoadingText(`OCR Halaman ${pageNum}/${totalPages}`, 'Membaca teks dari halaman...');
+
+                    const result = await Tesseract.recognize(pageImageUrl, 'ind+eng', {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                const pct = Math.round((m.progress || 0) * 100);
+                                setLoadingText(`OCR Hal. ${pageNum}: ${pct}%`, 'Mengekstrak teks...');
+                            }
+                        }
+                    });
+
+                    allText += result.data.text + '\n';
+                    canvas.remove();
+                }
+
+            } else {
+                // ---- GAMBAR biasa (JPG, PNG, WEBP, dsb) ----
+                setLoadingText('OCR Sedang Berjalan', 'Membaca teks dari gambar...');
+                const imageUrl = URL.createObjectURL(file);
+
+                const result = await Tesseract.recognize(imageUrl, 'ind+eng', {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            const pct = Math.round((m.progress || 0) * 100);
+                            setLoadingText(`OCR: ${pct}%`, 'Mengekstrak teks dari gambar...');
+                        }
+                    }
+                });
+
+                URL.revokeObjectURL(imageUrl);
+                allText = result.data.text;
+            }
+
+            if (!allText || allText.trim().length < 10) {
+                throw new Error('Teks tidak terdeteksi. Pastikan dokumen jelas, tidak buram, dan pencahayaan cukup.');
             }
 
             setLoadingText('Menganalisis Data...', 'Mencocokkan field KTP/KK...');
 
-            const docType = detectDocType(rawText);
+            const docType = detectDocType(allText);
             if (docType === 'KK') {
-                return parseKKFromText(rawText);
+                return parseKKFromText(allText);
             } else {
-                return parseKTPFromText(rawText);
+                return parseKTPFromText(allText);
             }
         }
 
