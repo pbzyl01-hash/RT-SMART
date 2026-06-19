@@ -1004,24 +1004,47 @@
                 indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
                 
                 try {
-                    await Promise.all([
-                        syncDatabase('Transactions', 'read'),
-                        syncDatabase('Warga', 'read'),
-                        syncDatabase('Surat', 'read'),
-                        syncDatabase('Pengumuman', 'read')
+                    // Baca dari GAS, jika berhasil overwrite data lokal
+                    const results = await Promise.allSettled([
+                        fetchFromGAS('Transactions', 'read'),
+                        fetchFromGAS('Warga', 'read'),
+                        fetchFromGAS('Surat', 'read'),
+                        fetchFromGAS('Pengumuman', 'read')
                     ]);
-                    if (window.isCloudConnected) {
+
+                    let anySuccess = false;
+                    if (results[0].status === 'fulfilled' && results[0].value?.data) { dbTransactions = results[0].value.data; anySuccess = true; }
+                    if (results[1].status === 'fulfilled' && results[1].value?.data) { dbWarga = results[1].value.data; anySuccess = true; }
+                    if (results[2].status === 'fulfilled' && results[2].value?.data) { dbSurat = results[2].value.data; anySuccess = true; }
+                    if (results[3].status === 'fulfilled' && results[3].value?.data) { dbPengumuman = results[3].value.data; anySuccess = true; }
+
+                    const indicator2 = document.getElementById('indicator-source');
+                    if (anySuccess) {
+                        window.isCloudConnected = true;
+                        indicator2.textContent = "Mode: Google Sheets (Cloud)";
+                        indicator2.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
                         showNotification("Koneksi Google Sheets berhasil disinkronkan!");
                     } else {
+                        window.isCloudConnected = false;
+                        indicator2.textContent = "Mode: Lokal (Cloud tidak tersedia)";
+                        indicator2.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse";
                         showNotification("Gagal memuat Cloud. Mengaktifkan database lokal.", false);
                     }
                 } catch(e) {
-                    console.error("Gagal sinkronisasi data paralel:", e);
-                    syncDatabase();
+                    console.error("Gagal sinkronisasi:", e);
+                    window.isCloudConnected = false;
+                    const indicator2 = document.getElementById('indicator-source');
+                    indicator2.textContent = "Mode: Lokal (Cloud tidak tersedia)";
+                    indicator2.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold";
                 }
             } else {
-                syncDatabase();
+                const indicator = document.getElementById('indicator-source');
+                indicator.textContent = "Mode: Simulasi Lokal";
+                indicator.className = "text-xs text-brand-600 dark:text-brand-400 font-semibold";
             }
+
+            // Selalu simpan ke localStorage dan render setelah load
+            _saveLocal();
         }
 
         // --- PUBLIC AREA RENDERING ---
@@ -1317,37 +1340,52 @@
             }
         }
 
-        // --- ACTIONS: ADD / DELETE DATA WITH CLOUD SYNC ---
+        // --- ACTIONS: ADD / DELETE / UPDATE DATA WITH CLOUD SYNC ---
+        // Pattern: ubah lokal dulu → render → cloud sync di background
+        function _saveLocal() {
+            localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
+            localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
+            localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
+            localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
+            renderPublicDashboard();
+            if (isAdminLoggedIn) renderAdminDashboard();
+        }
+
         async function deleteTransaksi(id) {
             dbTransactions = dbTransactions.filter(item => item.id !== id);
-            await syncDatabase('Transactions', 'delete', { id: id });
+            _saveLocal();
             showNotification('Transaksi berhasil dihapus');
+            fetchFromGAS('Transactions', 'delete', { id }).catch(() => {});
         }
 
         async function deleteWarga(id) {
             dbWarga = dbWarga.filter(item => item.id !== id);
-            await syncDatabase('Warga', 'delete', { id: id });
+            _saveLocal();
             showNotification('Data warga berhasil dihapus');
+            fetchFromGAS('Warga', 'delete', { id }).catch(() => {});
         }
 
         async function deleteSurat(id) {
             dbSurat = dbSurat.filter(item => item.id !== id);
-            await syncDatabase('Surat', 'delete', { id: id });
+            _saveLocal();
             showNotification('Pengajuan surat dibersihkan');
+            fetchFromGAS('Surat', 'delete', { id }).catch(() => {});
         }
 
         async function deletePengumuman(id) {
             dbPengumuman = dbPengumuman.filter(item => item.id !== id);
-            await syncDatabase('Pengumuman', 'delete', { id: id });
+            _saveLocal();
             showNotification('Pengumuman berhasil ditarik');
+            fetchFromGAS('Pengumuman', 'delete', { id }).catch(() => {});
         }
 
         async function updateStatusSurat(id, statusBaru) {
             const surat = dbSurat.find(item => item.id === id);
             if (surat) {
                 surat.status = statusBaru;
-                await syncDatabase('Surat', 'update', { id: id, newData: { status: statusBaru } });
+                _saveLocal();
                 showNotification(`Status surat ${surat.nama} diubah menjadi ${statusBaru}`);
+                fetchFromGAS('Surat', 'update', { id, newData: { status: statusBaru } }).catch(() => {});
             }
         }
 
@@ -1937,7 +1975,8 @@
                 };
 
                 dbSurat.push(newSurat);
-                await syncDatabase('Surat', 'create', newSurat);
+                _saveLocal();
+                fetchFromGAS('Surat', 'create', newSurat).catch(() => {});
 
                 const waMessage = encodeURIComponent(
                     `*RT SMART - KONFIRMASI PENGAJUAN SURAT*\n\n` +
@@ -2068,9 +2107,10 @@
                 };
 
                 dbTransactions.push(transObj);
-                await syncDatabase('Transactions', 'create', transObj);
+                _saveLocal();
                 formAdminTrans.reset();
                 showNotification('Berhasil menyimpan catatan keuangan baru!');
+                fetchFromGAS('Transactions', 'create', transObj).catch(() => {});
 
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('trans-tanggal').value = today;
@@ -2104,9 +2144,10 @@
                 };
 
                 dbWarga.push(wargaObj);
-                await syncDatabase('Warga', 'create', wargaObj);
+                _saveLocal();
                 formAdminWarga.reset();
                 showNotification('Sukses mendaftarkan warga baru!');
+                fetchFromGAS('Warga', 'create', wargaObj).catch(() => {});
             });
 
             // FORM SUBMISSION: Admin Rilis Pengumuman Baru
@@ -2126,9 +2167,10 @@
                 };
 
                 dbPengumuman.push(announceObj);
-                await syncDatabase('Pengumuman', 'create', announceObj);
+                _saveLocal();
                 formAdminAnnounce.reset();
                 showNotification('Pengumuman baru telah dipublikasikan ke papan mading warga!');
+                fetchFromGAS('Pengumuman', 'create', announceObj).catch(() => {});
             });
 
             document.getElementById('btn-pdf-laporan').addEventListener('click', generateFinancePDF);
@@ -2488,7 +2530,6 @@ async function saveEditWarga() {
         showNotification('NIK harus 16 digit angka!', false);
         return;
     }
-    // Cek duplikat NIK (kecuali diri sendiri)
     if (dbWarga.some(w => w.nik === nik && w.id !== id)) {
         showNotification('NIK sudah digunakan warga lain!', false);
         return;
@@ -2500,9 +2541,10 @@ async function saveEditWarga() {
         warga.nik = nik;
         warga.alamat = alamat;
         warga.status = status;
-        await syncDatabase('Warga', 'update', { id: id, newData: { nama, nik, alamat, status } });
+        _saveLocal();
         closeEditModal();
         showNotification(`Data ${nama} berhasil diperbarui!`);
+        fetchFromGAS('Warga', 'update', { id, newData: { nama, nik, alamat, status } }).catch(() => {});
     }
 }
 
