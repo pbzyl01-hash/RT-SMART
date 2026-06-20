@@ -120,6 +120,13 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <!-- Status Koneksi Badge -->
+                <div id="connection-status-container">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-bold text-slate-500">
+                        <span class="h-1.5 w-1.5 rounded-full bg-slate-400 animate-pulse"></span> Mengecek...
+                    </span>
+                </div>
+
                 <nav id="nav-public-links" class="hidden md:flex items-center gap-1">
                     <a href="#pengumuman-section" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-bullhorn text-xs"></i>
@@ -164,45 +171,36 @@
                         </button>
                     </div>
 
-                    <!-- Dropdown Form Login Administrator -->
+                    <!-- Dropdown Form Login PIN Administrator -->
                     <div id="login-dropdown" class="hidden absolute right-0 mt-3 w-80 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-2xl transition-all duration-200 z-50">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-md font-bold text-slate-800 dark:text-white">Login Administrator</h3>
+                            <h3 class="text-md font-bold text-slate-800 dark:text-white">Akses Pengurus RT</h3>
                             <button id="btn-close-login" class="text-slate-400 hover:text-slate-600">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
                         <div id="login-error-msg" class="hidden mb-3 p-2 bg-red-50 text-red-600 rounded-lg text-xs font-semibold">
-                            Username atau password salah!
+                            PIN Administrator salah!
                         </div>
                         <form id="form-login" class="space-y-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Username</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                        <i class="fa-solid fa-user text-xs"></i>
-                                    </span>
-                                    <input type="text" id="login-username" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 pl-9 pr-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Masukkan username" required autocomplete="off">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Password</label>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Masukkan PIN Admin</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                         <i class="fa-solid fa-key text-xs"></i>
                                     </span>
-                                    <input type="password" id="login-password" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 pl-9 pr-10 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="••••••••" required>
-                                    <button type="button" id="btn-toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                                    <input type="password" id="login-pin" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 pl-9 pr-10 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-center font-bold tracking-widest" placeholder="••••••" required>
+                                    <button type="button" id="btn-toggle-pin-view" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
                                         <i class="fa-solid fa-eye text-xs" id="eye-icon"></i>
                                     </button>
                                 </div>
                             </div>
                             <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-brand-500/10 transition">
-                                Masuk Sistem
+                                Verifikasi PIN
                             </button>
                         </form>
                         <div class="mt-3 text-center">
-                            <span class="text-[10px] text-slate-400">Akses default: <strong class="text-slate-600 dark:text-slate-300">admin</strong> / <strong class="text-slate-600 dark:text-slate-300">admin123</strong></span>
+                            <span class="text-[10px] text-slate-400">PIN Default bawaan: <strong class="text-slate-600 dark:text-slate-300">123456</strong></span>
                         </div>
                     </div>
                 </div>
@@ -448,6 +446,9 @@
                     <button data-tab="tab-pengumuman" class="tab-link text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 hover:border-slate-300 px-4 py-3 text-sm font-semibold flex items-center gap-2">
                         <i class="fa-solid fa-bullhorn"></i> Kelola Pengumuman
                     </button>
+                    <button data-tab="tab-pengaturan" class="tab-link text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 hover:border-slate-300 px-4 py-3 text-sm font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-gear"></i> Pengaturan
+                    </button>
                 </nav>
             </div>
 
@@ -479,7 +480,7 @@
                                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nominal Transaksi (Rupiah)</label>
                                     <div class="relative">
                                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-xs font-bold">Rp</span>
-                                        <input type="number" id="trans-nominal" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="0" required>
+                                        <input type="number" id="trans-nominal" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 pl-10 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="0" required>
                                     </div>
                                 </div>
                                 <div>
@@ -684,6 +685,63 @@
                     </div>
                 </div>
 
+                <!-- TAB 5: PENGATURAN KREDENSIAL (UBAH PIN & DATABASE URL) -->
+                <div id="tab-pengaturan" class="tab-panel hidden space-y-6">
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <!-- Card Ubah PIN -->
+                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-1.5">
+                                <i class="fa-solid fa-key text-brand-500"></i> Ubah PIN Akses Pengurus
+                            </h3>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mb-4 font-semibold">PIN ini digunakan di semua browser/device untuk login sebagai pengurus RT secara realtime.</p>
+                            
+                            <form id="form-ubah-pin" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">PIN Lama Anda</label>
+                                    <input type="password" id="pin-lama" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                                </div>
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">PIN Baru (Hanya Angka)</label>
+                                        <input type="password" id="pin-baru" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Konfirmasi PIN Baru</label>
+                                        <input type="password" id="pin-konfirmasi" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
+                                    Simpan Perubahan PIN
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Card Integrasi Database (Ubah Endpoint Lintas Perangkat) -->
+                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-1.5">
+                                <i class="fa-solid fa-link text-emerald-500"></i> Integrasi Google Spreadsheet
+                            </h3>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mb-4 font-semibold">Ganti alamat endpoint cloud di perangkat ini secara instan agar langsung terhubung ke Spreadsheet Anda tanpa perlu edit file HTML.</p>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Web App API URL (Google Apps Script)</label>
+                                    <textarea id="db-api-url" rows="3" class="w-full font-mono text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-slate-800 dark:text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none leading-relaxed" placeholder="https://script.google.com/macros/s/.../exec"></textarea>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button type="button" id="btn-test-db-connection" class="rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 py-3 text-center text-xs font-bold text-slate-700 dark:text-slate-300 transition">
+                                        <i class="fa-solid fa-arrows-spin mr-1"></i> Uji Koneksi
+                                    </button>
+                                    <button type="button" id="btn-save-db-url" class="rounded-xl bg-emerald-600 hover:bg-emerald-700 py-3 text-center text-xs font-bold text-white transition shadow-md shadow-emerald-500/15">
+                                        <i class="fa-regular fa-floppy-disk mr-1"></i> Simpan Endpoint
+                                    </button>
+                                </div>
+                                <div id="db-test-result" class="hidden text-xs p-2.5 rounded-lg border"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -737,7 +795,7 @@
                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nominal Transaksi (Rupiah)</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-xs font-bold">Rp</span>
-                        <input type="number" id="edit-trans-nominal" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                        <input type="number" id="edit-trans-nominal" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 pl-10 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
                     </div>
                 </div>
                 <div>
@@ -875,12 +933,15 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
+        // Inisialisasi Endpoint Database: mengutamakan konfigurasi dinamis local storage agar langsung sinkron di device lain
+        const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
+        let GAS_WEB_APP_URL = localStorage.getItem('rt_gas_url') || DEFAULT_GAS_URL;
 
         let dbTransactions = [];
         let dbWarga = [];
         let dbSurat = [];
         let dbPengumuman = [];
+        let dbSettings = [];
 
         let financeChartInstance = null;
         let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('rt_admin_session')) || false;
@@ -1030,13 +1091,13 @@
             });
         }
 
+        // FETCH GET BEBAS CORS REDIRECT: Pemanggilan GET dilarang keras menggunakan custom header
         async function fetchFromGAS(sheetName, action, data = null) {
-            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "URL_APPS_SCRIPT_ANDA") {
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
                 return null;
             }
             try {
                 if (action === 'read') {
-                    // CRITICAL SINKRONISASI: Tambahkan Cache-Buster (_cb) agar Mobile Safari / Chrome tidak me-load data cache lama
                     const params = new URLSearchParams({ 
                         sheet: sheetName, 
                         action: 'read', 
@@ -1046,7 +1107,7 @@
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const json = await response.json();
                     if (json.success) return json;
-                    throw new Error(json.error || "Gagal membaca dari GAS");
+                    throw new Error(json.error || "Gagal memproses data");
                 } else {
                     const response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
@@ -1059,7 +1120,7 @@
                     throw new Error(json.error || "Gagal mengirim data");
                 }
             } catch (error) {
-                console.warn(`Kesalahan sinkronisasi GAS untuk sheet ${sheetName}:`, error);
+                console.warn(`Sinkronisasi gagal pada sheet ${sheetName}:`, error);
                 return null;
             }
         }
@@ -1078,58 +1139,58 @@
                 overlay.classList.remove('opacity-0');
             }
 
-            const isCloud = (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA");
-            const indicator = document.getElementById('indicator-source');
+            const isCloud = (GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA"));
+            const statusContainer = document.getElementById('connection-status-container');
 
             if (isCloud) {
-                if (indicator) {
-                    indicator.textContent = "Mengkoneksikan Cloud...";
-                    indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
-                }
-                
                 try {
-                    // Penarikan data paralel dengan pengaman Cache-Buster
-                    const [resTrans, resWarga, resSurat, resAnnounce] = await Promise.all([
+                    // Tarik data paralel secara atomik (Termasuk tabel Settings untuk PIN)
+                    const [resTrans, resWarga, resSurat, resAnnounce, resSettings] = await Promise.all([
                         fetchFromGAS('Transactions', 'read'),
                         fetchFromGAS('Warga', 'read'),
                         fetchFromGAS('Surat', 'read'),
-                        fetchFromGAS('Pengumuman', 'read')
+                        fetchFromGAS('Pengumuman', 'read'),
+                        fetchFromGAS('Settings', 'read')
                     ]);
 
                     if (resTrans && resTrans.success) dbTransactions = resTrans.data;
                     if (resWarga && resWarga.success) dbWarga = resWarga.data;
                     if (resSurat && resSurat.success) dbSurat = resSurat.data;
                     if (resAnnounce && resAnnounce.success) dbPengumuman = resAnnounce.data;
+                    if (resSettings && resSettings.success) dbSettings = resSettings.data;
 
                     window.isCloudConnected = true;
                 } catch(e) {
-                    console.error("Gagal sinkronisasi data cloud:", e);
+                    console.error("Gagal terhubung ke Cloud, menggunakan cache lokal:", e);
                     window.isCloudConnected = false;
-                    dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
-                    dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
-                    dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
-                    dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
+                    loadBackupLocalData();
                 }
             } else {
                 window.isCloudConnected = false;
-                dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
-                dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
-                dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
-                dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
+                loadBackupLocalData();
             }
 
+            // Simpan cache lokal
             localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
             localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
             localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
             localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
+            localStorage.setItem('rt_settings', JSON.stringify(dbSettings));
 
-            if (indicator) {
+            // Render Lencana Visual Koneksi
+            if (statusContainer) {
                 if (window.isCloudConnected) {
-                    indicator.textContent = "Mode: Google Sheets (Cloud)";
-                    indicator.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
+                    statusContainer.innerHTML = `
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Terhubung
+                        </span>
+                    `;
                 } else {
-                    indicator.textContent = "Mode: Simulasi Lokal (Offline)";
-                    indicator.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse";
+                    statusContainer.innerHTML = `
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Simulasi
+                        </span>
+                    `;
                 }
             }
 
@@ -1144,6 +1205,14 @@
                     overlay.classList.add('hidden');
                 }, 300);
             }
+        }
+
+        function loadBackupLocalData() {
+            dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
+            dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
+            dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
+            dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
+            dbSettings = JSON.parse(localStorage.getItem('rt_settings')) || [{ key: 'admin_pin', value: '123456' }];
         }
 
         function renderPublicDashboard() {
@@ -1391,7 +1460,7 @@
                         const waLink = `https://wa.me/${waPhone}`;
 
                         const phoneDisplay = rawPhone ? `
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 font-semibold">
                                 <span class="font-mono text-xs text-slate-700 dark:text-slate-300">${rawPhone}</span>
                                 <a href="${waLink}" target="_blank" class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition" title="Kirim Pesan WhatsApp">
                                     <i class="fa-brands fa-whatsapp text-sm"></i>
@@ -1511,6 +1580,12 @@
                         adminPengumumanBody.innerHTML += row;
                     });
                 }
+            }
+
+            // Inisialisasi isian input text endpoint di tab pengaturan
+            const apiInput = document.getElementById('db-api-url');
+            if (apiInput) {
+                apiInput.value = GAS_WEB_APP_URL;
             }
         }
 
@@ -1678,7 +1753,7 @@
             loadAllData();
             toggleSessionUI();
 
-            // Set up Troubleshooting timer
+            // Setup timer Troubleshooting
             setTimeout(() => {
                 const troubleshoot = document.getElementById('loading-troubleshoot');
                 if (troubleshoot && !window.isCloudConnected) {
@@ -1716,39 +1791,44 @@
                 if (loginDropdown) loginDropdown.classList.add('hidden'); 
             });
 
-            const btnTogglePassword = document.getElementById('btn-toggle-password');
-            const loginPasswordInput = document.getElementById('login-password');
+            // Toggle show/hide PIN on login form
+            const btnTogglePinView = document.getElementById('btn-toggle-pin-view');
+            const loginPinInput = document.getElementById('login-pin');
             const eyeIcon = document.getElementById('eye-icon');
 
-            if (btnTogglePassword && loginPasswordInput && eyeIcon) {
-                btnTogglePassword.addEventListener('click', () => {
-                    if (loginPasswordInput.type === 'password') {
-                        loginPasswordInput.type = 'text';
+            if (btnTogglePinView && loginPinInput && eyeIcon) {
+                btnTogglePinView.addEventListener('click', () => {
+                    if (loginPinInput.type === 'password') {
+                        loginPinInput.type = 'text';
                         eyeIcon.className = 'fa-solid fa-eye-slash text-xs';
                     } else {
-                        loginPasswordInput.type = 'password';
+                        loginPinInput.type = 'password';
                         eyeIcon.className = 'fa-solid fa-eye text-xs';
                     }
                 });
             }
 
+            // FORM SUBMISSION: LOGIN HANYA MENGGUNAKAN PIN
             const formLogin = document.getElementById('form-login');
             const loginErrorMsg = document.getElementById('login-error-msg');
 
             if (formLogin) {
                 formLogin.addEventListener('submit', (e) => {
                     e.preventDefault();
-                    const username = document.getElementById('login-username').value;
-                    const pass = loginPasswordInput ? loginPasswordInput.value : '';
+                    const inputPin = document.getElementById('login-pin').value;
+                    
+                    // Tarik PIN asli dari Google Spreadsheet Settings, fallback ke default '123456'
+                    const pinSettingObj = dbSettings.find(s => s.key === 'admin_pin');
+                    const correctAdminPin = pinSettingObj ? pinSettingObj.value : '123456';
 
-                    if (username === 'admin' && pass === 'admin123') {
+                    if (inputPin === correctAdminPin) {
                         isAdminLoggedIn = true;
                         sessionStorage.setItem('rt_admin_session', JSON.stringify(true));
                         if (loginErrorMsg) loginErrorMsg.classList.add('hidden');
                         if (loginDropdown) loginDropdown.classList.add('hidden');
                         
                         formLogin.reset();
-                        showNotification('Autentikasi Berhasil. Selamat bekerja, Admin!');
+                        showNotification('Autentikasi PIN Berhasil. Selamat bekerja!');
                         toggleSessionUI();
                         renderAdminDashboard();
                         
@@ -2168,6 +2248,53 @@
                 });
             }
 
+            // FORM SUBMISSION: UBAH PIN ADMIN SECARA TERPUSAT
+            const formUbahPin = document.getElementById('form-ubah-pin');
+            if (formUbahPin) {
+                formUbahPin.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const pinLamaInput = document.getElementById('pin-lama').value;
+                    const pinBaruInput = document.getElementById('pin-baru').value;
+                    const pinKonfirmasiInput = document.getElementById('pin-konfirmasi').value;
+
+                    const pinSettingObj = dbSettings.find(s => s.key === 'admin_pin');
+                    const correctAdminPin = pinSettingObj ? pinSettingObj.value : '123456';
+
+                    if (pinLamaInput !== correctAdminPin) {
+                        showNotification('Gagal! PIN lama yang Anda masukkan salah.', false);
+                        return;
+                    }
+
+                    if (isNaN(pinBaruInput)) {
+                        showNotification('Gagal! PIN baru hanya diperbolehkan berupa angka.', false);
+                        return;
+                    }
+
+                    if (pinBaruInput.length < 4) {
+                        showNotification('Gagal! Panjang PIN minimal adalah 4 angka.', false);
+                        return;
+                    }
+
+                    if (pinBaruInput !== pinKonfirmasiInput) {
+                        showNotification('Gagal! Konfirmasi PIN baru tidak sesuai.', false);
+                        return;
+                    }
+
+                    // Mutakhirkan PIN di array data local dan kirim pembaruan ke Settings sheet di Spreadsheet
+                    const targetSetting = dbSettings.find(s => s.key === 'admin_pin');
+                    if (targetSetting) {
+                        targetSetting.value = pinBaruInput;
+                    } else {
+                        dbSettings.push({ key: 'admin_pin', value: pinBaruInput });
+                    }
+
+                    await syncDatabase('Settings', 'update', { key: 'admin_pin', value: pinBaruInput });
+                    
+                    formUbahPin.reset();
+                    showNotification('PIN Akses Admin berhasil diperbarui!');
+                });
+            }
+
             // EDIT FORM SUBMISSIONS
             const formEditFinance = document.getElementById('form-edit-finance');
             if (formEditFinance) {
@@ -2266,6 +2393,65 @@
                         showNotification('Pengumuman berhasil diperbaharui!');
                         const modal = document.getElementById('custom-edit-announce-modal');
                         if (modal) modal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // INTEGRASI & KONFIGURASI DATABASE MANUAL (DARI SETIAP DEVICE / BROWSER LAIN)
+            const btnSaveDbUrl = document.getElementById('btn-save-db-url');
+            const btnTestDbConnection = document.getElementById('btn-test-db-connection');
+            const dbTestResult = document.getElementById('db-test-result');
+
+            if (btnSaveDbUrl) {
+                btnSaveDbUrl.addEventListener('click', () => {
+                    const inputUrl = document.getElementById('db-api-url').value.trim();
+                    if (!inputUrl) {
+                        showNotification('Gagal! Input endpoint tidak boleh kosong.', false);
+                        return;
+                    }
+
+                    localStorage.setItem('rt_gas_url', inputUrl);
+                    GAS_WEB_APP_URL = inputUrl;
+                    showNotification('Endpoint baru disimpan di browser ini!');
+                    loadAllData();
+                });
+            }
+
+            if (btnTestDbConnection) {
+                btnTestDbConnection.addEventListener('click', async () => {
+                    const inputUrl = document.getElementById('db-api-url').value.trim();
+                    if (!inputUrl) {
+                        dbTestResult.className = "text-xs p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-600";
+                        dbTestResult.innerHTML = "<i class='fa-solid fa-triangle-exclamation mr-1.5'></i> Masukkan URL terlebih dahulu.";
+                        dbTestResult.classList.remove('hidden');
+                        return;
+                    }
+
+                    dbTestResult.className = "text-xs p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 animate-pulse";
+                    dbTestResult.innerHTML = "<i class='fa-solid fa-arrows-spin animate-spin mr-1.5'></i> Sedang melakukan uji ping ke Google Sheets...";
+                    dbTestResult.classList.remove('hidden');
+
+                    try {
+                        const params = new URLSearchParams({ sheet: 'Settings', action: 'read', _cb: Date.now().toString() });
+                        const testResponse = await fetch(`${inputUrl}?${params.toString()}`);
+                        if (testResponse.ok) {
+                            const resObj = await testResponse.json();
+                            if (resObj.success) {
+                                dbTestResult.className = "text-xs p-2.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 font-bold";
+                                dbTestResult.innerHTML = "<i class='fa-solid fa-circle-check mr-1.5'></i> Sukses! Terhubung sempurna dengan Google Spreadsheet.";
+                            } else {
+                                dbTestResult.className = "text-xs p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-700 font-semibold";
+                                dbTestResult.innerHTML = `<i class='fa-solid fa-circle-xmark mr-1.5'></i> Google Apps Script merespon eror: ${resObj.error}`;
+                            }
+                        } else {
+                            throw new Error(`HTTP ${testResponse.status}`);
+                        }
+                    } catch(err) {
+                        dbTestResult.className = "text-xs p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-700 font-semibold leading-relaxed";
+                        dbTestResult.innerHTML = `
+                            <i class='fa-solid fa-circle-xmark mr-1.5'></i> Uji Ping Gagal!<br>
+                            Penyebab: Blokir CORS atau hak akses deployment belum diubah ke "Anyone". Silakan cek instruksi di layar loading awal.
+                        `;
                     }
                 });
             }
