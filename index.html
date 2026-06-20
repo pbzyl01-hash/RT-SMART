@@ -622,7 +622,7 @@
                                 <!-- Lampiran File (Drag and Drop / File Input) -->
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Unggah Lampiran (Gambar / PDF)</label>
-                                    <div id="announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative animate-pulse">
+                                    <div id="announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative">
                                         <input type="file" id="announce-file" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                         <div class="space-y-1" id="announce-upload-prompt">
                                             <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 dark:text-slate-600"></i>
@@ -811,6 +811,27 @@
                         <option value="Darurat">Penting / Darurat</option>
                     </select>
                 </div>
+
+                <!-- Lampiran File Edit (Drag and Drop / File Input) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Ubah Lampiran (Gambar / PDF)</label>
+                    <div id="edit-announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative">
+                        <input type="file" id="edit-announce-file" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div class="space-y-1" id="edit-announce-upload-prompt">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 dark:text-slate-600"></i>
+                            <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Pilih berkas atau seret kemari</p>
+                            <p class="text-[10px] text-slate-400">Gambar/PDF (Maks. 2MB)</p>
+                        </div>
+                        <div class="hidden text-xs text-brand-600 dark:text-brand-400 font-semibold" id="edit-announce-upload-status">
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i> <span id="edit-announce-file-name">NamaFile.pdf</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 hidden text-center" id="edit-announce-preview-container">
+                        <img id="edit-announce-preview" class="max-h-28 mx-auto rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+                        <button type="button" id="btn-edit-remove-file" class="mt-1 text-[10px] font-bold text-red-500 hover:underline"><i class="fa-solid fa-trash-can"></i> Hapus Berkas</button>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" id="btn-cancel-edit-announce" class="rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-4 py-2.5 text-sm font-semibold transition">Batal</button>
                     <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 text-sm font-bold shadow-md transition">Simpan Perubahan</button>
@@ -827,24 +848,35 @@
         <img id="zoom-modal-img" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain transition-transform duration-300" onclick="event.stopPropagation()">
     </div>
 
+    <!-- Custom Notification Toast -->
+    <div id="toast-notification" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white px-5 py-4 shadow-2xl">
+        <span class="text-brand-400" id="toast-icon"><i class="fa-solid fa-circle-check"></i></span>
+        <div class="text-xs font-semibold" id="toast-message">Proses berhasil dilakukan!</div>
+    </div>
+
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
         // CONFIGURASI DATABASE CLOUD GOOGLE APPS SCRIPT
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
         // State Memory Sinkron
-        let dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
-        let dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
-        let dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
-        let dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
+        let dbTransactions = [];
+        let dbWarga = [];
+        let dbSurat = [];
+        let dbPengumuman = [];
 
         let financeChartInstance = null;
         let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('rt_admin_session')) || false;
 
-        // Berkas Base64 sementara
+        // Berkas Base64 sementara untuk Tambah Pengumuman
         let tempBase64File = null;
         let tempFileName = "";
         let tempFileType = "";
+
+        // Berkas Base64 sementara untuk Edit Pengumuman
+        let tempEditBase64File = null;
+        let tempEditFileName = "";
+        let tempEditFileType = "";
 
         function formatRupiah(number) {
             return new Intl.NumberFormat('id-ID', {
@@ -989,21 +1021,24 @@
             }
             try {
                 if (action === 'read') {
+                    // CRITICAL FIX: Hilangkan custom headers pada request GET agar Browser tidak memicu CORS Preflight OPTIONS block!
                     const params = new URLSearchParams({ sheet: sheetName, action: 'read' });
-                    // CRITICAL FIX: Hapus header custom GET agar redirect 302 tidak memicu preflight CORS yang memblokir browser lain!
                     const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const json = await response.json();
                     if (json.success) return json;
                     throw new Error(json.error || "Gagal membaca dari GAS");
                 } else {
-                    await fetch(GAS_WEB_APP_URL, {
+                    // POST requests dikirim dengan mode CORS default
+                    const response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
-                        mode: 'no-cors',
+                        mode: 'cors',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ sheet: sheetName, action: action, data: data })
                     });
-                    return { success: true };
+                    const json = await response.json();
+                    if (json.success) return json;
+                    throw new Error(json.error || "Gagal mengirim data");
                 }
             } catch (error) {
                 console.warn(`Kesalahan sinkronisasi GAS untuk sheet ${sheetName}:`, error);
@@ -1012,61 +1047,10 @@
         }
 
         async function syncDatabase(sheetName = null, action = null, data = null) {
-            const isCloud = (typeof GAS_WEB_APP_URL !== 'undefined' && GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA");
-            const indicator = document.getElementById('indicator-source');
-            
-            let gasSuccess = false;
-
-            if (isCloud && sheetName && action) {
-                const gasResult = await fetchFromGAS(sheetName, action, data);
-                if (gasResult) {
-                    gasSuccess = true;
-                    if (action !== 'read') {
-                        const readResult = await fetchFromGAS(sheetName, 'read');
-                        if (readResult && readResult.success) {
-                            if (sheetName === 'Transactions') dbTransactions = readResult.data;
-                            if (sheetName === 'Warga') dbWarga = readResult.data;
-                            if (sheetName === 'Surat') dbSurat = readResult.data;
-                            if (sheetName === 'Pengumuman') dbPengumuman = readResult.data;
-                        }
-                    } else {
-                        if (sheetName === 'Transactions') dbTransactions = gasResult.data;
-                        if (sheetName === 'Warga') dbWarga = gasResult.data;
-                        if (sheetName === 'Surat') dbSurat = gasResult.data;
-                        if (sheetName === 'Pengumuman') dbPengumuman = gasResult.data;
-                    }
-                }
+            if (sheetName && action && data) {
+                await fetchFromGAS(sheetName, action, data);
             }
-
-            if (isCloud) {
-                if (gasSuccess || window.isCloudConnected) {
-                    window.isCloudConnected = true;
-                    if (indicator) {
-                        indicator.textContent = "Mode: Google Sheets (Cloud)";
-                        indicator.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
-                    }
-                } else {
-                    if (indicator) {
-                        indicator.textContent = "Mode: Simulasi Lokal (Offline)";
-                        indicator.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse";
-                    }
-                }
-            } else {
-                if (indicator) {
-                    indicator.textContent = "Mode: Simulasi Lokal";
-                    indicator.className = "text-xs text-brand-600 dark:text-brand-400 font-semibold";
-                }
-            }
-
-            localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
-            localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
-            localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
-            localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
-            
-            renderPublicDashboard();
-            if (isAdminLoggedIn) {
-                renderAdminDashboard();
-            }
+            await loadAllData();
         }
 
         async function loadAllData() {
@@ -1076,10 +1060,10 @@
                 overlay.classList.remove('opacity-0');
             }
 
-            const isCloud = (typeof GAS_WEB_APP_URL !== 'undefined' && GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA");
+            const isCloud = (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA");
+            const indicator = document.getElementById('indicator-source');
 
             if (isCloud) {
-                const indicator = document.getElementById('indicator-source');
                 if (indicator) {
                     indicator.textContent = "Sinkronisasi Cloud Realtime...";
                     indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
@@ -1104,10 +1088,19 @@
                 } catch(e) {
                     console.error("Gagal sinkronisasi data paralel:", e);
                     window.isCloudConnected = false;
+                    // Ambil dari cache local storage apabila jaringan gagal
+                    dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
+                    dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
+                    dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
+                    dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
                     showNotification("Gagal memuat Cloud. Menggunakan basis data offline.", false);
                 }
             } else {
                 window.isCloudConnected = false;
+                dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
+                dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
+                dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
+                dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
                 showNotification("Aplikasi berjalan dalam mode simulasi lokal.", false);
             }
 
@@ -1117,7 +1110,6 @@
             localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
             localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
 
-            const indicator = document.getElementById('indicator-source');
             if (indicator) {
                 if (window.isCloudConnected) {
                     indicator.textContent = "Mode: Google Sheets (Cloud)";
@@ -1244,10 +1236,7 @@
                             } else if (ann.attachmentType === 'application/pdf') {
                                 attachmentHTML = `
                                     <div class="mt-4 w-full">
-                                        <div class="flex items-center justify-between mb-1.5">
-                                            <p class="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-file-pdf mr-1"></i> Pratinjau Dokumen PDF:</p>
-                                            <a href="${ann.attachment}" download="${ann.attachmentName || 'Lampiran.pdf'}" class="text-[10px] text-brand-500 hover:underline font-bold"><i class="fa-solid fa-download mr-0.5"></i> Unduh File</a>
-                                        </div>
+                                        <p class="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-file-pdf mr-1"></i> Pratinjau Dokumen PDF:</p>
                                         <div class="relative w-full h-[400px] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-inner bg-slate-100 dark:bg-slate-900">
                                             <iframe src="${ann.attachment}#toolbar=0" class="w-full h-full border-none" style="border:none;"></iframe>
                                         </div>
@@ -1615,6 +1604,35 @@
             if (pBody) pBody.value = item.body;
             if (pCat) pCat.value = item.category;
 
+            // Muat data lampiran berkas lama
+            tempEditBase64File = item.attachment || null;
+            tempEditFileName = item.attachmentName || "";
+            tempEditFileType = item.attachmentType || "";
+
+            const uploadPrompt = document.getElementById('edit-announce-upload-prompt');
+            const uploadStatus = document.getElementById('edit-announce-upload-status');
+            const previewContainer = document.getElementById('edit-announce-preview-container');
+            const previewImg = document.getElementById('edit-announce-preview');
+
+            if (tempEditBase64File) {
+                if (uploadPrompt) uploadPrompt.classList.add('hidden');
+                if (uploadStatus) {
+                    uploadStatus.classList.remove('hidden');
+                    const statusName = document.getElementById('edit-announce-file-name');
+                    if (statusName) statusName.textContent = tempEditFileName || "Berkas Terlampir";
+                }
+                if (tempEditFileType.startsWith('image/')) {
+                    if (previewImg) previewImg.src = tempEditBase64File;
+                    if (previewContainer) previewContainer.classList.remove('hidden');
+                } else {
+                    if (previewContainer) previewContainer.classList.add('hidden');
+                }
+            } else {
+                if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+                if (uploadStatus) uploadStatus.classList.add('hidden');
+                if (previewContainer) previewContainer.classList.add('hidden');
+            }
+
             const modal = document.getElementById('custom-edit-announce-modal');
             if (modal) modal.classList.remove('hidden');
         }
@@ -1767,31 +1785,52 @@
             const previewImg = document.getElementById('announce-preview');
             const btnRemoveFile = document.getElementById('btn-remove-file');
 
-            function handleFileSelect(file) {
+            function handleFileSelect(file, isEdit = false) {
                 if (!file) return;
                 if (file.size > 2 * 1024 * 1024) {
                     showNotification("Gagal! Batas maksimum file adalah 2MB.", false);
                     return;
                 }
 
-                tempFileName = file.name;
-                tempFileType = file.type;
-
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    tempBase64File = e.target.result;
-                    if (uploadPrompt) uploadPrompt.classList.add('hidden');
-                    if (uploadStatus) {
-                        uploadStatus.classList.remove('hidden');
-                        const statusName = document.getElementById('announce-file-name');
-                        if (statusName) statusName.textContent = file.name;
-                    }
-
-                    if (file.type.startsWith('image/')) {
-                        if (previewImg) previewImg.src = tempBase64File;
-                        if (previewContainer) previewContainer.classList.remove('hidden');
+                    if (!isEdit) {
+                        tempFileName = file.name;
+                        tempFileType = file.type;
+                        tempBase64File = e.target.result;
+                        if (uploadPrompt) uploadPrompt.classList.add('hidden');
+                        if (uploadStatus) {
+                            uploadStatus.classList.remove('hidden');
+                            const statusName = document.getElementById('announce-file-name');
+                            if (statusName) statusName.textContent = file.name;
+                        }
+                        if (file.type.startsWith('image/')) {
+                            if (previewImg) previewImg.src = tempBase64File;
+                            if (previewContainer) previewContainer.classList.remove('hidden');
+                        } else {
+                            if (previewContainer) previewContainer.classList.add('hidden');
+                        }
                     } else {
-                        if (previewContainer) previewContainer.classList.add('hidden');
+                        tempEditFileName = file.name;
+                        tempEditFileType = file.type;
+                        tempEditBase64File = e.target.result;
+                        const editPrompt = document.getElementById('edit-announce-upload-prompt');
+                        const editStatus = document.getElementById('edit-announce-upload-status');
+                        const editPreviewContainer = document.getElementById('edit-announce-preview-container');
+                        const editPreviewImg = document.getElementById('edit-announce-preview');
+
+                        if (editPrompt) editPrompt.classList.add('hidden');
+                        if (editStatus) {
+                            editStatus.classList.remove('hidden');
+                            const statusName = document.getElementById('edit-announce-file-name');
+                            if (statusName) statusName.textContent = file.name;
+                        }
+                        if (file.type.startsWith('image/')) {
+                            if (editPreviewImg) editPreviewImg.src = tempEditBase64File;
+                            if (editPreviewContainer) editPreviewContainer.classList.remove('hidden');
+                        } else {
+                            if (editPreviewContainer) editPreviewContainer.classList.add('hidden');
+                        }
                     }
                 };
                 reader.readAsDataURL(file);
@@ -1799,7 +1838,7 @@
 
             if (fileInput) {
                 fileInput.addEventListener('change', (e) => {
-                    handleFileSelect(e.target.files[0]);
+                    handleFileSelect(e.target.files[0], false);
                 });
             }
 
@@ -1816,7 +1855,7 @@
                 dropZone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     dropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
-                    handleFileSelect(e.dataTransfer.files[0]);
+                    handleFileSelect(e.dataTransfer.files[0], false);
                 });
             }
 
@@ -1829,6 +1868,49 @@
                     if (uploadPrompt) uploadPrompt.classList.remove('hidden');
                     if (uploadStatus) uploadStatus.classList.add('hidden');
                     if (previewContainer) previewContainer.classList.add('hidden');
+                });
+            }
+
+            const editDropZone = document.getElementById('edit-announce-drop-zone');
+            const editFileInput = document.getElementById('edit-announce-file');
+            const editBtnRemoveFile = document.getElementById('btn-edit-remove-file');
+
+            if (editFileInput) {
+                editFileInput.addEventListener('change', (e) => {
+                    handleFileSelect(e.target.files[0], true);
+                });
+            }
+
+            if (editDropZone) {
+                editDropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    editDropZone.classList.add('border-brand-500', 'bg-brand-50/50');
+                });
+
+                editDropZone.addEventListener('dragleave', () => {
+                    editDropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                });
+
+                editDropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    editDropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                    handleFileSelect(e.dataTransfer.files[0], true);
+                });
+            }
+
+            if (editBtnRemoveFile) {
+                editBtnRemoveFile.addEventListener('click', () => {
+                    tempEditBase64File = null;
+                    tempEditFileName = "";
+                    tempEditFileType = "";
+                    if (editFileInput) editFileInput.value = "";
+                    const editPrompt = document.getElementById('edit-announce-upload-prompt');
+                    const editStatus = document.getElementById('edit-announce-upload-status');
+                    const editPreviewContainer = document.getElementById('edit-announce-preview-container');
+
+                    if (editPrompt) editPrompt.classList.remove('hidden');
+                    if (editStatus) editStatus.classList.add('hidden');
+                    if (editPreviewContainer) editPreviewContainer.classList.add('hidden');
                 });
             }
 
@@ -2067,7 +2149,7 @@
                     if (uploadStatus) uploadStatus.classList.add('hidden');
                     if (previewContainer) previewContainer.classList.add('hidden');
                     
-                    showNotification('Pengumuman baru telah dipublikasikan ke papan mading warga!');
+                    showNotification('Pengumuman baru telah dipublikasikan!');
                 });
             }
 
@@ -2151,10 +2233,20 @@
                         ann.title = title;
                         ann.body = body;
                         ann.category = category;
+                        ann.attachment = tempEditBase64File || "";
+                        ann.attachmentName = tempEditFileName || "";
+                        ann.attachmentType = tempEditFileType || "";
 
                         await syncDatabase('Pengumuman', 'update', {
                             id: id,
-                            newData: { title, body, category }
+                            newData: { 
+                                title: title, 
+                                body: body, 
+                                category: category,
+                                attachment: ann.attachment,
+                                attachmentName: ann.attachmentName,
+                                attachmentType: ann.attachmentType
+                            }
                         });
                         showNotification('Pengumuman berhasil diperbaharui!');
                         const modal = document.getElementById('custom-edit-announce-modal');
