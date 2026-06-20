@@ -529,6 +529,10 @@
                                     <input type="text" id="warga-nik" maxlength="16" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="16 Digit NIK" required>
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">No HP / WhatsApp</label>
+                                    <input type="text" id="warga-phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Contoh: 08123456789" required>
+                                </div>
+                                <div>
                                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Alamat Sesuai KTP</label>
                                     <textarea id="warga-alamat" rows="2" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Jl. Merdeka No. 12" required></textarea>
                                 </div>
@@ -557,6 +561,7 @@
                                             <th class="py-3 px-4">Nama</th>
                                             <th class="py-3 px-4">NIK</th>
                                             <th class="py-3 px-4">Alamat Lengkap</th>
+                                            <th class="py-3 px-4">No HP / WA</th>
                                             <th class="py-3 px-4 text-center">Status</th>
                                             <th class="py-3 px-4 text-center">Aksi</th>
                                         </tr>
@@ -716,6 +721,50 @@
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" id="btn-cancel-edit-finance" class="rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-4 py-2.5 text-sm font-semibold transition">Batal</button>
+                    <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 text-sm font-bold shadow-md transition">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Edit Warga Modal -->
+    <div id="custom-edit-warga-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-4">
+                <h3 class="text-md font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-pen text-brand-500"></i> Edit Data Kependudukan Warga
+                </h3>
+                <button id="btn-close-edit-warga" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="form-edit-warga" class="space-y-4">
+                <input type="hidden" id="edit-warga-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nama Lengkap</label>
+                    <input type="text" id="edit-warga-nama" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">NIK (Nomor KTP)</label>
+                    <input type="text" id="edit-warga-nik" maxlength="16" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">No HP / WhatsApp</label>
+                    <input type="text" id="edit-warga-phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Alamat Sesuai KTP</label>
+                    <textarea id="edit-warga-alamat" rows="2" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status Kependudukan</label>
+                    <select id="edit-warga-status" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                        <option value="Warga Tetap">Warga Tetap</option>
+                        <option value="Kontrak / Kos">Kontrak / Kos</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" id="btn-cancel-edit-warga" class="rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-4 py-2.5 text-sm font-semibold transition">Batal</button>
                     <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 text-sm font-bold shadow-md transition">Simpan Perubahan</button>
                 </div>
             </form>
@@ -1242,23 +1291,51 @@
             document.getElementById('admin-count-warga').textContent = `${dbWarga.length} Warga Terdaftar`;
 
             if (dbWarga.length === 0) {
-                adminWargaBody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Tidak ada data warga di sistem.</td></tr>`;
+                adminWargaBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Tidak ada data warga di sistem.</td></tr>`;
             } else {
                 dbWarga.forEach(item => {
                     const statusClass = item.status === 'Warga Tetap' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/10 dark:bg-indigo-950/30 dark:text-indigo-400' : 'bg-slate-100 text-slate-700 ring-slate-600/10 dark:bg-slate-900 dark:text-slate-300';
+                    
+                    // Bersihkan prefiks kutip satu jika ada
+                    let rawPhone = item.phone || '';
+                    if (rawPhone.startsWith("'")) {
+                        rawPhone = rawPhone.substring(1);
+                    }
+
+                    // Buat link WA yang valid (Ganti awalan 0 menjadi 62)
+                    let waPhone = rawPhone;
+                    if (waPhone.startsWith('0')) {
+                        waPhone = '62' + waPhone.substring(1);
+                    }
+                    const waLink = `https://wa.me/${waPhone}`;
+
+                    const phoneDisplay = rawPhone ? `
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-xs text-slate-700 dark:text-slate-300">${rawPhone}</span>
+                            <a href="${waLink}" target="_blank" class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition" title="Kirim Pesan WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                            </a>
+                        </div>
+                    ` : `<span class="text-slate-400">-</span>`;
 
                     const row = `
                         <tr class="dark:border-slate-700">
                             <td class="py-3 px-4 font-bold text-slate-700 dark:text-slate-300">${item.nama}</td>
                             <td class="py-3 px-4 text-slate-500 dark:text-slate-400 font-mono">${item.nik}</td>
                             <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">${item.alamat}</td>
+                            <td class="py-3 px-4">${phoneDisplay}</td>
                             <td class="py-3 px-4 text-center">
                                 <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${statusClass}">${item.status}</span>
                             </td>
                             <td class="py-3 px-4 text-center">
-                                <button onclick="deleteWarga('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus Data">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button onclick="openEditWarga('${item.id}')" class="text-brand-600 hover:text-brand-800 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data Warga">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button onclick="deleteWarga('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus Data">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1403,6 +1480,26 @@
             }
 
             document.getElementById('custom-edit-finance-modal').classList.remove('hidden');
+        }
+
+        function openEditWarga(id) {
+            const item = dbWarga.find(w => w.id === id);
+            if (!item) return;
+
+            // Bersihkan kutip satu jika ada
+            let rawPhone = item.phone || '';
+            if (rawPhone.startsWith("'")) {
+                rawPhone = rawPhone.substring(1);
+            }
+
+            document.getElementById('edit-warga-id').value = item.id;
+            document.getElementById('edit-warga-nama').value = item.nama;
+            document.getElementById('edit-warga-nik').value = item.nik;
+            document.getElementById('edit-warga-phone').value = rawPhone;
+            document.getElementById('edit-warga-alamat').value = item.alamat;
+            document.getElementById('edit-warga-status').value = item.status;
+
+            document.getElementById('custom-edit-warga-modal').classList.remove('hidden');
         }
 
         function openEditPengumuman(id) {
@@ -1686,6 +1783,7 @@
                 e.preventDefault();
                 const nama = document.getElementById('warga-nama').value;
                 const nik = document.getElementById('warga-nik').value;
+                const phone = document.getElementById('warga-phone').value;
                 const alamat = document.getElementById('warga-alamat').value;
                 const status = document.getElementById('warga-status').value;
 
@@ -1699,10 +1797,14 @@
                     return;
                 }
 
+                // Tambahkan tanda kutip satu di depan nomor HP agar tetap bertipe Text di Google Sheets
+                const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
+
                 const wargaObj = {
                     id: 'w_' + Date.now(),
                     nama: nama,
                     nik: nik,
+                    phone: excelPhone,
                     alamat: alamat,
                     status: status
                 };
@@ -1761,6 +1863,40 @@
                 }
             });
 
+            const formEditWarga = document.getElementById('form-edit-warga');
+            formEditWarga.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('edit-warga-id').value;
+                const nama = document.getElementById('edit-warga-nama').value;
+                const nik = document.getElementById('edit-warga-nik').value;
+                const phone = document.getElementById('edit-warga-phone').value;
+                const alamat = document.getElementById('edit-warga-alamat').value;
+                const status = document.getElementById('edit-warga-status').value;
+
+                if (nik.length !== 16 || isNaN(nik)) {
+                    showNotification('NIK warga harus berupa 16 digit angka!', false);
+                    return;
+                }
+
+                const item = dbWarga.find(w => w.id === id);
+                if (item) {
+                    item.nama = nama;
+                    item.nik = nik;
+                    
+                    const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
+                    item.phone = excelPhone;
+                    item.alamat = alamat;
+                    item.status = status;
+
+                    await syncDatabase('Warga', 'update', {
+                        id: id,
+                        newData: { nama, nik, phone: excelPhone, alamat, status }
+                    });
+                    showNotification('Data warga berhasil diperbaharui!');
+                    document.getElementById('custom-edit-warga-modal').classList.add('hidden');
+                }
+            });
+
             const formEditAnnounce = document.getElementById('form-edit-announce');
             formEditAnnounce.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -1791,6 +1927,14 @@
             document.getElementById('btn-cancel-edit-finance').addEventListener('click', () => {
                 document.getElementById('custom-edit-finance-modal').classList.add('hidden');
             });
+
+            document.getElementById('btn-close-edit-warga').addEventListener('click', () => {
+                document.getElementById('custom-edit-warga-modal').classList.add('hidden');
+            });
+            document.getElementById('btn-cancel-edit-warga').addEventListener('click', () => {
+                document.getElementById('custom-edit-warga-modal').classList.add('hidden');
+            });
+
             document.getElementById('btn-close-edit-announce').addEventListener('click', () => {
                 document.getElementById('custom-edit-announce-modal').classList.add('hidden');
             });
