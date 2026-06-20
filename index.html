@@ -77,6 +77,18 @@
 </head>
 <body class="text-slate-800 dark:text-slate-100 antialiased font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
 
+    <!-- Loading Overlay (Cloud Database Syncing) -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 transition-all duration-300">
+        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white shadow-xl shadow-brand-500/20 mb-4 animate-bounce">
+            <i class="fa-solid fa-house-laptop text-2xl"></i>
+        </div>
+        <h2 class="text-xl font-extrabold tracking-tight text-brand-600 dark:text-brand-400 animate-pulse">Menghubungkan ke Database Cloud...</h2>
+        <p class="text-xs text-slate-400 dark:text-slate-500 mt-2 font-semibold">Sinkronisasi data realtime dengan Google Spreadsheet</p>
+        <div class="w-48 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
+            <div class="bg-brand-500 h-full rounded-full animate-pulse w-full"></div>
+        </div>
+    </div>
+
     <!-- Top Navigation Bar -->
     <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-colors duration-200">
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -774,31 +786,11 @@
         // URL DEPLOY GOOGLE APPS SCRIPT WEB APP
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
-        // Database Mock Local Storage (Fallback)
-        let dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [
-            { id: 't1', desc: 'Iuran Warga Bulanan April 2026', type: 'Pemasukan', amount: 5400000, date: '2026-04-05' },
-            { id: 't2', desc: 'Pembelian Lampu Penerangan Jalan RT', type: 'Pengeluaran', amount: 750000, date: '2026-04-10' },
-            { id: 't3', desc: 'Sumbangan Sosial duka cita warga', type: 'Pengeluaran', amount: 500000, date: '2026-04-12' },
-            { id: 't4', desc: 'Iuran Kas Keamanan Tambahan', type: 'Pemasukan', amount: 2100000, date: '2026-04-15' },
-            { id: 't5', desc: 'Penyemprotan Disinfektan Fogging DBD', type: 'Pengeluaran', amount: 1200000, date: '2026-04-20' },
-        ];
-
-        let dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [
-            { id: 'w1', nama: 'Budi Santoso', nik: '3171010101010001', alamat: 'Blok A No. 14, RT 01/01', status: 'Warga Tetap' },
-            { id: 'w2', nama: 'Siti Rahma', nik: '3171010101010002', alamat: 'Blok B No. 03, RT 01/01', status: 'Warga Tetap' },
-            { id: 'w3', nama: 'Dewi Lestari', nik: '3171010101010003', alamat: 'Blok A No. 11, RT 01/01', status: 'Warga Tetap' },
-            { id: 'w4', nama: 'Joko Prabowo', nik: '3171010101010004', alamat: 'Blok C No. 07, RT 01/01', status: 'Kontrak / Kos' },
-        ];
-
-        let dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [
-            { id: 's1', nama: 'Budi Santoso', nik: '3171010101010001', phone: '081234567890', type: 'Surat Keterangan Domisili', desc: 'Pembuatan rekening bank baru', status: 'Selesai', date: '2026-04-18' },
-            { id: 's2', nama: 'Joko Prabowo', nik: '3171010101010004', phone: '089876543210', type: 'Surat Keterangan Domisili', desc: 'Keperluan pindah domisili KTP', status: 'Diproses', date: '2026-04-21' },
-        ];
-
-        let dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [
-            { id: 'p1', title: 'Kerja Bakti Massal Sambut HUT RI', body: 'Diharapkan kehadiran perwakilan satu orang dari setiap KK pada hari Minggu pagi tanggal 17 Mei 2026 untuk melakukan pembersihan area drainase luar.', category: 'Kegiatan', date: '2026-04-22' },
-            { id: 'p2', title: 'Imbauan Keamanan Libur Lebaran', body: 'Kepada seluruh warga yang hendak bepergian atau mudik, dimohon untuk mengunci pintu, mematikan aliran gas/listrik, dan mendaftarkan rumah kosong Anda ke divisi keamanan RT.', category: 'Imbauan', date: '2026-04-15' },
-        ];
+        // Database Terkini (Dimulai Kosong demi Realtime Cloud)
+        let dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
+        let dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
+        let dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
+        let dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
 
         let financeChartInstance = null;
         let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('rt_admin_session')) || false;
@@ -968,7 +960,6 @@
                 const gasResult = await fetchFromGAS(sheetName, action, data);
                 if (gasResult) {
                     gasSuccess = true;
-                    // Setelah penulisan berhasil, panggil pembacaan ulang otomatis untuk menyinkronkan frontend penuh
                     if (action !== 'read') {
                         const readResult = await fetchFromGAS(sheetName, 'read');
                         if (readResult && readResult.success) {
@@ -1012,30 +1003,55 @@
         }
 
         async function loadAllData() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.remove('opacity-0');
+            }
+
             if (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA") {
                 const indicator = document.getElementById('indicator-source');
-                indicator.textContent = "Menghubungkan ke Sheets...";
-                indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
+                if (indicator) {
+                    indicator.textContent = "Menghubungkan ke Sheets...";
+                    indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
+                }
                 
                 try {
-                    await Promise.allSettled([
+                    // Batas waktu maks 10 detik agar aplikasi tidak hang jika internet terputus
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error("Timeout Koneksi")), 10000)
+                    );
+
+                    const syncPromise = Promise.allSettled([
                         syncDatabase('Transactions', 'read'),
                         syncDatabase('Warga', 'read'),
                         syncDatabase('Surat', 'read'),
                         syncDatabase('Pengumuman', 'read')
                     ]);
-                    if (window.isCloudConnected) {
-                        showNotification("Koneksi Google Sheets berhasil disinkronkan!");
-                    } else {
-                        showNotification("Menggunakan database lokal.");
-                    }
+
+                    await Promise.race([syncPromise, timeoutPromise]);
+
+                    window.isCloudConnected = true;
+                    showNotification("Koneksi Google Sheets berhasil disinkronkan secara realtime!");
                 } catch(e) {
                     console.error("Gagal sinkronisasi data paralel:", e);
-                    syncDatabase();
+                    window.isCloudConnected = false;
+                    showNotification("Menggunakan database lokal (Mode Offline).", false);
                 }
             } else {
-                syncDatabase();
+                window.isCloudConnected = false;
+                showNotification("Aplikasi berjalan dalam mode simulasi lokal.", false);
             }
+
+            // Sembunyikan Overlay dengan Transisi Mulus
+            if (overlay) {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+
+            syncDatabase(); 
         }
 
         function renderPublicDashboard() {
@@ -1551,7 +1567,7 @@
                     `Mohon untuk segera diverifikasi dan diproses. Terima kasih banyak!`
                 );
 
-                const waURL = `https://api.whatsapp.com/send?phone=6289617777770&text=${waMessage}`;
+                const waURL = `https://api.whatsapp.com/send?phone=628961777770&text=${waMessage}`;
 
                 // Set WhatsApp link static di bagian bawah setelah klik kirim
                 staticWhatsappBtn.href = waURL;
@@ -1607,7 +1623,7 @@
                             `- *Status Saat Ini:* ${s.status}\n\n` +
                             `Terima kasih atas bantuannya.`
                         );
-                        const followUpURL = `https://api.whatsapp.com/send?phone=6289617777770&text=${followUpText}`;
+                        const followUpURL = `https://api.whatsapp.com/send?phone=628961777770&text=${followUpText}`;
 
                         listHtml += `
                             <div class="py-2 ${idx > 0 ? 'border-t border-dashed border-slate-200 dark:border-slate-800' : ''}">
@@ -1797,13 +1813,13 @@
                 btnShowLogin.classList.add('hidden');
                 adminLoggedBadge.classList.remove('hidden');
                 adminPanel.classList.remove('hidden');
-                guestPanel.classList.add('hidden'); // Sebagai admin tidak melihat dashboard tamu/fitur pengajuan surat
-                navPublicLinks.classList.add('hidden'); // Sembunyikan navigasi publik untuk pengurus
+                guestPanel.classList.add('hidden'); 
+                navPublicLinks.classList.add('hidden'); 
             } else {
                 btnShowLogin.classList.remove('hidden');
                 adminLoggedBadge.classList.add('hidden');
                 adminPanel.classList.add('hidden');
-                guestPanel.classList.remove('hidden'); // Publik melihat dashboard pengajuan & keuangan kas
+                guestPanel.classList.remove('hidden'); 
                 navPublicLinks.classList.remove('hidden');
             }
         }
