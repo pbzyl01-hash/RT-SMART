@@ -383,7 +383,12 @@
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300">Riwayat Pembukuan Terkini</h4>
-                                <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold" id="indicator-source">Mode: Menyinkronkan...</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold" id="indicator-source">Menyinkronkan...</span>
+                                    <button id="btn-refresh-cloud" onclick="loadAllData()" title="Refresh data dari Cloud" class="text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition p-1 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-950/30">
+                                        <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="overflow-x-auto custom-scrollbar">
                                 <table class="w-full text-left text-xs text-slate-500 dark:text-slate-300">
@@ -800,31 +805,11 @@
         const SPREADSHEET_ID = "1srGTaw3wUf0rGEtwbds8jz8txYByKe6O9Jd-EnnibJA"; 
 
         // Database Mock Local Storage (Fallback jika GAS bermasalah)
-        let dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [
-            { id: 't1', desc: 'Iuran Warga Bulanan April 2026', type: 'Pemasukan', amount: 5400000, date: '2026-04-05' },
-            { id: 't2', desc: 'Pembelian Lampu Penerangan Jalan RT', type: 'Pengeluaran', amount: 750000, date: '2026-04-10' },
-            { id: 't3', desc: 'Sumbangan Sosial duka cita warga', type: 'Pengeluaran', amount: 500000, date: '2026-04-12' },
-            { id: 't4', desc: 'Iuran Kas Keamanan Tambahan', type: 'Pemasukan', amount: 2100000, date: '2026-04-15' },
-            { id: 't5', desc: 'Penyemprotan Disinfektan Fogging DBD', type: 'Pengeluaran', amount: 1200000, date: '2026-04-20' },
-        ];
-
-        let dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [
-            { id: 'w1', nama: 'Budi Santoso', nik: '3171010101010001', alamat: 'Blok A No. 14, RT 01/01', status: 'Warga Tetap' },
-            { id: 'w2', nama: 'Siti Rahma', nik: '3171010101010002', alamat: 'Blok B No. 03, RT 01/01', status: 'Warga Tetap' },
-            { id: 'w3', nama: 'Dewi Lestari', nik: '3171010101010003', alamat: 'Blok A No. 11, RT 01/01', status: 'Warga Tetap' },
-            { id: 'w4', nama: 'Joko Prabowo', nik: '3171010101010004', alamat: 'Blok C No. 07, RT 01/01', status: 'Kontrak / Kos' },
-        ];
-
-        let dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [
-            { id: 's1', nama: 'Budi Santoso', nik: '3171010101010001', phone: '081234567890', type: 'Surat Keterangan Domisili', desc: 'Pembuatan rekening bank baru', status: 'Selesai', date: '2026-04-18' },
-            { id: 's2', nama: 'Joko Prabowo', nik: '3171010101010004', phone: '089876543210', type: 'Surat Keterangan Domisili', desc: 'Keperluan pindah domisili KTP', status: 'Diproses', date: '2026-04-21' },
-        ];
-
-        let dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [
-            { id: 'p1', title: 'Kerja Bakti Massal Sambut HUT RI', body: 'Diharapkan kehadiran perwakilan satu orang dari setiap KK pada hari Minggu pagi tanggal 17 Mei 2026 untuk melakukan pembersihan area drainase luar.', category: 'Kegiatan', date: '2026-04-22' },
-            { id: 'p2', title: 'Imbauan Keamanan Libur Lebaran', body: 'Kepada seluruh warga yang hendak bepergian atau mudik, dimohon untuk mengunci pintu, mematikan aliran gas/listrik, and mendaftarkan rumah kosong Anda ke divisi keamanan RT.', category: 'Imbauan', date: '2026-04-15' },
-        ];
-
+        // DB selalu dimulai kosong — data SELALU diambil dari cloud saat pertama load
+        let dbTransactions = [];
+        let dbWarga = [];
+        let dbSurat = [];
+        let dbPengumuman = [];
         let financeChartInstance = null;
         let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('rt_admin_session')) || false;
 
@@ -997,54 +982,84 @@
             }
         }
 
-        async function loadAllData() {
-            if (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA") {
-                const indicator = document.getElementById('indicator-source');
-                indicator.textContent = "Menghubungkan ke Sheets...";
-                indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
-                
-                try {
-                    // Baca dari GAS, jika berhasil overwrite data lokal
-                    const results = await Promise.allSettled([
-                        fetchFromGAS('Transactions', 'read'),
-                        fetchFromGAS('Warga', 'read'),
-                        fetchFromGAS('Surat', 'read'),
-                        fetchFromGAS('Pengumuman', 'read')
-                    ]);
+        // Tampilkan skeleton loading di tabel warga saat fetch
+        function showTableSkeleton(tbodyId, cols = 5) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            tbody.innerHTML = Array(3).fill(0).map(() => `
+                <tr class="animate-pulse">
+                    ${Array(cols).fill(0).map(() => `<td class="py-3 px-4"><div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full"></div></td>`).join('')}
+                </tr>
+            `).join('');
+        }
 
-                    let anySuccess = false;
-                    if (results[0].status === 'fulfilled' && results[0].value?.data) { dbTransactions = results[0].value.data; anySuccess = true; }
-                    if (results[1].status === 'fulfilled' && results[1].value?.data) { dbWarga = results[1].value.data; anySuccess = true; }
-                    if (results[2].status === 'fulfilled' && results[2].value?.data) { dbSurat = results[2].value.data; anySuccess = true; }
-                    if (results[3].status === 'fulfilled' && results[3].value?.data) { dbPengumuman = results[3].value.data; anySuccess = true; }
+        // Fetch semua data dari cloud tanpa menyentuh localStorage
+        async function fetchAllFromCloud() {
+            const results = await Promise.allSettled([
+                fetchFromGAS('Transactions', 'read'),
+                fetchFromGAS('Warga', 'read'),
+                fetchFromGAS('Surat', 'read'),
+                fetchFromGAS('Pengumuman', 'read')
+            ]);
 
-                    const indicator2 = document.getElementById('indicator-source');
-                    if (anySuccess) {
-                        window.isCloudConnected = true;
-                        indicator2.textContent = "Mode: Google Sheets (Cloud)";
-                        indicator2.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
-                        showNotification("Koneksi Google Sheets berhasil disinkronkan!");
-                    } else {
-                        window.isCloudConnected = false;
-                        indicator2.textContent = "Mode: Lokal (Cloud tidak tersedia)";
-                        indicator2.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse";
-                        showNotification("Gagal memuat Cloud. Mengaktifkan database lokal.", false);
-                    }
-                } catch(e) {
-                    console.error("Gagal sinkronisasi:", e);
-                    window.isCloudConnected = false;
-                    const indicator2 = document.getElementById('indicator-source');
-                    indicator2.textContent = "Mode: Lokal (Cloud tidak tersedia)";
-                    indicator2.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold";
-                }
+            let anySuccess = false;
+            if (results[0].status === 'fulfilled' && results[0].value?.data) { dbTransactions = results[0].value.data; anySuccess = true; }
+            if (results[1].status === 'fulfilled' && results[1].value?.data) { dbWarga = results[1].value.data; anySuccess = true; }
+            if (results[2].status === 'fulfilled' && results[2].value?.data) { dbSurat = results[2].value.data; anySuccess = true; }
+            if (results[3].status === 'fulfilled' && results[3].value?.data) { dbPengumuman = results[3].value.data; anySuccess = true; }
+            return anySuccess;
+        }
+
+        function setIndicator(success) {
+            const indicator = document.getElementById('indicator-source');
+            const btn = document.getElementById('btn-refresh-cloud');
+            const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            if (success) {
+                window.isCloudConnected = true;
+                indicator.innerHTML = `<i class="fa-solid fa-circle text-[6px] text-emerald-500 align-middle mr-0.5"></i> Cloud · ${now}`;
+                indicator.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
+                if (btn) btn.classList.remove('animate-spin');
             } else {
-                const indicator = document.getElementById('indicator-source');
-                indicator.textContent = "Mode: Simulasi Lokal";
+                window.isCloudConnected = false;
+                indicator.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 text-[10px] mr-0.5"></i> Offline`;
+                indicator.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold";
+                if (btn) btn.classList.remove('animate-spin');
+            }
+        }
+
+        let _pollInterval = null;
+
+        async function loadAllData() {
+            const indicator = document.getElementById('indicator-source');
+            const btn = document.getElementById('btn-refresh-cloud');
+            const hasGAS = GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA";
+
+            if (!hasGAS) {
+                indicator.textContent = "Lokal";
                 indicator.className = "text-xs text-brand-600 dark:text-brand-400 font-semibold";
+                _saveLocal();
+                return;
             }
 
-            // Selalu simpan ke localStorage dan render setelah load
+            // Animasi spin saat refresh
+            if (btn) btn.querySelector('i').classList.add('animate-spin');
+            indicator.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin text-[10px] mr-0.5"></i> Memuat...`;
+            indicator.className = "text-xs text-slate-500 font-semibold";
+
+            if (isAdminLoggedIn) showTableSkeleton('table-admin-warga-body', 5);
+
+            const success = await fetchAllFromCloud();
+            setIndicator(success);
             _saveLocal();
+
+            // Auto-polling setiap 30 detik agar selalu real-time dari device manapun
+            if (!_pollInterval) {
+                _pollInterval = setInterval(async () => {
+                    const ok = await fetchAllFromCloud();
+                    setIndicator(ok);
+                    if (ok) _saveLocal();
+                }, 30000);
+            }
         }
 
         // --- PUBLIC AREA RENDERING ---
@@ -1343,6 +1358,7 @@
         // --- ACTIONS: ADD / DELETE / UPDATE DATA WITH CLOUD SYNC ---
         // Pattern: ubah lokal dulu → render → cloud sync di background
         function _saveLocal() {
+            // localStorage hanya sebagai cache sementara, bukan sumber kebenaran
             localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
             localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
             localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
