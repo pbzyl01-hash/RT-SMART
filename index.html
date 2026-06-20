@@ -77,7 +77,6 @@
 </head>
 <body class="text-slate-800 dark:text-slate-100 antialiased font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
 
-    <!-- Loading Overlay (Cloud Database Syncing) -->
     <div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 transition-all duration-300">
         <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white shadow-xl shadow-brand-500/20 mb-4 animate-bounce">
             <i class="fa-solid fa-house-laptop text-2xl"></i>
@@ -89,10 +88,8 @@
         </div>
     </div>
 
-    <!-- Top Navigation Bar -->
     <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-colors duration-200">
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <!-- Brand Logo -->
             <div class="flex items-center gap-2">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white shadow-lg shadow-brand-500/20">
                     <i class="fa-solid fa-house-laptop text-lg"></i>
@@ -103,7 +100,6 @@
                 </div>
             </div>
 
-            <!-- Navigation Links & Admin Actions -->
             <div class="flex items-center gap-4">
                 <nav id="nav-public-links" class="hidden md:flex items-center gap-1">
                     <a href="#pengumuman-section" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
@@ -122,27 +118,22 @@
 
                 <div class="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
 
-                <!-- Live Clock Widget -->
                 <div class="hidden lg:flex flex-col items-end text-xs font-semibold text-slate-500 dark:text-slate-400 border-r pr-4 border-slate-200 dark:border-slate-800">
                     <span id="live-day-date" class="tracking-wide">Memuat Hari...</span>
                     <span id="live-time" class="text-brand-600 dark:text-brand-400 font-bold">00:00:00 WIB</span>
                 </div>
 
-                <!-- Theme Toggle Button -->
                 <button id="theme-toggle" class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition duration-200" title="Ganti Mode Terang/Gelap">
                     <i id="theme-toggle-light-icon" class="fa-solid fa-sun text-sm hidden"></i>
                     <i id="theme-toggle-dark-icon" class="fa-solid fa-moon text-sm hidden"></i>
                 </button>
 
-                <!-- Admin Auth Badge Container -->
                 <div class="relative" id="admin-auth-container">
-                    <!-- Guest View: Login Trigger -->
                     <button id="btn-show-login" class="flex items-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 text-sm font-semibold transition duration-200">
                         <i class="fa-solid fa-lock-open text-xs"></i>
                         <span>Login Admin</span>
                     </button>
 
-                    <!-- Authenticated View -->
                     <div id="admin-logged-in-badge" class="hidden flex items-center gap-3">
                         <div class="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -153,7 +144,7 @@
                         </button>
                     </div>
 
-                    <!-- Login Dropdown Panel -->
+                    <!-- Dropdown Formulir Login Administrator -->
                     <div id="login-dropdown" class="hidden absolute right-0 mt-3 w-80 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-2xl transition-all duration-200 z-50">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-md font-bold text-slate-800 dark:text-white">Login Administrator</h3>
@@ -191,7 +182,7 @@
                             </button>
                         </form>
                         <div class="mt-3 text-center">
-                            <span class="text-[10px] text-slate-400">Akses: <strong class="text-slate-600 dark:text-slate-300">admin</strong> / <strong class="text-slate-600 dark:text-slate-300">admin123</strong></span>
+                            <span class="text-[10px] text-slate-400">Akses default: <strong class="text-slate-600 dark:text-slate-300">admin</strong> / <strong class="text-slate-600 dark:text-slate-300">admin123</strong></span>
                         </div>
                     </div>
                 </div>
@@ -199,24 +190,21 @@
         </div>
     </header>
 
-    <!-- App Wrapper -->
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        
-        <!-- ================= GUEST / PUBLIC VIEW ================= -->
         <div id="guest-dashboard" class="space-y-10 block">
             
-            <!-- Welcome Hero Banner -->
+            <!-- Hero Banner Layanan Digital -->
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-800 via-brand-700 to-brand-600 px-6 py-12 text-white shadow-xl sm:px-12 sm:py-16">
                 <div class="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-brand-500/10 blur-3xl"></div>
                 <div class="absolute -bottom-16 right-1/4 h-80 w-80 rounded-full bg-brand-400/10 blur-3xl"></div>
                 
                 <div class="relative max-w-2xl">
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm">
-                        <i class="fa-solid fa-circle text-[6px] text-emerald-400 animate-pulse"></i> Portal RT SMART v2.1
+                        <i class="fa-solid fa-circle text-[6px] text-emerald-400 animate-pulse"></i> Portal RT SMART v2.5
                     </span>
                     <h2 class="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">Layanan Administrasi RT Mandiri, Cepat & Terbuka</h2>
                     <p class="mt-4 text-sm sm:text-base text-brand-100 leading-relaxed">
-                        Selamat datang di portal pelayanan digital rukun tetangga. Di sini Anda dapat memantau keterbukaan anggaran kas, membaca mading pengumuman, dan mengajukan surat pengantar secara mandiri.
+                        Selamat datang di portal pelayanan digital rukun tetangga. Di sini Anda dapat memantau keterbukaan anggaran kas secara transparan, membaca mading pengumuman beserta lampiran foto/dokumen, serta mengajukan surat pengantar mandiri.
                     </p>
                     <div class="mt-8 flex flex-wrap gap-3">
                         <a href="#layanan-section" class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-brand-700 hover:bg-brand-50 transition shadow-md shadow-brand-900/10">
@@ -229,7 +217,7 @@
                 </div>
             </div>
 
-            <!-- Stats Overview -->
+            <!-- Stats Overview Kas RT -->
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                 <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm flex items-center justify-between transition-colors duration-200">
                     <div>
@@ -263,9 +251,8 @@
                 </div>
             </div>
 
-            <!-- Main Content Area Grid (Mading & Pengajuan Surat) -->
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                <!-- Mading Pengumuman -->
+                <!-- Papan Mading Pengumuman Warga -->
                 <div id="pengumuman-section" class="lg:col-span-7 space-y-6">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -276,11 +263,11 @@
                         </div>
                     </div>
                     <div class="space-y-4" id="container-pengumuman-list">
-                        <!-- Dynamic announcements list -->
+                        <!-- Konten diisi dinamis via JS -->
                     </div>
                 </div>
 
-                <!-- Form Pengajuan Surat Keterangan -->
+                <!-- Formulir Layanan Pengajuan Mandiri -->
                 <div id="layanan-section" class="lg:col-span-5 space-y-6">
                     <div class="flex items-center gap-2">
                         <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400">
@@ -325,7 +312,6 @@
                             </button>
                         </form>
 
-                        <!-- Static Success Block (Fitted at the bottom after submission) -->
                         <div id="static-success-block" class="hidden mt-6 p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200 dark:border-emerald-900/30 shadow-md space-y-4">
                             <div class="flex items-center gap-3">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md">
@@ -346,7 +332,7 @@
                         </div>
                     </div>
 
-                    <!-- Tracking Permohonan Surat -->
+                    <!-- Lacak Surat Mandiri -->
                     <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
                         <h4 class="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Lacak Status Surat Anda</h4>
                         <div class="flex gap-2">
@@ -355,13 +341,12 @@
                                 <i class="fa-solid fa-magnifying-glass"></i> Cari
                             </button>
                         </div>
-                        <div id="track-result" class="hidden mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white">
+                        <div id="track-result" class="hidden mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white font-medium">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Laporan Keuangan Section -->
             <div id="keuangan-section" class="space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
@@ -389,7 +374,7 @@
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300">Riwayat Pembukuan Terkini</h4>
-                                <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold" id="indicator-source">Mode: Sinkronisasi...</span>
+                                <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold" id="indicator-source">Mode: Menghubungkan ke Cloud...</span>
                             </div>
                             <div class="overflow-x-auto custom-scrollbar">
                                 <table class="w-full text-left text-xs text-slate-500 dark:text-slate-300">
@@ -425,7 +410,7 @@
                 </button>
             </div>
 
-            <!-- Tab Navigation -->
+            <!-- Tab Navigation Admin -->
             <div class="border-b border-slate-200 dark:border-slate-800">
                 <nav class="flex flex-wrap -mb-px gap-2">
                     <button data-tab="tab-keuangan" class="tab-link active border-b-2 border-brand-500 text-brand-600 px-4 py-3 text-sm font-bold flex items-center gap-2">
@@ -451,7 +436,7 @@
                     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
                             <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-1.5">
-                                <i class="fa-solid fa-plus-circle text-brand-500"></i> Catat Transaksi Baru
+                                <i class="fa-solid fa-plus-circle text-brand-500"></i> Catat Transaksi Kas
                             </h3>
                             <form id="form-admin-transaksi" class="space-y-4">
                                 <div>
@@ -566,7 +551,7 @@
                                             <th class="py-3 px-4 text-center">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="table-admin-warga-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+                                    <tbody id="table-admin-warga-body" class="divide-y divide-slate-100 dark:divide-slate-700 font-semibold">
                                     </tbody>
                                 </table>
                             </div>
@@ -629,6 +614,27 @@
                                         <option value="Darurat">Penting / Darurat</option>
                                     </select>
                                 </div>
+                                
+                                <!-- Lampiran File (Drag and Drop / File Input) -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Unggah Lampiran (Gambar / PDF)</label>
+                                    <div id="announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative">
+                                        <input type="file" id="announce-file" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                        <div class="space-y-1" id="announce-upload-prompt">
+                                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 dark:text-slate-600"></i>
+                                            <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Pilih berkas atau seret kemari</p>
+                                            <p class="text-[10px] text-slate-400">Gambar/PDF (Maks. 2MB)</p>
+                                        </div>
+                                        <div class="hidden text-xs text-brand-600 dark:text-brand-400 font-semibold" id="announce-upload-status">
+                                            <i class="fa-solid fa-circle-check text-emerald-500"></i> <span id="announce-file-name">NamaFile.jpg</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 hidden text-center" id="announce-preview-container">
+                                        <img id="announce-preview" class="max-h-28 mx-auto rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+                                        <button type="button" id="btn-remove-file" class="mt-1 text-[10px] font-bold text-red-500 hover:underline"><i class="fa-solid fa-trash-can"></i> Hapus Berkas</button>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
                                     Publikasikan Pengumuman
                                 </button>
@@ -661,7 +667,7 @@
 
     </main>
 
-    <!-- Custom Confirmation Modal (Replacer for Native confirm()) -->
+    <!-- Custom Confirmation Modal -->
     <div id="custom-confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
         <div class="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-2xl">
             <div class="flex items-center gap-3 text-red-500 mb-4">
@@ -749,7 +755,7 @@
                     <input type="text" id="edit-warga-nik" maxlength="16" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">No HP / WhatsApp</label>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">No HP / WhatsApp (Awali angka 0)</label>
                     <input type="text" id="edit-warga-phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
                 </div>
                 <div>
@@ -801,6 +807,26 @@
                         <option value="Darurat">Penting / Darurat</option>
                     </select>
                 </div>
+                
+                <!-- Edit Lampiran File -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Ganti Berkas Lampiran (Gambar / PDF)</label>
+                    <div id="edit-announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative">
+                        <input type="file" id="edit-announce-file" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div class="space-y-1" id="edit-announce-upload-prompt">
+                            <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400"></i>
+                            <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300">Pilih berkas baru</p>
+                        </div>
+                        <div class="hidden text-xs text-brand-600 dark:text-brand-400 font-semibold" id="edit-announce-upload-status">
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i> <span id="edit-announce-file-name">NamaFile.jpg</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 hidden text-center" id="edit-announce-preview-container">
+                        <img id="edit-announce-preview" class="max-h-20 mx-auto rounded-lg shadow-sm">
+                        <button type="button" id="btn-remove-edit-file" class="mt-1 text-[10px] font-bold text-red-500 hover:underline"><i class="fa-solid fa-trash-can"></i> Hapus Berkas</button>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" id="btn-cancel-edit-announce" class="rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-4 py-2.5 text-sm font-semibold transition">Batal</button>
                     <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 text-sm font-bold shadow-md transition">Simpan Perubahan</button>
@@ -809,22 +835,15 @@
         </div>
     </div>
 
-    <!-- App Footer -->
-    <footer class="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-10 transition-colors duration-200">
-        <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="flex items-center justify-center gap-2">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white shadow-md">
-                        <i class="fa-solid fa-house-laptop text-sm"></i>
-                    </div>
-                    <span class="font-extrabold text-slate-800 dark:text-white tracking-tight">RT SMART</span>
-                </div>
-                <p class="text-xs text-slate-400 dark:text-slate-500">&copy; 2026 RT SMART Digitalization System. Hak Cipta Dilindungi.</p>
-            </div>
-        </div>
-    </footer>
+    <!-- Lightbox Zoom Image Modal -->
+    <div id="zoom-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" onclick="closeZoomModal()">
+        <button class="absolute top-6 right-6 text-white text-3xl hover:text-slate-300">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <img id="zoom-modal-img" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain transition-transform duration-300" onclick="event.stopPropagation()">
+    </div>
 
-    <!-- Custom Notification Box -->
+    <!-- Toast Notification Container -->
     <div id="toast-notification" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white px-5 py-4 shadow-2xl">
         <span class="text-brand-400" id="toast-icon"><i class="fa-solid fa-circle-check"></i></span>
         <div class="text-xs font-semibold" id="toast-message">Proses berhasil dilakukan!</div>
@@ -832,10 +851,10 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        // URL DEPLOY GOOGLE APPS SCRIPT WEB APP
+        // CONFIGURASI DATABASE CLOUD
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
-        // Database Terkini (Dimulai Kosong demi Realtime Cloud)
+        // Database Terkini
         let dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
         let dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
         let dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
@@ -843,6 +862,15 @@
 
         let financeChartInstance = null;
         let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('rt_admin_session')) || false;
+
+        // Penampung berkas Base64 sementara
+        let tempBase64File = null;
+        let tempFileName = "";
+        let tempFileType = "";
+
+        let tempEditBase64File = null;
+        let tempEditFileName = "";
+        let tempEditFileType = "";
 
         function formatRupiah(number) {
             return new Intl.NumberFormat('id-ID', {
@@ -856,6 +884,12 @@
             const toast = document.getElementById('toast-notification');
             const icon = document.getElementById('toast-icon');
             const msg = document.getElementById('toast-message');
+
+            // Pengaman (Null-Guard) jika elemen HTML belum dirender sempurna
+            if (!toast || !icon || !msg) {
+                console.log((isSuccess ? "🔔 SUKSES: " : "⚠️ ERROR: ") + message);
+                return;
+            }
 
             msg.textContent = message;
             if (isSuccess) {
@@ -877,6 +911,11 @@
                 const bodyEl = document.getElementById('confirm-modal-body');
                 const btnCancel = document.getElementById('btn-confirm-cancel');
                 const btnOk = document.getElementById('btn-confirm-ok');
+
+                if (!modal || !titleEl || !bodyEl || !btnCancel || !btnOk) {
+                    resolve(true); // default fallback
+                    return;
+                }
 
                 titleEl.textContent = title;
                 bodyEl.textContent = body;
@@ -937,30 +976,32 @@
             const lightIcon = document.getElementById('theme-toggle-light-icon');
             const darkIcon = document.getElementById('theme-toggle-dark-icon');
 
+            if (!themeToggleBtn) return;
+
             const isDarkSaved = localStorage.getItem('color-theme') === 'dark' || 
                 (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
             if (isDarkSaved) {
                 document.documentElement.classList.add('dark');
-                lightIcon.classList.remove('hidden');
-                darkIcon.classList.add('hidden');
+                if (lightIcon) lightIcon.classList.remove('hidden');
+                if (darkIcon) darkIcon.classList.add('hidden');
             } else {
                 document.documentElement.classList.remove('dark');
-                lightIcon.classList.add('hidden');
-                darkIcon.classList.remove('hidden');
+                if (lightIcon) lightIcon.classList.add('hidden');
+                if (darkIcon) darkIcon.classList.remove('hidden');
             }
 
             themeToggleBtn.addEventListener('click', () => {
                 const isDark = document.documentElement.classList.toggle('dark');
                 
                 if (isDark) {
-                    lightIcon.classList.remove('hidden');
-                    darkIcon.classList.add('hidden');
+                    if (lightIcon) lightIcon.classList.remove('hidden');
+                    if (darkIcon) darkIcon.classList.add('hidden');
                     localStorage.setItem('color-theme', 'dark');
                     showNotification("Mode gelap diaktifkan");
                 } else {
-                    lightIcon.classList.add('hidden');
-                    darkIcon.classList.remove('hidden');
+                    if (lightIcon) lightIcon.classList.add('hidden');
+                    if (darkIcon) darkIcon.classList.remove('hidden');
                     localStorage.setItem('color-theme', 'light');
                     showNotification("Mode terang diaktifkan");
                 }
@@ -976,9 +1017,9 @@
             try {
                 if (action === 'read') {
                     const params = new URLSearchParams({ sheet: sheetName, action: 'read' });
+                    // HAPUS header custom 'Content-Type' untuk membiarkan browser mengikuti redirect 302 dari Google secara lancar
                     const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                        method: 'GET'
                     });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const json = await response.json();
@@ -1000,7 +1041,7 @@
         }
 
         async function syncDatabase(sheetName = null, action = null, data = null) {
-            const isCloud = (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA");
+            const isCloud = (typeof GAS_WEB_APP_URL !== 'undefined' && GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA");
             const indicator = document.getElementById('indicator-source');
             
             let gasSuccess = false;
@@ -1029,15 +1070,21 @@
             if (isCloud) {
                 if (gasSuccess || window.isCloudConnected) {
                     window.isCloudConnected = true;
-                    indicator.textContent = "Mode: Google Sheets (Cloud)";
-                    indicator.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
+                    if (indicator) {
+                        indicator.textContent = "Mode: Google Sheets (Cloud)";
+                        indicator.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
+                    }
                 } else {
-                    indicator.textContent = "Mode: Simulasi Lokal (Offline)";
-                    indicator.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse";
+                    if (indicator) {
+                        indicator.textContent = "Mode: Simulasi Lokal (Offline)";
+                        indicator.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse";
+                    }
                 }
             } else {
-                indicator.textContent = "Mode: Simulasi Lokal";
-                indicator.className = "text-xs text-brand-600 dark:text-brand-400 font-semibold";
+                if (indicator) {
+                    indicator.textContent = "Mode: Simulasi Lokal";
+                    indicator.className = "text-xs text-brand-600 dark:text-brand-400 font-semibold";
+                }
             }
 
             localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
@@ -1058,7 +1105,9 @@
                 overlay.classList.remove('opacity-0');
             }
 
-            if (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA") {
+            const isCloud = (typeof GAS_WEB_APP_URL !== 'undefined' && GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "URL_APPS_SCRIPT_ANDA");
+
+            if (isCloud) {
                 const indicator = document.getElementById('indicator-source');
                 if (indicator) {
                     indicator.textContent = "Menghubungkan ke Sheets...";
@@ -1066,9 +1115,8 @@
                 }
                 
                 try {
-                    // Batas waktu maks 10 detik agar aplikasi tidak hang jika internet terputus
                     const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error("Timeout Koneksi")), 10000)
+                        setTimeout(() => reject(new Error("Timeout Koneksi")), 15000)
                     );
 
                     const syncPromise = Promise.allSettled([
@@ -1092,7 +1140,6 @@
                 showNotification("Aplikasi berjalan dalam mode simulasi lokal.", false);
             }
 
-            // Sembunyikan Overlay dengan Transisi Mulus
             if (overlay) {
                 overlay.classList.add('opacity-0');
                 setTimeout(() => {
@@ -1122,90 +1169,125 @@
 
             const netSaldo = totalIn - totalOut;
 
-            document.getElementById('stat-saldo-kas').textContent = formatRupiah(netSaldo);
-            document.getElementById('stat-pemasukan').textContent = formatRupiah(totalIn);
-            document.getElementById('stat-count-pemasukan').textContent = `${countIn} Transaksi`;
-            document.getElementById('stat-pengeluaran').textContent = formatRupiah(totalOut);
-            document.getElementById('stat-count-pengeluaran').textContent = `${countOut} Transaksi`;
+            const elStatSaldo = document.getElementById('stat-saldo-kas');
+            const elStatIn = document.getElementById('stat-pemasukan');
+            const elStatCountIn = document.getElementById('stat-count-pemasukan');
+            const elStatOut = document.getElementById('stat-pengeluaran');
+            const elStatCountOut = document.getElementById('stat-count-pengeluaran');
+
+            if (elStatSaldo) elStatSaldo.textContent = formatRupiah(netSaldo);
+            if (elStatIn) elStatIn.textContent = formatRupiah(totalIn);
+            if (elStatCountIn) elStatCountIn.textContent = `${countIn} Transaksi`;
+            if (elStatOut) elStatOut.textContent = formatRupiah(totalOut);
+            if (elStatCountOut) elStatCountOut.textContent = `${countOut} Transaksi`;
 
             const ledgerTableBody = document.getElementById('table-keuangan-ringkas-body');
-            ledgerTableBody.innerHTML = '';
-            
-            const sortedRecentTrans = [...dbTransactions]
-                .sort((a, b) => new Date(b.date) - new Date(a.date))
-                .slice(0, 5);
+            if (ledgerTableBody) {
+                ledgerTableBody.innerHTML = '';
+                
+                const sortedRecentTrans = [...dbTransactions]
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 5);
 
-            if (sortedRecentTrans.length === 0) {
-                ledgerTableBody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">Belum ada catatan keuangan yang tersimpan.</td></tr>`;
-            } else {
-                sortedRecentTrans.forEach(item => {
-                    const typeBadge = item.type === 'Pemasukan' 
-                        ? `<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20"><i class="fa-solid fa-circle text-[4px]"></i> Pemasukan</span>`
-                        : `<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20"><i class="fa-solid fa-circle text-[4px]"></i> Pengeluaran</span>`;
-                    
-                    const amountClass = item.type === 'Pemasukan' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400 font-medium';
-                    const amountPrefix = item.type === 'Pemasukan' ? '+' : '-';
+                if (sortedRecentTrans.length === 0) {
+                    ledgerTableBody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400 font-semibold">Belum ada catatan keuangan yang tersimpan.</td></tr>`;
+                } else {
+                    sortedRecentTrans.forEach(item => {
+                        const typeBadge = item.type === 'Pemasukan' 
+                            ? `<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20"><i class="fa-solid fa-circle text-[4px]"></i> Pemasukan</span>`
+                            : `<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20"><i class="fa-solid fa-circle text-[4px]"></i> Pengeluaran</span>`;
+                        
+                        const amountClass = item.type === 'Pemasukan' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400 font-medium';
+                        const amountPrefix = item.type === 'Pemasukan' ? '+' : '-';
 
-                    const row = `
-                        <tr class="dark:border-slate-800">
-                            <td class="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">${item.date}</td>
-                            <td class="py-3 px-4 text-slate-600 dark:text-slate-400">${item.desc}</td>
-                            <td class="py-3 px-4 text-center">${typeBadge}</td>
-                            <td class="py-3 px-4 text-right font-semibold ${amountClass}">${amountPrefix} ${formatRupiah(item.amount)}</td>
-                        </tr>
-                    `;
-                    ledgerTableBody.innerHTML += row;
-                });
+                        const row = `
+                            <tr class="dark:border-slate-800">
+                                <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">${item.date}</td>
+                                <td class="py-3 px-4 font-semibold text-slate-600 dark:text-slate-400">${item.desc}</td>
+                                <td class="py-3 px-4 text-center">${typeBadge}</td>
+                                <td class="py-3 px-4 text-right font-bold ${amountClass}">${amountPrefix} ${formatRupiah(item.amount)}</td>
+                            </tr>
+                        `;
+                        ledgerTableBody.innerHTML += row;
+                    });
+                }
             }
 
             const announceListContainer = document.getElementById('container-pengumuman-list');
-            announceListContainer.innerHTML = '';
+            if (announceListContainer) {
+                announceListContainer.innerHTML = '';
 
-            const sortedAnnounce = [...dbPengumuman].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const sortedAnnounce = [...dbPengumuman].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            if (sortedAnnounce.length === 0) {
-                announceListContainer.innerHTML = `
-                    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 text-center">
-                        <p class="text-slate-400 dark:text-slate-500 text-sm font-medium">Belum ada pengumuman dirilis.</p>
-                    </div>
-                `;
-            } else {
-                sortedAnnounce.forEach(ann => {
-                    let catColor = "bg-brand-50 text-brand-700 ring-brand-700/10 dark:bg-brand-950/30 dark:text-brand-400";
-                    let iconHTML = '<i class="fa-solid fa-circle-info"></i>';
-                    
-                    if (ann.category === 'Imbauan') {
-                        catColor = "bg-orange-50 text-orange-700 ring-orange-700/10 dark:bg-orange-950/30 dark:text-orange-400";
-                        iconHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-                    } else if (ann.category === 'Iuran') {
-                        catColor = "bg-teal-50 text-teal-700 ring-teal-700/10 dark:bg-teal-950/30 dark:text-teal-400";
-                        iconHTML = '<i class="fa-solid fa-wallet"></i>';
-                    } else if (ann.category === 'Darurat') {
-                        catColor = "bg-red-50 text-red-700 ring-red-700/10 dark:bg-red-950/30 dark:text-red-400";
-                        iconHTML = '<i class="fa-solid fa-fire"></i>';
-                    }
-
-                    const card = `
-                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-5 shadow-sm space-y-3 hover:border-slate-300 dark:hover:border-slate-700 transition duration-200">
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset ${catColor}">
-                                    ${iconHTML} ${ann.category}
-                                </span>
-                                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500"><i class="fa-solid fa-calendar-day mr-1"></i> ${ann.date}</span>
-                            </div>
-                            <h4 class="text-md font-bold text-slate-800 dark:text-white">${ann.title}</h4>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">${ann.body}</p>
+                if (sortedAnnounce.length === 0) {
+                    announceListContainer.innerHTML = `
+                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 text-center">
+                            <p class="text-slate-400 dark:text-slate-500 text-sm font-semibold">Belum ada pengumuman dirilis.</p>
                         </div>
                     `;
-                    announceListContainer.innerHTML += card;
-                });
+                } else {
+                    sortedAnnounce.forEach(ann => {
+                        let catColor = "bg-brand-50 text-brand-700 ring-brand-700/10 dark:bg-brand-950/30 dark:text-brand-400";
+                        let iconHTML = '<i class="fa-solid fa-circle-info"></i>';
+                        
+                        if (ann.category === 'Imbauan') {
+                            catColor = "bg-orange-50 text-orange-700 ring-orange-700/10 dark:bg-orange-950/30 dark:text-orange-400";
+                            iconHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                        } else if (ann.category === 'Iuran') {
+                            catColor = "bg-teal-50 text-teal-700 ring-teal-700/10 dark:bg-teal-950/30 dark:text-teal-400";
+                            iconHTML = '<i class="fa-solid fa-wallet"></i>';
+                        } else if (ann.category === 'Darurat') {
+                            catColor = "bg-red-50 text-red-700 ring-red-700/10 dark:bg-red-950/30 dark:text-red-400";
+                            iconHTML = '<i class="fa-solid fa-fire"></i>';
+                        }
+
+                        // Render lampiran berkas jika tersedia
+                        let attachmentHTML = '';
+                        if (ann.attachment) {
+                            if (ann.attachmentType && ann.attachmentType.startsWith('image/')) {
+                                attachmentHTML = `
+                                    <div class="mt-3">
+                                        <img src="${ann.attachment}" alt="Lampiran" class="max-h-64 rounded-xl shadow-sm hover:opacity-90 cursor-pointer object-cover" onclick="openZoomModal('${ann.attachment}')">
+                                    </div>
+                                `;
+                            } else if (ann.attachmentType === 'application/pdf') {
+                                attachmentHTML = `
+                                    <div class="mt-3">
+                                        <a href="${ann.attachment}" download="${ann.attachmentName || 'Dokumen_Lampiran.pdf'}" class="inline-flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/30 px-4 py-2 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-100 transition">
+                                            <i class="fa-solid fa-file-pdf text-base"></i>
+                                            <span>Unduh PDF Lampiran: ${ann.attachmentName || 'Dokumen'}</span>
+                                        </a>
+                                    </div>
+                                `;
+                            }
+                        }
+
+                        const card = `
+                            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-5 shadow-sm space-y-3 hover:border-slate-300 dark:hover:border-slate-700 transition duration-200">
+                                <div class="flex items-center justify-between">
+                                    <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset ${catColor}">
+                                        ${iconHTML} ${ann.category}
+                                    </span>
+                                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500"><i class="fa-solid fa-calendar-day mr-1"></i> ${ann.date}</span>
+                                </div>
+                                <h4 class="text-md font-bold text-slate-800 dark:text-white">${ann.title}</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">${ann.body}</p>
+                                ${attachmentHTML}
+                            </div>
+                        `;
+                        announceListContainer.innerHTML += card;
+                    });
+                }
             }
 
             renderChart(totalIn, totalOut);
         }
 
         function renderChart(pemasukan, pengeluaran) {
-            const ctx = document.getElementById('canvas-finance-chart').getContext('2d');
+            const chartCanvas = document.getElementById('canvas-finance-chart');
+            if (!chartCanvas) return;
+
+            const ctx = chartCanvas.getContext('2d');
             const isDark = document.documentElement.classList.contains('dark');
             const textHex = isDark ? '#94a3b8' : '#64748b';
 
@@ -1249,181 +1331,192 @@
 
         function renderAdminDashboard() {
             const adminKeuanganBody = document.getElementById('table-admin-keuangan-body');
-            adminKeuanganBody.innerHTML = '';
-            
-            const sortedAllTrans = [...dbTransactions].sort((a,b) => new Date(b.date) - new Date(a.date));
-            document.getElementById('admin-count-kas').textContent = `Total: ${sortedAllTrans.length} Item`;
+            if (adminKeuanganBody) {
+                adminKeuanganBody.innerHTML = '';
+                
+                const sortedAllTrans = [...dbTransactions].sort((a,b) => new Date(b.date) - new Date(a.date));
+                const countKasEl = document.getElementById('admin-count-kas');
+                if (countKasEl) countKasEl.textContent = `Total: ${sortedAllTrans.length} Item`;
 
-            if (sortedAllTrans.length === 0) {
-                adminKeuanganBody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Belum ada transaksi tersimpan.</td></tr>`;
-            } else {
-                sortedAllTrans.forEach(item => {
-                    const typeBadge = item.type === 'Pemasukan' 
-                        ? `<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-600/10">Pemasukan</span>`
-                        : `<span class="inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-400 ring-1 ring-emerald-600/10">Pengeluaran</span>`;
-                    
-                    const amountClass = item.type === 'Pemasukan' ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-red-600 dark:text-red-400 font-bold';
+                if (sortedAllTrans.length === 0) {
+                    adminKeuanganBody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 font-semibold">Belum ada transaksi tersimpan.</td></tr>`;
+                } else {
+                    sortedAllTrans.forEach(item => {
+                        const typeBadge = item.type === 'Pemasukan' 
+                            ? `<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-600/10">Pemasukan</span>`
+                            : `<span class="inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-400 ring-1 ring-emerald-600/10">Pengeluaran</span>`;
+                        
+                        const amountClass = item.type === 'Pemasukan' ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-red-600 dark:text-red-400 font-bold';
 
-                    const row = `
-                        <tr class="dark:border-slate-700">
-                            <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">${item.date}</td>
-                            <td class="py-3 px-4 text-slate-600 dark:text-slate-400 font-medium">${item.desc}</td>
-                            <td class="py-3 px-4 text-center">${typeBadge}</td>
-                            <td class="py-3 px-4 text-right ${amountClass}">${formatRupiah(item.amount)}</td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <button onclick="openEditTransaksi('${item.id}')" class="text-brand-600 hover:text-brand-800 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </button>
-                                    <button onclick="deleteTransaksi('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    adminKeuanganBody.innerHTML += row;
-                });
+                        const row = `
+                            <tr class="dark:border-slate-700">
+                                <td class="py-3 px-4 font-bold text-slate-700 dark:text-slate-300">${item.date}</td>
+                                <td class="py-3 px-4 text-slate-600 dark:text-slate-400 font-semibold">${item.desc}</td>
+                                <td class="py-3 px-4 text-center">${typeBadge}</td>
+                                <td class="py-3 px-4 text-right font-extrabold ${amountClass}">${formatRupiah(item.amount)}</td>
+                                <td class="py-3 px-4 text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button onclick="openEditTransaksi('${item.id}')" class="text-brand-600 hover:text-brand-800 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button onclick="deleteTransaksi('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        adminKeuanganBody.innerHTML += row;
+                    });
+                }
             }
 
             const adminWargaBody = document.getElementById('table-admin-warga-body');
-            adminWargaBody.innerHTML = '';
-            document.getElementById('admin-count-warga').textContent = `${dbWarga.length} Warga Terdaftar`;
+            if (adminWargaBody) {
+                adminWargaBody.innerHTML = '';
+                const countWargaEl = document.getElementById('admin-count-warga');
+                if (countWargaEl) countWargaEl.textContent = `${dbWarga.length} Warga Terdaftar`;
 
-            if (dbWarga.length === 0) {
-                adminWargaBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Tidak ada data warga di sistem.</td></tr>`;
-            } else {
-                dbWarga.forEach(item => {
-                    const statusClass = item.status === 'Warga Tetap' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/10 dark:bg-indigo-950/30 dark:text-indigo-400' : 'bg-slate-100 text-slate-700 ring-slate-600/10 dark:bg-slate-900 dark:text-slate-300';
-                    
-                    // Bersihkan prefiks kutip satu jika ada
-                    let rawPhone = item.phone || '';
-                    if (rawPhone.startsWith("'")) {
-                        rawPhone = rawPhone.substring(1);
-                    }
+                if (dbWarga.length === 0) {
+                    adminWargaBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400 font-semibold">Tidak ada data warga di sistem.</td></tr>`;
+                } else {
+                    dbWarga.forEach(item => {
+                        const statusClass = item.status === 'Warga Tetap' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/10 dark:bg-indigo-950/30 dark:text-indigo-400' : 'bg-slate-100 text-slate-700 ring-slate-600/10 dark:bg-slate-900 dark:text-slate-300';
+                        
+                        // Bersihkan tanda kutip satu untuk visualisasi frontend
+                        let rawPhone = item.phone || '';
+                        if (rawPhone.startsWith("'")) {
+                            rawPhone = rawPhone.substring(1);
+                        }
 
-                    // Buat link WA yang valid (Ganti awalan 0 menjadi 62)
-                    let waPhone = rawPhone;
-                    if (waPhone.startsWith('0')) {
-                        waPhone = '62' + waPhone.substring(1);
-                    }
-                    const waLink = `https://wa.me/${waPhone}`;
+                        // Buat link WhatsApp instan
+                        let waPhone = rawPhone;
+                        if (waPhone.startsWith('0')) {
+                            waPhone = '62' + waPhone.substring(1);
+                        }
+                        const waLink = `https://wa.me/${waPhone}`;
 
-                    const phoneDisplay = rawPhone ? `
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-xs text-slate-700 dark:text-slate-300">${rawPhone}</span>
-                            <a href="${waLink}" target="_blank" class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition" title="Kirim Pesan WhatsApp">
-                                <i class="fa-brands fa-whatsapp text-sm"></i>
-                            </a>
-                        </div>
-                    ` : `<span class="text-slate-400">-</span>`;
+                        const phoneDisplay = rawPhone ? `
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-xs text-slate-700 dark:text-slate-300">${rawPhone}</span>
+                                <a href="${waLink}" target="_blank" class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition" title="Kirim Pesan WhatsApp">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                </a>
+                            </div>
+                        ` : `<span class="text-slate-400">-</span>`;
 
-                    const row = `
-                        <tr class="dark:border-slate-700">
-                            <td class="py-3 px-4 font-bold text-slate-700 dark:text-slate-300">${item.nama}</td>
-                            <td class="py-3 px-4 text-slate-500 dark:text-slate-400 font-mono">${item.nik}</td>
-                            <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">${item.alamat}</td>
-                            <td class="py-3 px-4">${phoneDisplay}</td>
-                            <td class="py-3 px-4 text-center">
-                                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${statusClass}">${item.status}</span>
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <button onclick="openEditWarga('${item.id}')" class="text-brand-600 hover:text-brand-800 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data Warga">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </button>
-                                    <button onclick="deleteWarga('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus Data">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    adminWargaBody.innerHTML += row;
-                });
+                        const row = `
+                            <tr class="dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-slate-700 dark:text-slate-300">${item.nama}</td>
+                                <td class="py-3 px-4 text-slate-500 dark:text-slate-400 font-mono">${item.nik}</td>
+                                <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">${item.alamat}</td>
+                                <td class="py-3 px-4">${phoneDisplay}</td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-bold ring-1 ring-inset ${statusClass}">${item.status}</span>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button onclick="openEditWarga('${item.id}')" class="text-brand-600 hover:text-brand-800 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data Warga">
+                                            <i class="fa-solid fa-user-pen"></i>
+                                        </button>
+                                        <button onclick="deleteWarga('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus Data">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        adminWargaBody.innerHTML += row;
+                    });
+                }
             }
 
             const adminSuratBody = document.getElementById('table-admin-surat-body');
-            adminSuratBody.innerHTML = '';
-            document.getElementById('admin-count-surat').textContent = `${dbSurat.length} Antrean`;
+            if (adminSuratBody) {
+                adminSuratBody.innerHTML = '';
+                const countSuratEl = document.getElementById('admin-count-surat');
+                if (countSuratEl) countSuratEl.textContent = `${dbSurat.length} Antrean`;
 
-            if (dbSurat.length === 0) {
-                adminSuratBody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">Belum ada pengajuan surat keterangan masuk.</td></tr>`;
-            } else {
-                dbSurat.forEach(item => {
-                    let statusBadge = '';
-                    if (item.status === 'Diproses') {
-                        statusBadge = `<span class="inline-flex items-center gap-1.5 rounded-full bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 text-xs font-bold text-orange-700 dark:text-orange-400 ring-1 ring-inset ring-orange-600/20"><i class="fa-solid fa-spinner animate-spin"></i> Diproses</span>`;
-                    } else if (item.status === 'Selesai') {
-                        statusBadge = `<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20"><i class="fa-solid fa-check"></i> Selesai</span>`;
-                    } else if (item.status === 'Ditolak') {
-                        statusBadge = `<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20"><i class="fa-solid fa-xmark"></i> Ditolak</span>`;
-                    }
+                if (dbSurat.length === 0) {
+                    adminSuratBody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400 font-semibold">Belum ada pengajuan surat keterangan masuk.</td></tr>`;
+                } else {
+                    dbSurat.forEach(item => {
+                        let statusBadge = '';
+                        if (item.status === 'Diproses') {
+                            statusBadge = `<span class="inline-flex items-center gap-1.5 rounded-full bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 text-xs font-bold text-orange-700 dark:text-orange-400 ring-1 ring-inset ring-orange-600/20"><i class="fa-solid fa-spinner animate-spin"></i> Diproses</span>`;
+                        } else if (item.status === 'Selesai') {
+                            statusBadge = `<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20"><i class="fa-solid fa-check"></i> Selesai</span>`;
+                        } else if (item.status === 'Ditolak') {
+                            statusBadge = `<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20"><i class="fa-solid fa-xmark"></i> Ditolak</span>`;
+                        }
 
-                    const row = `
-                        <tr class="dark:border-slate-700">
-                            <td class="py-3 px-4">
-                                <div class="font-bold text-slate-800 dark:text-slate-300">${item.nama}</div>
-                                <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">NIK: ${item.nik}</div>
-                                <div class="text-[10px] text-slate-400 dark:text-slate-500 font-sans">Telp: ${item.phone}</div>
-                            </td>
-                            <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300 text-xs">${item.type}</td>
-                            <td class="py-3 px-4 text-slate-500 dark:text-slate-400 text-xs max-w-xs truncate">${item.desc}</td>
-                            <td class="py-3 px-4 text-slate-500 dark:text-slate-400 font-medium text-[11px]">${item.date}</td>
-                            <td class="py-3 px-4 text-center">${statusBadge}</td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-1">
-                                    <button onclick="updateStatusSurat('${item.id}', 'Diproses')" class="bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/30 dark:hover:bg-orange-900/40 text-orange-600 dark:text-orange-400 text-[10px] px-2 py-1 rounded font-bold border border-orange-200 dark:border-orange-900/40 transition">Proses</button>
-                                    <button onclick="updateStatusSurat('${item.id}', 'Selesai')" class="bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-[10px] px-2 py-1 rounded font-bold border border-emerald-200 dark:border-emerald-900/40 transition">Selesai</button>
-                                    <button onclick="updateStatusSurat('${item.id}', 'Ditolak')" class="bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-[10px] px-2 py-1 rounded font-bold border border-red-200 dark:border-red-900/40 transition">Tolak</button>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-1">
-                                    <button onclick="cetakFormulirSurat('${item.id}')" class="text-brand-500 hover:text-brand-700 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1 rounded transition" title="Unduh / Print">
-                                        <i class="fa-solid fa-print"></i>
-                                    </button>
-                                    <button onclick="deleteSurat('${item.id}')" class="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 p-1 rounded transition" title="Hapus">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    adminSuratBody.innerHTML += row;
-                });
+                        const row = `
+                            <tr class="dark:border-slate-700">
+                                <td class="py-3 px-4">
+                                    <div class="font-bold text-slate-800 dark:text-slate-300">${item.nama}</div>
+                                    <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">NIK: ${item.nik}</div>
+                                    <div class="text-[10px] text-slate-400 dark:text-slate-500 font-sans">Telp: ${item.phone}</div>
+                                </td>
+                                <td class="py-3 px-4 font-bold text-slate-700 dark:text-slate-300 text-xs">${item.type}</td>
+                                <td class="py-3 px-4 text-slate-500 dark:text-slate-400 text-xs max-w-xs truncate">${item.desc}</td>
+                                <td class="py-3 px-4 text-slate-500 dark:text-slate-400 font-medium text-[11px]">${item.date}</td>
+                                <td class="py-3 px-4 text-center">${statusBadge}</td>
+                                <td class="py-3 px-4 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button onclick="updateStatusSurat('${item.id}', 'Diproses')" class="bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/30 dark:hover:bg-orange-900/40 text-orange-600 dark:text-orange-400 text-[10px] px-2 py-1 rounded font-bold border border-orange-200 dark:border-orange-900/40 transition">Proses</button>
+                                        <button onclick="updateStatusSurat('${item.id}', 'Selesai')" class="bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-[10px] px-2 py-1 rounded font-bold border border-emerald-200 dark:border-emerald-900/40 transition">Selesai</button>
+                                        <button onclick="updateStatusSurat('${item.id}', 'Ditolak')" class="bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-[10px] px-2 py-1 rounded font-bold border border-red-200 dark:border-red-900/40 transition">Tolak</button>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button onclick="cetakFormulirSurat('${item.id}')" class="text-brand-500 hover:text-brand-700 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1 rounded transition" title="Unduh / Print">
+                                            <i class="fa-solid fa-print"></i>
+                                        </button>
+                                        <button onclick="deleteSurat('${item.id}')" class="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 p-1 rounded transition" title="Hapus">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        adminSuratBody.innerHTML += row;
+                    });
+                }
             }
 
             const adminPengumumanBody = document.getElementById('table-admin-pengumuman-body');
-            adminPengumumanBody.innerHTML = '';
+            if (adminPengumumanBody) {
+                adminPengumumanBody.innerHTML = '';
 
-            const sortedAnnounce = [...dbPengumuman].sort((a,b) => new Date(b.date) - new Date(a.date));
+                const sortedAnnounce = [...dbPengumuman].sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            if (sortedAnnounce.length === 0) {
-                adminPengumumanBody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">Belum ada pengumuman diterbitkan.</td></tr>`;
-            } else {
-                sortedAnnounce.forEach(item => {
-                    const row = `
-                        <tr class="dark:border-slate-700">
-                            <td class="py-3 px-4 text-slate-600 dark:text-slate-400 font-medium">${item.date}</td>
-                            <td class="py-3 px-4 font-bold text-slate-800 dark:text-white">${item.title}</td>
-                            <td class="py-3 px-4 text-center">
-                                <span class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-md dark:bg-brand-950/30 dark:text-brand-400">${item.category}</span>
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <button onclick="openEditPengumuman('${item.id}')" class="text-brand-600 hover:text-brand-800 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </button>
-                                    <button onclick="deletePengumuman('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    adminPengumumanBody.innerHTML += row;
-                });
+                if (sortedAnnounce.length === 0) {
+                    adminPengumumanBody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400 font-semibold">Belum ada pengumuman diterbitkan.</td></tr>`;
+                } else {
+                    sortedAnnounce.forEach(item => {
+                        const row = `
+                            <tr class="dark:border-slate-700">
+                                <td class="py-3 px-4 text-slate-600 dark:text-slate-400 font-bold">${item.date}</td>
+                                <td class="py-3 px-4 font-bold text-slate-800 dark:text-white">${item.title}</td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-md dark:bg-brand-950/30 dark:text-brand-400">${item.category}</span>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button onclick="openEditPengumuman('${item.id}')" class="text-brand-600 hover:text-brand-800 hover:bg-brand-50 dark:hover:bg-brand-950/30 p-1.5 rounded-lg transition" title="Edit Data">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button onclick="deletePengumuman('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 p-1.5 rounded-lg transition" title="Hapus">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        adminPengumumanBody.innerHTML += row;
+                    });
+                }
             }
         }
 
@@ -1463,23 +1556,30 @@
             }
         }
 
-        // --- FITUR EDIT MODAL TRIGGER ---
         function openEditTransaksi(id) {
             const item = dbTransactions.find(t => t.id === id);
             if (!item) return;
 
-            document.getElementById('edit-finance-id').value = item.id;
-            document.getElementById('edit-trans-nominal').value = item.amount;
-            document.getElementById('edit-trans-tanggal').value = item.date;
-            document.getElementById('edit-trans-deskripsi').value = item.desc;
+            const fId = document.getElementById('edit-finance-id');
+            const fNom = document.getElementById('edit-trans-nominal');
+            const fDate = document.getElementById('edit-trans-tanggal');
+            const fDesc = document.getElementById('edit-trans-deskripsi');
+
+            if (fId) fId.value = item.id;
+            if (fNom) fNom.value = item.amount;
+            if (fDate) fDate.value = item.date;
+            if (fDesc) fDesc.value = item.desc;
             
+            const radioIn = document.getElementById('edit-trans-jenis-in');
+            const radioOut = document.getElementById('edit-trans-jenis-out');
             if (item.type === 'Pemasukan') {
-                document.getElementById('edit-trans-jenis-in').checked = true;
+                if (radioIn) radioIn.checked = true;
             } else {
-                document.getElementById('edit-trans-jenis-out').checked = true;
+                if (radioOut) radioOut.checked = true;
             }
 
-            document.getElementById('custom-edit-finance-modal').classList.remove('hidden');
+            const modal = document.getElementById('custom-edit-finance-modal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         function openEditWarga(id) {
@@ -1492,26 +1592,69 @@
                 rawPhone = rawPhone.substring(1);
             }
 
-            document.getElementById('edit-warga-id').value = item.id;
-            document.getElementById('edit-warga-nama').value = item.nama;
-            document.getElementById('edit-warga-nik').value = item.nik;
-            document.getElementById('edit-warga-phone').value = rawPhone;
-            document.getElementById('edit-warga-alamat').value = item.alamat;
-            document.getElementById('edit-warga-status').value = item.status;
+            const wId = document.getElementById('edit-warga-id');
+            const wNama = document.getElementById('edit-warga-nama');
+            const wNik = document.getElementById('edit-warga-nik');
+            const wPhone = document.getElementById('edit-warga-phone');
+            const wAlamat = document.getElementById('edit-warga-alamat');
+            const wStatus = document.getElementById('edit-warga-status');
 
-            document.getElementById('custom-edit-warga-modal').classList.remove('hidden');
+            if (wId) wId.value = item.id;
+            if (wNama) wNama.value = item.nama;
+            if (wNik) wNik.value = item.nik;
+            if (wPhone) wPhone.value = rawPhone;
+            if (wAlamat) wAlamat.value = item.alamat;
+            if (wStatus) wStatus.value = item.status;
+
+            const modal = document.getElementById('custom-edit-warga-modal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         function openEditPengumuman(id) {
             const item = dbPengumuman.find(p => p.id === id);
             if (!item) return;
 
-            document.getElementById('edit-announce-id').value = item.id;
-            document.getElementById('edit-announce-title').value = item.title;
-            document.getElementById('edit-announce-body').value = item.body;
-            document.getElementById('edit-announce-category').value = item.category;
+            const pId = document.getElementById('edit-announce-id');
+            const pTitle = document.getElementById('edit-announce-title');
+            const pBody = document.getElementById('edit-announce-body');
+            const pCat = document.getElementById('edit-announce-category');
 
-            document.getElementById('custom-edit-announce-modal').classList.remove('hidden');
+            if (pId) pId.value = item.id;
+            if (pTitle) pTitle.value = item.title;
+            if (pBody) pBody.value = item.body;
+            if (pCat) pCat.value = item.category;
+
+            // Atur ulang formulir unggah edit pengumuman
+            tempEditBase64File = item.attachment || null;
+            tempEditFileName = item.attachmentName || "";
+            tempEditFileType = item.attachmentType || "";
+
+            const uploadStatus = document.getElementById('edit-announce-upload-status');
+            const uploadPrompt = document.getElementById('edit-announce-upload-prompt');
+            const previewCont = document.getElementById('edit-announce-preview-container');
+            const previewImg = document.getElementById('edit-announce-preview');
+
+            if (tempEditBase64File) {
+                if (uploadStatus) uploadStatus.classList.remove('hidden');
+                if (uploadPrompt) uploadPrompt.classList.add('hidden');
+                
+                const fNameEl = document.getElementById('edit-announce-file-name');
+                if (fNameEl) fNameEl.textContent = tempEditFileName || "Lampiran Terunggah";
+
+                if (tempEditFileType && tempEditFileType.startsWith('image/')) {
+                    if (previewImg) previewImg.src = tempEditBase64File;
+                    if (previewCont) previewCont.classList.remove('hidden');
+                } else {
+                    if (previewCont) previewCont.classList.add('hidden');
+                }
+            } else {
+                if (uploadStatus) uploadStatus.classList.add('hidden');
+                if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+                if (previewCont) previewCont.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('custom-edit-announce-modal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         async function updateStatusSurat(id, statusBaru) {
@@ -1521,6 +1664,20 @@
                 await syncDatabase('Surat', 'update', { id: id, newData: { status: statusBaru } });
                 showNotification(`Status surat ${surat.nama} diubah menjadi ${statusBaru}`);
             }
+        }
+
+        function openZoomModal(src) {
+            const modal = document.getElementById('zoom-modal');
+            const img = document.getElementById('zoom-modal-img');
+            if (modal && img) {
+                img.src = src;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeZoomModal() {
+            const modal = document.getElementById('zoom-modal');
+            if (modal) modal.classList.add('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1540,66 +1697,82 @@
             const loginDropdown = document.getElementById('login-dropdown');
             const btnCloseLogin = document.getElementById('btn-close-login');
 
-            btnShowLogin.addEventListener('click', (e) => {
-                e.stopPropagation();
-                loginDropdown.classList.toggle('hidden');
-            });
+            if (btnShowLogin && loginDropdown) {
+                btnShowLogin.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    loginDropdown.classList.toggle('hidden');
+                });
+            }
 
-            btnCloseLogin.addEventListener('click', () => {
-                loginDropdown.classList.add('hidden');
-            });
+            if (btnCloseLogin && loginDropdown) {
+                btnCloseLogin.addEventListener('click', () => {
+                    loginDropdown.classList.add('hidden');
+                });
+            }
 
-            loginDropdown.addEventListener('click', (e) => { e.stopPropagation(); });
-            window.addEventListener('click', () => { loginDropdown.classList.add('hidden'); });
+            if (loginDropdown) {
+                loginDropdown.addEventListener('click', (e) => { e.stopPropagation(); });
+            }
+            window.addEventListener('click', () => { 
+                if (loginDropdown) loginDropdown.classList.add('hidden'); 
+            });
 
             // Password Toggle Visibility
             const btnTogglePassword = document.getElementById('btn-toggle-password');
             const loginPasswordInput = document.getElementById('login-password');
             const eyeIcon = document.getElementById('eye-icon');
 
-            btnTogglePassword.addEventListener('click', () => {
-                if (loginPasswordInput.type === 'password') {
-                    loginPasswordInput.type = 'text';
-                    eyeIcon.className = 'fa-solid fa-eye-slash text-xs';
-                } else {
-                    loginPasswordInput.type = 'password';
-                    eyeIcon.className = 'fa-solid fa-eye text-xs';
-                }
-            });
+            if (btnTogglePassword && loginPasswordInput && eyeIcon) {
+                btnTogglePassword.addEventListener('click', () => {
+                    if (loginPasswordInput.type === 'password') {
+                        loginPasswordInput.type = 'text';
+                        eyeIcon.className = 'fa-solid fa-eye-slash text-xs';
+                    } else {
+                        loginPasswordInput.type = 'password';
+                        eyeIcon.className = 'fa-solid fa-eye text-xs';
+                    }
+                });
+            }
 
             // Handle Authentication Login Form
             const formLogin = document.getElementById('form-login');
             const loginErrorMsg = document.getElementById('login-error-msg');
 
-            formLogin.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const username = document.getElementById('login-username').value;
-                const pass = loginPasswordInput.value;
+            if (formLogin) {
+                formLogin.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const username = document.getElementById('login-username').value;
+                    const pass = loginPasswordInput ? loginPasswordInput.value : '';
 
-                if (username === 'admin' && pass === 'admin123') {
-                    isAdminLoggedIn = true;
-                    sessionStorage.setItem('rt_admin_session', JSON.stringify(true));
-                    loginErrorMsg.classList.add('hidden');
-                    loginDropdown.classList.add('hidden');
-                    
-                    formLogin.reset();
-                    showNotification('Autentikasi Berhasil. Selamat bekerja, Admin!');
-                    toggleSessionUI();
-                    renderAdminDashboard();
-                    
-                    document.getElementById('admin-dashboard').scrollIntoView({ behavior: 'smooth' });
-                } else {
-                    loginErrorMsg.classList.remove('hidden');
-                }
-            });
+                    if (username === 'admin' && pass === 'admin123') {
+                        isAdminLoggedIn = true;
+                        sessionStorage.setItem('rt_admin_session', JSON.stringify(true));
+                        if (loginErrorMsg) loginErrorMsg.classList.add('hidden');
+                        if (loginDropdown) loginDropdown.classList.add('hidden');
+                        
+                        formLogin.reset();
+                        showNotification('Autentikasi Berhasil. Selamat bekerja, Admin!');
+                        toggleSessionUI();
+                        renderAdminDashboard();
+                        
+                        const adminEl = document.getElementById('admin-dashboard');
+                        if (adminEl) adminEl.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        if (loginErrorMsg) loginErrorMsg.classList.remove('hidden');
+                    }
+                });
+            }
 
             // Handle Logout
-            document.getElementById('btn-logout').addEventListener('click', () => {
-                isAdminLoggedIn = false;
-                sessionStorage.removeItem('rt_admin_session');
-                showNotification('Keluar dari mode pengurus RT.', false);
-                toggleSessionUI();
-            });
+            const btnLogout = document.getElementById('btn-logout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', () => {
+                    isAdminLoggedIn = false;
+                    sessionStorage.removeItem('rt_admin_session');
+                    showNotification('Keluar dari mode pengurus RT.', false);
+                    toggleSessionUI();
+                });
+            }
 
             // TAB SWITCHING LOGIC
             const tabLinks = document.querySelectorAll('.tab-link');
@@ -1617,333 +1790,552 @@
 
                     link.classList.add('active', 'border-brand-500', 'text-brand-600');
                     link.classList.remove('text-slate-500', 'border-transparent');
-                    document.getElementById(targetTabId).classList.remove('hidden');
+                    
+                    const targetEl = document.getElementById(targetTabId);
+                    if (targetEl) targetEl.classList.remove('hidden');
                 });
             });
 
-            // FORM SUBMISSION: Pengajuan Surat Warga + WA confirm
+            // DRAG & DROP FILE UPLOAD (PENGUMUMAN BARU)
+            const dropZone = document.getElementById('announce-drop-zone');
+            const fileInput = document.getElementById('announce-file');
+            const uploadStatus = document.getElementById('announce-upload-status');
+            const uploadPrompt = document.getElementById('announce-upload-prompt');
+            const previewContainer = document.getElementById('announce-preview-container');
+            const previewImg = document.getElementById('announce-preview');
+            const btnRemoveFile = document.getElementById('btn-remove-file');
+
+            function handleFileSelect(file) {
+                if (!file) return;
+                if (file.size > 2 * 1024 * 1024) {
+                    showNotification("Gagal! Batas maksimum file adalah 2MB.", false);
+                    return;
+                }
+
+                tempFileName = file.name;
+                tempFileType = file.type;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempBase64File = e.target.result;
+                    if (uploadPrompt) uploadPrompt.classList.add('hidden');
+                    if (uploadStatus) {
+                        uploadStatus.classList.remove('hidden');
+                        const statusName = document.getElementById('announce-file-name');
+                        if (statusName) statusName.textContent = file.name;
+                    }
+
+                    if (file.type.startsWith('image/')) {
+                        if (previewImg) previewImg.src = tempBase64File;
+                        if (previewContainer) previewContainer.classList.remove('hidden');
+                    } else {
+                        if (previewContainer) previewContainer.classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            if (fileInput) {
+                fileInput.addEventListener('change', (e) => {
+                    handleFileSelect(e.target.files[0]);
+                });
+            }
+
+            if (dropZone) {
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-brand-500', 'bg-brand-50/50');
+                });
+
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                    handleFileSelect(e.dataTransfer.files[0]);
+                });
+            }
+
+            if (btnRemoveFile) {
+                btnRemoveFile.addEventListener('click', () => {
+                    tempBase64File = null;
+                    tempFileName = "";
+                    tempFileType = "";
+                    if (fileInput) fileInput.value = "";
+                    if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+                    if (uploadStatus) uploadStatus.classList.add('hidden');
+                    if (previewContainer) previewContainer.classList.add('hidden');
+                });
+            }
+
+            // DRAG & DROP FILE UPLOAD (EDIT PENGUMUMAN)
+            const editDropZone = document.getElementById('edit-announce-drop-zone');
+            const editFileInput = document.getElementById('edit-announce-file');
+            const editUploadStatus = document.getElementById('edit-announce-upload-status');
+            const editUploadPrompt = document.getElementById('edit-announce-upload-prompt');
+            const editPreviewContainer = document.getElementById('edit-announce-preview-container');
+            const editPreviewImg = document.getElementById('edit-announce-preview');
+            const btnRemoveEditFile = document.getElementById('btn-remove-edit-file');
+
+            function handleEditFileSelect(file) {
+                if (!file) return;
+                if (file.size > 2 * 1024 * 1024) {
+                    showNotification("Gagal! Batas maksimum file adalah 2MB.", false);
+                    return;
+                }
+
+                tempEditFileName = file.name;
+                tempEditFileType = file.type;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempEditBase64File = e.target.result;
+                    if (editUploadPrompt) editUploadPrompt.classList.add('hidden');
+                    if (editUploadStatus) {
+                        editUploadStatus.classList.remove('hidden');
+                        const statusEditName = document.getElementById('edit-announce-file-name');
+                        if (statusEditName) statusEditName.textContent = file.name;
+                    }
+
+                    if (file.type.startsWith('image/')) {
+                        if (editPreviewImg) editPreviewImg.src = tempEditBase64File;
+                        if (editPreviewContainer) editPreviewContainer.classList.remove('hidden');
+                    } else {
+                        if (editPreviewContainer) editPreviewContainer.classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            if (editFileInput) {
+                editFileInput.addEventListener('change', (e) => {
+                    handleEditFileSelect(e.target.files[0]);
+                });
+            }
+
+            if (editDropZone) {
+                editDropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    editDropZone.classList.add('border-brand-500', 'bg-brand-50/50');
+                });
+
+                editDropZone.addEventListener('dragleave', () => {
+                    editDropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                });
+
+                editDropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    editDropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                    handleEditFileSelect(e.dataTransfer.files[0]);
+                });
+            }
+
+            if (btnRemoveEditFile) {
+                btnRemoveEditFile.addEventListener('click', () => {
+                    tempEditBase64File = null;
+                    tempEditFileName = "";
+                    tempEditFileType = "";
+                    if (editFileInput) editFileInput.value = "";
+                    if (editUploadPrompt) editUploadPrompt.classList.remove('hidden');
+                    if (editUploadStatus) editUploadStatus.classList.add('hidden');
+                    if (editPreviewContainer) editPreviewContainer.classList.add('hidden');
+                });
+            }
+
+            // FORM SUBMISSION: Pengajuan Surat Warga
             const formPengajuan = document.getElementById('form-pengajuan-surat');
             const staticSuccessBlock = document.getElementById('static-success-block');
             const staticWhatsappBtn = document.getElementById('static-whatsapp-btn');
 
-            formPengajuan.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const nama = document.getElementById('surat-nama').value;
-                const nik = document.getElementById('surat-nik').value;
-                const telp = document.getElementById('surat-telp').value;
-                const jenis = document.getElementById('surat-jenis').value;
-                const keperluan = document.getElementById('surat-keperluan').value;
+            if (formPengajuan) {
+                formPengajuan.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const nama = document.getElementById('surat-nama').value;
+                    const nik = document.getElementById('surat-nik').value;
+                    const telp = document.getElementById('surat-telp').value;
+                    const jenis = document.getElementById('surat-jenis').value;
+                    const keperluan = document.getElementById('surat-keperluan').value;
 
-                if (nik.length !== 16 || isNaN(nik)) {
-                    showNotification('Gagal mengajukan! NIK wajib berupa 16 digit angka.', false);
-                    return;
-                }
+                    if (nik.length !== 16 || isNaN(nik)) {
+                        showNotification('Gagal mengajukan! NIK wajib berupa 16 digit angka.', false);
+                        return;
+                    }
 
-                const newSurat = {
-                    id: 's_' + Date.now(),
-                    nama: nama,
-                    nik: nik,
-                    phone: telp,
-                    type: jenis,
-                    desc: keperluan,
-                    status: 'Diproses',
-                    date: new Date().toISOString().split('T')[0]
-                };
+                    const newSurat = {
+                        id: 's_' + Date.now(),
+                        nama: nama,
+                        nik: nik,
+                        phone: telp,
+                        type: jenis,
+                        desc: keperluan,
+                        status: 'Diproses',
+                        date: new Date().toISOString().split('T')[0]
+                    };
 
-                dbSurat.push(newSurat);
-                await syncDatabase('Surat', 'create', newSurat);
+                    dbSurat.push(newSurat);
+                    await syncDatabase('Surat', 'create', newSurat);
 
-                const waMessage = encodeURIComponent(
-                    `*RT SMART - KONFIRMASI PENGAJUAN SURAT*\n\n` +
-                    `Halo Pengurus RT, saya baru saja melakukan pengajuan surat secara mandiri di sistem.\n\n` +
-                    `*Nama Pemohon:* ${nama}\n` +
-                    `*NIK:* ${nik}\n` +
-                    `*No. Telp:* ${telp}\n` +
-                    `*Jenis Surat:* ${jenis}\n` +
-                    `*Keperluan:* ${keperluan}\n\n` +
-                    `Mohon untuk segera diverifikasi dan diproses. Terima kasih banyak!`
-                );
+                    const waMessage = encodeURIComponent(
+                        `*RT SMART - KONFIRMASI PENGAJUAN SURAT*\n\n` +
+                        `Halo Pengurus RT, saya baru saja melakukan pengajuan surat secara mandiri di sistem.\n\n` +
+                        `*Nama Pemohon:* ${nama}\n` +
+                        `*NIK:* ${nik}\n` +
+                        `*No. Telp:* ${telp}\n` +
+                        `*Jenis Surat:* ${jenis}\n` +
+                        `*Keperluan:* ${keperluan}\n\n` +
+                        `Mohon untuk segera diverifikasi dan diproses. Terima kasih banyak!`
+                    );
 
-                const waURL = `https://api.whatsapp.com/send?phone=628961777770&text=${waMessage}`;
+                    const waURL = `https://api.whatsapp.com/send?phone=628961777770&text=${waMessage}`;
 
-                // Set WhatsApp link static di bagian bawah setelah klik kirim
-                staticWhatsappBtn.href = waURL;
-                staticSuccessBlock.classList.remove('hidden');
+                    if (staticWhatsappBtn) staticWhatsappBtn.href = waURL;
+                    if (staticSuccessBlock) {
+                        staticSuccessBlock.classList.remove('hidden');
+                        staticSuccessBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
 
-                formPengajuan.reset();
-                showNotification('Surat keterangan berhasil diajukan!');
-                staticSuccessBlock.scrollIntoView({ behavior: 'smooth' });
-            });
+                    formPengajuan.reset();
+                    showNotification('Surat keterangan berhasil diajukan!');
+                });
+            }
 
             // TRACKING: Cari Status Surat Keterangan
             const btnTrackSurat = document.getElementById('btn-track-surat');
             const inputTrackNik = document.getElementById('track-nik');
             const trackResult = document.getElementById('track-result');
 
-            btnTrackSurat.addEventListener('click', () => {
-                const searchNik = inputTrackNik.value.trim();
-                if (!searchNik) {
-                    trackResult.className = 'mt-4 p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-900/30 text-xs font-medium';
-                    trackResult.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Silakan isi NIK Anda untuk melacak';
-                    trackResult.classList.remove('hidden');
-                    return;
-                }
+            if (btnTrackSurat && inputTrackNik && trackResult) {
+                btnTrackSurat.addEventListener('click', () => {
+                    const searchNik = inputTrackNik.value.trim();
+                    if (!searchNik) {
+                        trackResult.className = 'mt-4 p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-900/30 text-xs font-medium';
+                        trackResult.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Silakan isi NIK Anda untuk melacak';
+                        trackResult.classList.remove('hidden');
+                        return;
+                    }
 
-                const matchingSurat = dbSurat.filter(s => s.nik === searchNik);
+                    const matchingSurat = dbSurat.filter(s => s.nik === searchNik);
 
-                if (matchingSurat.length === 0) {
-                    trackResult.className = 'mt-4 p-3 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-medium';
-                    trackResult.innerHTML = '<i class="fa-solid fa-circle-info mr-1"></i> Data permohonan tidak ditemukan dengan NIK tersebut.';
-                    trackResult.classList.remove('hidden');
-                } else {
-                    trackResult.className = 'mt-4 p-4 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-800 text-xs space-y-3';
-                    let listHtml = `<h5 class="font-bold border-b dark:border-slate-800 pb-1">Ditemukan ${matchingSurat.length} Pengajuan:</h5>`;
-                    
-                    matchingSurat.forEach((s, idx) => {
-                        let statusColor = 'text-orange-500';
-                        let statusIcon = '<i class="fa-solid fa-spinner animate-spin"></i>';
+                    if (matchingSurat.length === 0) {
+                        trackResult.className = 'mt-4 p-3 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold';
+                        trackResult.innerHTML = '<i class="fa-solid fa-circle-info mr-1"></i> Data permohonan tidak ditemukan dengan NIK tersebut.';
+                        trackResult.classList.remove('hidden');
+                    } else {
+                        trackResult.className = 'mt-4 p-4 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-800 text-xs space-y-3 font-semibold';
+                        let listHtml = `<h5 class="font-bold border-b dark:border-slate-800 pb-1">Ditemukan ${matchingSurat.length} Pengajuan:</h5>`;
                         
-                        if (s.status === 'Selesai') {
-                            statusColor = 'text-emerald-600 dark:text-emerald-400 font-bold';
-                            statusIcon = '<i class="fa-solid fa-check-double"></i>';
-                        } else if (s.status === 'Ditolak') {
-                            statusColor = 'text-red-500 dark:text-red-400 font-bold';
-                            statusIcon = '<i class="fa-solid fa-circle-xmark"></i>';
-                        }
+                        matchingSurat.forEach((s, idx) => {
+                            let statusColor = 'text-orange-500';
+                            let statusIcon = '<i class="fa-solid fa-spinner animate-spin"></i>';
+                            
+                            if (s.status === 'Selesai') {
+                                statusColor = 'text-emerald-600 dark:text-emerald-400 font-bold';
+                                statusIcon = '<i class="fa-solid fa-check-double"></i>';
+                            } else if (s.status === 'Ditolak') {
+                                statusColor = 'text-red-500 dark:text-red-400 font-bold';
+                                statusIcon = '<i class="fa-solid fa-circle-xmark"></i>';
+                            }
 
-                        const followUpText = encodeURIComponent(
-                            `*PERTANYAAN STATUS BERKAS - RT SMART*\n\n` +
-                            `Halo Ketua RT, saya ingin menanyakan status dokumen pengajuan saya:\n` +
-                            `- *Nama:* ${s.nama}\n` +
-                            `- *ID Surat:* ${s.id.toUpperCase()}\n` +
-                            `- *Jenis Surat:* ${s.type}\n` +
-                            `- *Status Saat Ini:* ${s.status}\n\n` +
-                            `Terima kasih atas bantuannya.`
-                        );
-                        const followUpURL = `https://api.whatsapp.com/send?phone=628961777770&text=${followUpText}`;
+                            const followUpText = encodeURIComponent(
+                                `*PERTANYAAN STATUS BERKAS - RT SMART*\n\n` +
+                                `Halo Ketua RT, saya ingin menanyakan status dokumen pengajuan saya:\n` +
+                                `- *Nama:* ${s.nama}\n` +
+                                `- *ID Surat:* ${s.id.toUpperCase()}\n` +
+                                `- *Jenis Surat:* ${s.type}\n` +
+                                `- *Status Saat Ini:* ${s.status}\n\n` +
+                                `Teria kasih atas bantuannya.`
+                            );
+                            const followUpURL = `https://api.whatsapp.com/send?phone=628961777770&text=${followUpText}`;
 
-                        listHtml += `
-                            <div class="py-2 ${idx > 0 ? 'border-t border-dashed border-slate-200 dark:border-slate-800' : ''}">
-                                <div class="flex justify-between font-semibold text-slate-800 dark:text-white">
-                                    <span>${s.type}</span>
-                                    <span class="text-[10px] text-slate-400 dark:text-slate-500">${s.date}</span>
+                            listHtml += `
+                                <div class="py-2 ${idx > 0 ? 'border-t border-dashed border-slate-200 dark:border-slate-800' : ''}">
+                                    <div class="flex justify-between font-bold text-slate-800 dark:text-white">
+                                        <span>${s.type}</span>
+                                        <span class="text-[10px] text-slate-400 dark:text-slate-500">${s.date}</span>
+                                    </div>
+                                    <div class="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5 font-semibold">Keperluan: ${s.desc}</div>
+                                    <div class="mt-2 flex items-center justify-between text-xs font-bold">
+                                        <span class="text-slate-400 dark:text-slate-500">Status Pengajuan:</span>
+                                        <span class="${statusColor} flex items-center gap-1">${statusIcon} ${s.status}</span>
+                                    </div>
+                                    <div class="mt-2 flex justify-end">
+                                        <a href="${followUpURL}" target="_blank" class="inline-flex items-center gap-1 text-[10px] bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 px-2 py-1 rounded-lg text-slate-700 dark:text-slate-300 font-bold transition">
+                                            <i class="fa-brands fa-whatsapp text-emerald-600 dark:text-emerald-400"></i> Hubungi RT Terkait Surat Ini
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">Keperluan: ${s.desc}</div>
-                                <div class="mt-2 flex items-center justify-between text-xs">
-                                    <span class="text-slate-400 dark:text-slate-500">Status Pengajuan:</span>
-                                    <span class="${statusColor} flex items-center gap-1">${statusIcon} ${s.status}</span>
-                                </div>
-                                <div class="mt-2 flex justify-end">
-                                    <a href="${followUpURL}" target="_blank" class="inline-flex items-center gap-1 text-[10px] bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 px-2 py-1 rounded-lg text-slate-700 dark:text-slate-300 font-bold transition">
-                                        <i class="fa-brands fa-whatsapp text-emerald-600 dark:text-emerald-400"></i> Hubungi RT Terkait Surat Ini
-                                    </a>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    trackResult.innerHTML = listHtml;
-                    trackResult.classList.remove('hidden');
-                }
-            });
+                            `;
+                        });
+                        trackResult.innerHTML = listHtml;
+                        trackResult.classList.remove('hidden');
+                    }
+                });
+            }
 
             // FORM SUBMISSION: Admin Input Transaksi Baru
             const formAdminTrans = document.getElementById('form-admin-transaksi');
-            formAdminTrans.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const nominal = parseFloat(document.getElementById('trans-nominal').value);
-                const tanggal = document.getElementById('trans-tanggal').value;
-                const deskripsi = document.getElementById('trans-deskripsi').value;
-                const jenis = document.querySelector('input[name="trans-jenis"]:checked').value;
+            if (formAdminTrans) {
+                formAdminTrans.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const nominal = parseFloat(document.getElementById('trans-nominal').value);
+                    const tanggal = document.getElementById('trans-tanggal').value;
+                    const deskripsi = document.getElementById('trans-deskripsi').value;
+                    const jenis = document.querySelector('input[name="trans-jenis"]:checked').value;
 
-                if (nominal <= 0) {
-                    showNotification('Nominal transaksi harus lebih besar dari 0!', false);
-                    return;
-                }
+                    if (nominal <= 0) {
+                        showNotification('Nominal transaksi harus lebih besar dari 0!', false);
+                        return;
+                    }
 
-                const transObj = {
-                    id: 't_' + Date.now(),
-                    desc: deskripsi,
-                    type: jenis,
-                    amount: nominal,
-                    date: tanggal
-                };
+                    const transObj = {
+                        id: 't_' + Date.now(),
+                        desc: deskripsi,
+                        type: jenis,
+                        amount: nominal,
+                        date: tanggal
+                    };
 
-                dbTransactions.push(transObj);
-                await syncDatabase('Transactions', 'create', transObj);
-                formAdminTrans.reset();
-                showNotification('Berhasil menyimpan catatan keuangan baru!');
+                    dbTransactions.push(transObj);
+                    await syncDatabase('Transactions', 'create', transObj);
+                    formAdminTrans.reset();
+                    showNotification('Berhasil menyimpan catatan keuangan baru!');
 
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('trans-tanggal').value = today;
-            });
+                    const today = new Date().toISOString().split('T')[0];
+                    const tDate = document.getElementById('trans-tanggal');
+                    if (tDate) tDate.value = today;
+                });
+            }
 
-            // FORM SUBMISSION: Admin Input Warga Baru
+            // FORM SUBMISSION: Admin Input Warga Baru (Format 0 Terpelihara)
             const formAdminWarga = document.getElementById('form-admin-warga');
-            formAdminWarga.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const nama = document.getElementById('warga-nama').value;
-                const nik = document.getElementById('warga-nik').value;
-                const phone = document.getElementById('warga-phone').value;
-                const alamat = document.getElementById('warga-alamat').value;
-                const status = document.getElementById('warga-status').value;
+            if (formAdminWarga) {
+                formAdminWarga.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const nama = document.getElementById('warga-nama').value;
+                    const nik = document.getElementById('warga-nik').value;
+                    const phone = document.getElementById('warga-phone').value;
+                    const alamat = document.getElementById('warga-alamat').value;
+                    const status = document.getElementById('warga-status').value;
 
-                if (nik.length !== 16 || isNaN(nik)) {
-                    showNotification('NIK warga harus berupa 16 digit angka!', false);
-                    return;
-                }
+                    if (nik.length !== 16 || isNaN(nik)) {
+                        showNotification('NIK warga harus berupa 16 digit angka!', false);
+                        return;
+                    }
 
-                if (dbWarga.some(w => w.nik === nik)) {
-                    showNotification('Gagal! NIK Warga sudah terdaftar di database.', false);
-                    return;
-                }
+                    if (dbWarga.some(w => w.nik === nik)) {
+                        showNotification('Gagal! NIK Warga sudah terdaftar di database.', false);
+                        return;
+                    }
 
-                // Tambahkan tanda kutip satu di depan nomor HP agar tetap bertipe Text di Google Sheets
-                const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
+                    // Tambahkan tanda kutip satu di depan nomor HP agar tetap bertipe Text di Google Sheets
+                    const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
 
-                const wargaObj = {
-                    id: 'w_' + Date.now(),
-                    nama: nama,
-                    nik: nik,
-                    phone: excelPhone,
-                    alamat: alamat,
-                    status: status
-                };
+                    const wargaObj = {
+                        id: 'w_' + Date.now(),
+                        nama: nama,
+                        nik: nik,
+                        phone: excelPhone,
+                        alamat: alamat,
+                        status: status
+                    };
 
-                dbWarga.push(wargaObj);
-                await syncDatabase('Warga', 'create', wargaObj);
-                formAdminWarga.reset();
-                showNotification('Sukses mendaftarkan warga baru!');
-            });
+                    dbWarga.push(wargaObj);
+                    await syncDatabase('Warga', 'create', wargaObj);
+                    formAdminWarga.reset();
+                    showNotification('Sukses mendaftarkan warga baru!');
+                });
+            }
 
-            // FORM SUBMISSION: Admin Rilis Pengumuman Baru
+            // FORM SUBMISSION: Admin Rilis Pengumuman Baru (Lampiran Disimpan)
             const formAdminAnnounce = document.getElementById('form-admin-pengumuman');
-            formAdminAnnounce.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const title = document.getElementById('announce-title').value;
-                const body = document.getElementById('announce-body').value;
-                const cat = document.getElementById('announce-category').value;
+            if (formAdminAnnounce) {
+                formAdminAnnounce.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const title = document.getElementById('announce-title').value;
+                    const body = document.getElementById('announce-body').value;
+                    const cat = document.getElementById('announce-category').value;
 
-                const announceObj = {
-                    id: 'p_' + Date.now(),
-                    title: title,
-                    body: body,
-                    category: cat,
-                    date: new Date().toISOString().split('T')[0]
-                };
+                    const announceObj = {
+                        id: 'p_' + Date.now(),
+                        title: title,
+                        body: body,
+                        category: cat,
+                        date: new Date().toISOString().split('T')[0],
+                        attachment: tempBase64File || "",
+                        attachmentName: tempFileName || "",
+                        attachmentType: tempFileType || ""
+                    };
 
-                dbPengumuman.push(announceObj);
-                await syncDatabase('Pengumuman', 'create', announceObj);
-                formAdminAnnounce.reset();
-                showNotification('Pengumuman baru telah dipublikasikan ke papan mading warga!');
-            });
+                    dbPengumuman.push(announceObj);
+                    await syncDatabase('Pengumuman', 'create', announceObj);
+                    
+                    formAdminAnnounce.reset();
+                    tempBase64File = null;
+                    tempFileName = "";
+                    tempFileType = "";
+                    
+                    if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+                    if (uploadStatus) uploadStatus.classList.add('hidden');
+                    if (previewContainer) previewContainer.classList.add('hidden');
+                    
+                    showNotification('Pengumuman baru telah dipublikasikan ke papan mading warga!');
+                });
+            }
 
             // EDIT FORM SUBMISSIONS
             const formEditFinance = document.getElementById('form-edit-finance');
-            formEditFinance.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const id = document.getElementById('edit-finance-id').value;
-                const amount = parseFloat(document.getElementById('edit-trans-nominal').value);
-                const date = document.getElementById('edit-trans-tanggal').value;
-                const desc = document.getElementById('edit-trans-deskripsi').value;
-                const type = document.querySelector('input[name="edit-trans-jenis"]:checked').value;
+            if (formEditFinance) {
+                formEditFinance.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const id = document.getElementById('edit-finance-id').value;
+                    const amount = parseFloat(document.getElementById('edit-trans-nominal').value);
+                    const date = document.getElementById('edit-trans-tanggal').value;
+                    const desc = document.getElementById('edit-trans-deskripsi').value;
+                    const type = document.querySelector('input[name="edit-trans-jenis"]:checked').value;
 
-                const trans = dbTransactions.find(t => t.id === id);
-                if (trans) {
-                    trans.amount = amount;
-                    trans.date = date;
-                    trans.desc = desc;
-                    trans.type = type;
+                    const trans = dbTransactions.find(t => t.id === id);
+                    if (trans) {
+                        trans.amount = amount;
+                        trans.date = date;
+                        trans.desc = desc;
+                        trans.type = type;
 
-                    await syncDatabase('Transactions', 'update', {
-                        id: id,
-                        newData: { amount, date, desc, type }
-                    });
-                    showNotification('Transaksi kas berhasil diperbaharui!');
-                    document.getElementById('custom-edit-finance-modal').classList.add('hidden');
-                }
-            });
+                        await syncDatabase('Transactions', 'update', {
+                            id: id,
+                            newData: { amount, date, desc, type }
+                        });
+                        showNotification('Transaksi kas berhasil diperbaharui!');
+                        const modal = document.getElementById('custom-edit-finance-modal');
+                        if (modal) modal.classList.add('hidden');
+                    }
+                });
+            }
 
             const formEditWarga = document.getElementById('form-edit-warga');
-            formEditWarga.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const id = document.getElementById('edit-warga-id').value;
-                const nama = document.getElementById('edit-warga-nama').value;
-                const nik = document.getElementById('edit-warga-nik').value;
-                const phone = document.getElementById('edit-warga-phone').value;
-                const alamat = document.getElementById('edit-warga-alamat').value;
-                const status = document.getElementById('edit-warga-status').value;
+            if (formEditWarga) {
+                formEditWarga.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const id = document.getElementById('edit-warga-id').value;
+                    const nama = document.getElementById('edit-warga-nama').value;
+                    const nik = document.getElementById('edit-warga-nik').value;
+                    const phone = document.getElementById('edit-warga-phone').value;
+                    const alamat = document.getElementById('edit-warga-alamat').value;
+                    const status = document.getElementById('edit-warga-status').value;
 
-                if (nik.length !== 16 || isNaN(nik)) {
-                    showNotification('NIK warga harus berupa 16 digit angka!', false);
-                    return;
-                }
+                    if (nik.length !== 16 || isNaN(nik)) {
+                        showNotification('NIK warga harus berupa 16 digit angka!', false);
+                        return;
+                    }
 
-                const item = dbWarga.find(w => w.id === id);
-                if (item) {
-                    item.nama = nama;
-                    item.nik = nik;
-                    
-                    const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
-                    item.phone = excelPhone;
-                    item.alamat = alamat;
-                    item.status = status;
+                    const item = dbWarga.find(w => w.id === id);
+                    if (item) {
+                        item.nama = nama;
+                        item.nik = nik;
+                        
+                        const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
+                        item.phone = excelPhone;
+                        item.alamat = alamat;
+                        item.status = status;
 
-                    await syncDatabase('Warga', 'update', {
-                        id: id,
-                        newData: { nama, nik, phone: excelPhone, alamat, status }
-                    });
-                    showNotification('Data warga berhasil diperbaharui!');
-                    document.getElementById('custom-edit-warga-modal').classList.add('hidden');
-                }
-            });
+                        await syncDatabase('Warga', 'update', {
+                            id: id,
+                            newData: { nama, nik, phone: excelPhone, alamat, status }
+                        });
+                        showNotification('Data warga berhasil diperbaharui!');
+                        const modal = document.getElementById('custom-edit-warga-modal');
+                        if (modal) modal.classList.add('hidden');
+                    }
+                });
+            }
 
             const formEditAnnounce = document.getElementById('form-edit-announce');
-            formEditAnnounce.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const id = document.getElementById('edit-announce-id').value;
-                const title = document.getElementById('edit-announce-title').value;
-                const body = document.getElementById('edit-announce-body').value;
-                const category = document.getElementById('edit-announce-category').value;
+            if (formEditAnnounce) {
+                formEditAnnounce.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const id = document.getElementById('edit-announce-id').value;
+                    const title = document.getElementById('edit-announce-title').value;
+                    const body = document.getElementById('edit-announce-body').value;
+                    const category = document.getElementById('edit-announce-category').value;
 
-                const ann = dbPengumuman.find(p => p.id === id);
-                if (ann) {
-                    ann.title = title;
-                    ann.body = body;
-                    ann.category = category;
+                    const ann = dbPengumuman.find(p => p.id === id);
+                    if (ann) {
+                        ann.title = title;
+                        ann.body = body;
+                        ann.category = category;
+                        ann.attachment = tempEditBase64File || "";
+                        ann.attachmentName = tempEditFileName || "";
+                        ann.attachmentType = tempEditFileType || "";
 
-                    await syncDatabase('Pengumuman', 'update', {
-                        id: id,
-                        newData: { title, body, category }
-                    });
-                    showNotification('Pengumuman berhasil diperbaharui!');
-                    document.getElementById('custom-edit-announce-modal').classList.add('hidden');
-                }
-            });
+                        await syncDatabase('Pengumuman', 'update', {
+                            id: id,
+                            newData: { 
+                                title, 
+                                body, 
+                                category,
+                                attachment: ann.attachment,
+                                attachmentName: ann.attachmentName,
+                                attachmentType: ann.attachmentType
+                            }
+                        });
+                        showNotification('Pengumuman berhasil diperbaharui!');
+                        const modal = document.getElementById('custom-edit-announce-modal');
+                        if (modal) modal.classList.add('hidden');
+                    }
+                });
+            }
 
-            // CLOSE MODALS ACTION
-            document.getElementById('btn-close-edit-finance').addEventListener('click', () => {
-                document.getElementById('custom-edit-finance-modal').classList.add('hidden');
-            });
-            document.getElementById('btn-cancel-edit-finance').addEventListener('click', () => {
-                document.getElementById('custom-edit-finance-modal').classList.add('hidden');
-            });
+            // CLOSE MODALS ACTIONS
+            const btnCloseEditFinance = document.getElementById('btn-close-edit-finance');
+            const btnCancelEditFinance = document.getElementById('btn-cancel-edit-finance');
+            if (btnCloseEditFinance) {
+                btnCloseEditFinance.addEventListener('click', () => {
+                    const m = document.getElementById('custom-edit-finance-modal');
+                    if (m) m.classList.add('hidden');
+                });
+            }
+            if (btnCancelEditFinance) {
+                btnCancelEditFinance.addEventListener('click', () => {
+                    const m = document.getElementById('custom-edit-finance-modal');
+                    if (m) m.classList.add('hidden');
+                });
+            }
 
-            document.getElementById('btn-close-edit-warga').addEventListener('click', () => {
-                document.getElementById('custom-edit-warga-modal').classList.add('hidden');
-            });
-            document.getElementById('btn-cancel-edit-warga').addEventListener('click', () => {
-                document.getElementById('custom-edit-warga-modal').classList.add('hidden');
-            });
+            const btnCloseEditWarga = document.getElementById('btn-close-edit-warga');
+            const btnCancelEditWarga = document.getElementById('btn-cancel-edit-warga');
+            if (btnCloseEditWarga) {
+                btnCloseEditWarga.addEventListener('click', () => {
+                    const m = document.getElementById('custom-edit-warga-modal');
+                    if (m) m.classList.add('hidden');
+                });
+            }
+            if (btnCancelEditWarga) {
+                btnCancelEditWarga.addEventListener('click', () => {
+                    const m = document.getElementById('custom-edit-warga-modal');
+                    if (m) m.classList.add('hidden');
+                });
+            }
 
-            document.getElementById('btn-close-edit-announce').addEventListener('click', () => {
-                document.getElementById('custom-edit-announce-modal').classList.add('hidden');
-            });
-            document.getElementById('btn-cancel-edit-announce').addEventListener('click', () => {
-                document.getElementById('custom-edit-announce-modal').classList.add('hidden');
-            });
+            const btnCloseEditAnnounce = document.getElementById('btn-close-edit-announce');
+            const btnCancelEditAnnounce = document.getElementById('btn-cancel-edit-announce');
+            if (btnCloseEditAnnounce) {
+                btnCloseEditAnnounce.addEventListener('click', () => {
+                    const m = document.getElementById('custom-edit-announce-modal');
+                    if (m) m.classList.add('hidden');
+                });
+            }
+            if (btnCancelEditAnnounce) {
+                btnCancelEditAnnounce.addEventListener('click', () => {
+                    const m = document.getElementById('custom-edit-announce-modal');
+                    if (m) m.classList.add('hidden');
+                });
+            }
 
-            document.getElementById('btn-pdf-laporan').addEventListener('click', generateFinancePDF);
-            document.getElementById('btn-admin-pdf').addEventListener('click', generateFinancePDF);
+            const btnPdfLaporan = document.getElementById('btn-pdf-laporan');
+            const btnAdminPdf = document.getElementById('btn-admin-pdf');
+            if (btnPdfLaporan) btnPdfLaporan.addEventListener('click', generateFinancePDF);
+            if (btnAdminPdf) btnAdminPdf.addEventListener('click', generateFinancePDF);
         });
 
         function toggleSessionUI() {
@@ -1954,17 +2346,17 @@
             const navPublicLinks = document.getElementById('nav-public-links');
 
             if (isAdminLoggedIn) {
-                btnShowLogin.classList.add('hidden');
-                adminLoggedBadge.classList.remove('hidden');
-                adminPanel.classList.remove('hidden');
-                guestPanel.classList.add('hidden'); 
-                navPublicLinks.classList.add('hidden'); 
+                if (btnShowLogin) btnShowLogin.classList.add('hidden');
+                if (adminLoggedBadge) adminLoggedBadge.classList.remove('hidden');
+                if (adminPanel) adminPanel.classList.remove('hidden');
+                if (guestPanel) guestPanel.classList.add('hidden'); 
+                if (navPublicLinks) navPublicLinks.classList.add('hidden'); 
             } else {
-                btnShowLogin.classList.remove('hidden');
-                adminLoggedBadge.classList.add('hidden');
-                adminPanel.classList.add('hidden');
-                guestPanel.classList.remove('hidden'); 
-                navPublicLinks.classList.remove('hidden');
+                if (btnShowLogin) btnShowLogin.classList.remove('hidden');
+                if (adminLoggedBadge) adminLoggedBadge.classList.add('hidden');
+                if (adminPanel) adminPanel.classList.add('hidden');
+                if (guestPanel) guestPanel.classList.remove('hidden'); 
+                if (navPublicLinks) navPublicLinks.classList.remove('hidden');
             }
         }
 
