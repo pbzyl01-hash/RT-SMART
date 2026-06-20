@@ -693,7 +693,7 @@
                             </div>
                             <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
                                 Simpan Perubahan PIN
-                              </button>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -890,7 +890,7 @@
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
         // Endpoint Google Apps Script Web App Terpusat
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyzQv0fDDI2JoHajamxhJ6i1k_lmmILUuEf4W6L9R62UkP_x_5W5iaIeV105Dn5UgJj/exec"; 
 
         let dbTransactions = [];
         let dbWarga = [];
@@ -1046,7 +1046,7 @@
             });
         }
 
-        // FETCHING DATA BEBAS CORS REDIRECT: Wajib menyertakan credentials: 'omit' agar browser di device lain tidak ditolak Google
+        // FETCHING DATA BEBAS CORS REDIRECT: Menggunakan 'cors' murni tanpa custom header untuk melompati Preflight
         async function fetchFromGAS(sheetName, action, data = null) {
             if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
                 return null;
@@ -1060,8 +1060,7 @@
                     });
                     const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
                         method: 'GET',
-                        mode: 'cors',
-                        credentials: 'omit' // CRITICAL: Menghapus pengiriman kuki/kredensial ke redirector google agar lolos CORS di HP/browser mana pun
+                        mode: 'cors'
                     });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const json = await response.json();
@@ -1071,8 +1070,7 @@
                     const response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
                         mode: 'cors',
-                        credentials: 'omit', // CRITICAL: Mencegah CORS preflight rejection pada pengalihan POST
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // 'text/plain' melompati CORS Preflight OPTIONS request
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Menghindari Preflight OPTIONS CORS blocker
                         body: JSON.stringify({ sheet: sheetName, action: action, data: data })
                     });
                     const json = await response.json();
@@ -1104,7 +1102,6 @@
 
             if (isCloud) {
                 try {
-                    // Tarik data paralel secara atomik (Termasuk settings untuk verifikasi PIN)
                     const [resTrans, resWarga, resSurat, resAnnounce, resSettings] = await Promise.all([
                         fetchFromGAS('Transactions', 'read'),
                         fetchFromGAS('Warga', 'read'),
