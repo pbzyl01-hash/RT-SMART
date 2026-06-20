@@ -87,23 +87,6 @@
         <div class="w-48 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
             <div class="bg-brand-500 h-full rounded-full w-full animate-pulse"></div>
         </div>
-
-        <!-- Troubleshooting Tips (shown if loading takes more than 4 seconds) -->
-        <div id="loading-troubleshoot" class="hidden mt-6 max-w-md mx-4 p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-slate-900 dark:border-slate-800 text-left space-y-2 transition-all">
-            <h3 class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-triangle-exclamation"></i> Koneksi Lambat atau Bermasalah?
-            </h3>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-semibold">
-                Jika aplikasi tidak kunjung memuat data di perangkat baru, kemungkinan besar deployment Google Apps Script Anda belum diatur untuk akses publik.
-            </p>
-            <div class="text-[10px] text-slate-500 space-y-1">
-                <p>1. Buka <strong>Google Apps Script</strong> Anda.</p>
-                <p>2. Klik <strong>Deploy -> New Deployment</strong>.</p>
-                <p>3. Pilih tipe <strong>Web App</strong>, ubah <em>Execute as</em> menjadi <strong>Me</strong> (email Anda).</p>
-                <p>4. Ubah <em>Who has access</em> menjadi <strong>Anyone</strong> (Penting!).</p>
-                <p>5. Salin URL baru dan paste ke baris <code>GAS_WEB_APP_URL</code> di <code>index.html</code>.</p>
-            </div>
-        </div>
     </div>
 
     <!-- Top Navigation Bar -->
@@ -200,7 +183,7 @@
                             </button>
                         </form>
                         <div class="mt-3 text-center">
-                            <span class="text-[10px] text-slate-400">PIN Default bawaan: <strong class="text-slate-600 dark:text-slate-300">123456</strong></span>
+                            <span class="text-[10px] text-slate-400">PIN Default: <strong class="text-slate-600 dark:text-slate-300">123456</strong></span>
                         </div>
                     </div>
                 </div>
@@ -447,7 +430,7 @@
                         <i class="fa-solid fa-bullhorn"></i> Kelola Pengumuman
                     </button>
                     <button data-tab="tab-pengaturan" class="tab-link text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 hover:border-slate-300 px-4 py-3 text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-gear"></i> Pengaturan
+                        <i class="fa-solid fa-key"></i> Ubah PIN Akses
                     </button>
                 </nav>
             </div>
@@ -489,7 +472,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Keterangan / Rincian</label>
-                                    <input type="text" id="trans-deskripsi" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Contoh: Iuran Warga Blok C" required>
+                                    <input type="text" id="trans-deskripsi" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Contoh: Iuran Warga" required>
                                 </div>
                                 <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
                                     Simpan Transaksi
@@ -685,60 +668,33 @@
                     </div>
                 </div>
 
-                <!-- TAB 5: PENGATURAN KREDENSIAL (UBAH PIN & DATABASE URL) -->
+                <!-- TAB 5: PENGATURAN KREDENSIAL (UBAH PIN) -->
                 <div id="tab-pengaturan" class="tab-panel hidden space-y-6">
-                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <!-- Card Ubah PIN -->
-                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
-                            <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-1.5">
-                                <i class="fa-solid fa-key text-brand-500"></i> Ubah PIN Akses Pengurus
-                            </h3>
-                            <p class="text-xs text-slate-400 dark:text-slate-500 mb-4 font-semibold">PIN ini digunakan di semua browser/device untuk login sebagai pengurus RT secara realtime.</p>
-                            
-                            <form id="form-ubah-pin" class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">PIN Lama Anda</label>
-                                    <input type="password" id="pin-lama" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
-                                </div>
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">PIN Baru (Hanya Angka)</label>
-                                        <input type="password" id="pin-baru" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Konfirmasi PIN Baru</label>
-                                        <input type="password" id="pin-konfirmasi" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
-                                    Simpan Perubahan PIN
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Card Integrasi Database (Ubah Endpoint Lintas Perangkat) -->
-                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
-                            <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-1.5">
-                                <i class="fa-solid fa-link text-emerald-500"></i> Integrasi Google Spreadsheet
-                            </h3>
-                            <p class="text-xs text-slate-400 dark:text-slate-500 mb-4 font-semibold">Ganti alamat endpoint cloud di perangkat ini secara instan agar langsung terhubung ke Spreadsheet Anda tanpa perlu edit file HTML.</p>
-                            
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Web App API URL (Google Apps Script)</label>
-                                    <textarea id="db-api-url" rows="3" class="w-full font-mono text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-slate-800 dark:text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none leading-relaxed" placeholder="https://script.google.com/macros/s/.../exec"></textarea>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button type="button" id="btn-test-db-connection" class="rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 py-3 text-center text-xs font-bold text-slate-700 dark:text-slate-300 transition">
-                                        <i class="fa-solid fa-arrows-spin mr-1"></i> Uji Koneksi
-                                    </button>
-                                    <button type="button" id="btn-save-db-url" class="rounded-xl bg-emerald-600 hover:bg-emerald-700 py-3 text-center text-xs font-bold text-white transition shadow-md shadow-emerald-500/15">
-                                        <i class="fa-regular fa-floppy-disk mr-1"></i> Simpan Endpoint
-                                    </button>
-                                </div>
-                                <div id="db-test-result" class="hidden text-xs p-2.5 rounded-lg border"></div>
+                    <div class="max-w-xl mx-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm transition-colors duration-200">
+                        <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-1.5">
+                            <i class="fa-solid fa-key text-brand-500"></i> Ubah PIN Akses Pengurus
+                        </h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mb-4 font-semibold">PIN baru ini akan disimpan secara aman di cloud Spreadsheet dan berlaku langsung di semua perangkat pengurus RT lainnya secara realtime.</p>
+                        
+                        <form id="form-ubah-pin" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">PIN Lama Anda</label>
+                                <input type="password" id="pin-lama" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
                             </div>
-                        </div>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">PIN Baru (Hanya Angka)</label>
+                                    <input type="password" id="pin-baru" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Konfirmasi PIN Baru</label>
+                                    <input type="password" id="pin-konfirmasi" maxlength="12" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white tracking-widest text-center font-bold focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 py-3 text-center text-sm font-bold text-white shadow-md shadow-brand-500/15 transition">
+                                Simpan Perubahan PIN
+                              </button>
+                        </form>
                     </div>
                 </div>
 
@@ -933,9 +889,8 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        // Inisialisasi Endpoint Database: mengutamakan konfigurasi dinamis local storage agar langsung sinkron di device lain
-        const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
-        let GAS_WEB_APP_URL = localStorage.getItem('rt_gas_url') || DEFAULT_GAS_URL;
+        // Endpoint Google Apps Script Web App Terpusat
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
         let dbTransactions = [];
         let dbWarga = [];
@@ -1091,7 +1046,7 @@
             });
         }
 
-        // FETCH GET BEBAS CORS REDIRECT: Pemanggilan GET dilarang keras menggunakan custom header
+        // FETCHING DATA BEBAS CORS REDIRECT: Wajib menyertakan credentials: 'omit' agar browser di device lain tidak ditolak Google
         async function fetchFromGAS(sheetName, action, data = null) {
             if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
                 return null;
@@ -1103,7 +1058,11 @@
                         action: 'read', 
                         _cb: Date.now().toString() 
                     });
-                    const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`);
+                    const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
+                        method: 'GET',
+                        mode: 'cors',
+                        credentials: 'omit' // CRITICAL: Menghapus pengiriman kuki/kredensial ke redirector google agar lolos CORS di HP/browser mana pun
+                    });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const json = await response.json();
                     if (json.success) return json;
@@ -1112,7 +1071,8 @@
                     const response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
                         mode: 'cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        credentials: 'omit', // CRITICAL: Mencegah CORS preflight rejection pada pengalihan POST
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // 'text/plain' melompati CORS Preflight OPTIONS request
                         body: JSON.stringify({ sheet: sheetName, action: action, data: data })
                     });
                     const json = await response.json();
@@ -1120,7 +1080,7 @@
                     throw new Error(json.error || "Gagal mengirim data");
                 }
             } catch (error) {
-                console.warn(`Sinkronisasi gagal pada sheet ${sheetName}:`, error);
+                console.warn(`Gagal memuat data sheet ${sheetName}:`, error);
                 return null;
             }
         }
@@ -1144,7 +1104,7 @@
 
             if (isCloud) {
                 try {
-                    // Tarik data paralel secara atomik (Termasuk tabel Settings untuk PIN)
+                    // Tarik data paralel secara atomik (Termasuk settings untuk verifikasi PIN)
                     const [resTrans, resWarga, resSurat, resAnnounce, resSettings] = await Promise.all([
                         fetchFromGAS('Transactions', 'read'),
                         fetchFromGAS('Warga', 'read'),
@@ -1161,7 +1121,7 @@
 
                     window.isCloudConnected = true;
                 } catch(e) {
-                    console.error("Gagal terhubung ke Cloud, menggunakan cache lokal:", e);
+                    console.error("Gagal sinkronisasi data cloud, memuat cache lokal:", e);
                     window.isCloudConnected = false;
                     loadBackupLocalData();
                 }
@@ -1170,14 +1130,14 @@
                 loadBackupLocalData();
             }
 
-            // Simpan cache lokal
+            // Simpan salinan ke penyimpanan lokal
             localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
             localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
             localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
             localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
             localStorage.setItem('rt_settings', JSON.stringify(dbSettings));
 
-            // Render Lencana Visual Koneksi
+            // Render Lencana Visual Koneksi Terkini
             if (statusContainer) {
                 if (window.isCloudConnected) {
                     statusContainer.innerHTML = `
@@ -1262,7 +1222,7 @@
                             ? `<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20"><i class="fa-solid fa-circle text-[4px]"></i> Pemasukan</span>`
                             : `<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20"><i class="fa-solid fa-circle text-[4px]"></i> Pengeluaran</span>`;
                         
-                        const amountClass = item.type === 'Pemasukan' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400 font-medium';
+                        const amountClass = item.type === 'Pemasukan' ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-red-600 dark:text-red-400 font-medium';
                         const amountPrefix = item.type === 'Pemasukan' ? '+' : '-';
 
                         const row = `
@@ -1306,7 +1266,7 @@
                             iconHTML = '<i class="fa-solid fa-fire"></i>';
                         }
 
-                        // PRATAMPIL PDF INTERAKTIF (PDF TIDAK PERLU UNDUH)
+                        // PRATAMPIL FILE LAMPIRAN SECARA INTERAKTIF
                         let attachmentHTML = '';
                         if (ann.attachment) {
                             if (ann.attachmentType && ann.attachmentType.startsWith('image/')) {
@@ -1581,12 +1541,6 @@
                     });
                 }
             }
-
-            // Inisialisasi isian input text endpoint di tab pengaturan
-            const apiInput = document.getElementById('db-api-url');
-            if (apiInput) {
-                apiInput.value = GAS_WEB_APP_URL;
-            }
         }
 
         async function deleteTransaksi(id) {
@@ -1753,14 +1707,6 @@
             loadAllData();
             toggleSessionUI();
 
-            // Setup timer Troubleshooting
-            setTimeout(() => {
-                const troubleshoot = document.getElementById('loading-troubleshoot');
-                if (troubleshoot && !window.isCloudConnected) {
-                    troubleshoot.classList.remove('hidden');
-                }
-            }, 4000);
-
             const dateInput = document.getElementById('trans-tanggal');
             if (dateInput) {
                 const today = new Date().toISOString().split('T')[0];
@@ -1791,7 +1737,6 @@
                 if (loginDropdown) loginDropdown.classList.add('hidden'); 
             });
 
-            // Toggle show/hide PIN on login form
             const btnTogglePinView = document.getElementById('btn-toggle-pin-view');
             const loginPinInput = document.getElementById('login-pin');
             const eyeIcon = document.getElementById('eye-icon');
@@ -1808,7 +1753,7 @@
                 });
             }
 
-            // FORM SUBMISSION: LOGIN HANYA MENGGUNAKAN PIN
+            // FORM LOGIN ADMIN: Verifikasi PIN secara Cloud
             const formLogin = document.getElementById('form-login');
             const loginErrorMsg = document.getElementById('login-error-msg');
 
@@ -1817,7 +1762,6 @@
                     e.preventDefault();
                     const inputPin = document.getElementById('login-pin').value;
                     
-                    // Tarik PIN asli dari Google Spreadsheet Settings, fallback ke default '123456'
                     const pinSettingObj = dbSettings.find(s => s.key === 'admin_pin');
                     const correctAdminPin = pinSettingObj ? pinSettingObj.value : '123456';
 
@@ -2248,7 +2192,7 @@
                 });
             }
 
-            // FORM SUBMISSION: UBAH PIN ADMIN SECARA TERPUSAT
+            // FORM SUBMISSION: UBAH PIN ADMIN SECARA CLOUD
             const formUbahPin = document.getElementById('form-ubah-pin');
             if (formUbahPin) {
                 formUbahPin.addEventListener('submit', async (e) => {
@@ -2280,7 +2224,6 @@
                         return;
                     }
 
-                    // Mutakhirkan PIN di array data local dan kirim pembaruan ke Settings sheet di Spreadsheet
                     const targetSetting = dbSettings.find(s => s.key === 'admin_pin');
                     if (targetSetting) {
                         targetSetting.value = pinBaruInput;
@@ -2393,65 +2336,6 @@
                         showNotification('Pengumuman berhasil diperbaharui!');
                         const modal = document.getElementById('custom-edit-announce-modal');
                         if (modal) modal.classList.add('hidden');
-                    }
-                });
-            }
-
-            // INTEGRASI & KONFIGURASI DATABASE MANUAL (DARI SETIAP DEVICE / BROWSER LAIN)
-            const btnSaveDbUrl = document.getElementById('btn-save-db-url');
-            const btnTestDbConnection = document.getElementById('btn-test-db-connection');
-            const dbTestResult = document.getElementById('db-test-result');
-
-            if (btnSaveDbUrl) {
-                btnSaveDbUrl.addEventListener('click', () => {
-                    const inputUrl = document.getElementById('db-api-url').value.trim();
-                    if (!inputUrl) {
-                        showNotification('Gagal! Input endpoint tidak boleh kosong.', false);
-                        return;
-                    }
-
-                    localStorage.setItem('rt_gas_url', inputUrl);
-                    GAS_WEB_APP_URL = inputUrl;
-                    showNotification('Endpoint baru disimpan di browser ini!');
-                    loadAllData();
-                });
-            }
-
-            if (btnTestDbConnection) {
-                btnTestDbConnection.addEventListener('click', async () => {
-                    const inputUrl = document.getElementById('db-api-url').value.trim();
-                    if (!inputUrl) {
-                        dbTestResult.className = "text-xs p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-600";
-                        dbTestResult.innerHTML = "<i class='fa-solid fa-triangle-exclamation mr-1.5'></i> Masukkan URL terlebih dahulu.";
-                        dbTestResult.classList.remove('hidden');
-                        return;
-                    }
-
-                    dbTestResult.className = "text-xs p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 animate-pulse";
-                    dbTestResult.innerHTML = "<i class='fa-solid fa-arrows-spin animate-spin mr-1.5'></i> Sedang melakukan uji ping ke Google Sheets...";
-                    dbTestResult.classList.remove('hidden');
-
-                    try {
-                        const params = new URLSearchParams({ sheet: 'Settings', action: 'read', _cb: Date.now().toString() });
-                        const testResponse = await fetch(`${inputUrl}?${params.toString()}`);
-                        if (testResponse.ok) {
-                            const resObj = await testResponse.json();
-                            if (resObj.success) {
-                                dbTestResult.className = "text-xs p-2.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 font-bold";
-                                dbTestResult.innerHTML = "<i class='fa-solid fa-circle-check mr-1.5'></i> Sukses! Terhubung sempurna dengan Google Spreadsheet.";
-                            } else {
-                                dbTestResult.className = "text-xs p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-700 font-semibold";
-                                dbTestResult.innerHTML = `<i class='fa-solid fa-circle-xmark mr-1.5'></i> Google Apps Script merespon eror: ${resObj.error}`;
-                            }
-                        } else {
-                            throw new Error(`HTTP ${testResponse.status}`);
-                        }
-                    } catch(err) {
-                        dbTestResult.className = "text-xs p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-700 font-semibold leading-relaxed";
-                        dbTestResult.innerHTML = `
-                            <i class='fa-solid fa-circle-xmark mr-1.5'></i> Uji Ping Gagal!<br>
-                            Penyebab: Blokir CORS atau hak akses deployment belum diubah ke "Anyone". Silakan cek instruksi di layar loading awal.
-                        `;
                     }
                 });
             }
