@@ -128,6 +128,7 @@
                     <i id="theme-toggle-dark-icon" class="fa-solid fa-moon text-sm hidden"></i>
                 </button>
 
+                <!-- Authentication Actions -->
                 <div class="relative" id="admin-auth-container">
                     <button id="btn-show-login" class="flex items-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 text-sm font-semibold transition duration-200">
                         <i class="fa-solid fa-lock-open text-xs"></i>
@@ -144,7 +145,7 @@
                         </button>
                     </div>
 
-                    <!-- Dropdown Formulir Login Administrator -->
+                    <!-- Dropdown Form Login Administrator -->
                     <div id="login-dropdown" class="hidden absolute right-0 mt-3 w-80 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-2xl transition-all duration-200 z-50">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-md font-bold text-slate-800 dark:text-white">Login Administrator</h3>
@@ -191,9 +192,10 @@
     </header>
 
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        
         <div id="guest-dashboard" class="space-y-10 block">
             
-            <!-- Hero Banner Layanan Digital -->
+            <!-- Hero Banner -->
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-800 via-brand-700 to-brand-600 px-6 py-12 text-white shadow-xl sm:px-12 sm:py-16">
                 <div class="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-brand-500/10 blur-3xl"></div>
                 <div class="absolute -bottom-16 right-1/4 h-80 w-80 rounded-full bg-brand-400/10 blur-3xl"></div>
@@ -217,7 +219,7 @@
                 </div>
             </div>
 
-            <!-- Stats Overview Kas RT -->
+            <!-- Stats Overview -->
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                 <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm flex items-center justify-between transition-colors duration-200">
                     <div>
@@ -251,8 +253,9 @@
                 </div>
             </div>
 
+            <!-- Grid Content (Mading & Pengajuan Surat) -->
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                <!-- Papan Mading Pengumuman Warga -->
+                <!-- Papan Mading -->
                 <div id="pengumuman-section" class="lg:col-span-7 space-y-6">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -267,7 +270,7 @@
                     </div>
                 </div>
 
-                <!-- Formulir Layanan Pengajuan Mandiri -->
+                <!-- Formulir Pengajuan Surat Mandiri -->
                 <div id="layanan-section" class="lg:col-span-5 space-y-6">
                     <div class="flex items-center gap-2">
                         <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400">
@@ -323,7 +326,7 @@
                                 </div>
                             </div>
                             <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                Formulir Anda telah terkirim dan tercatat di server Google Sheets RT SMART secara aman. Untuk mempercepat tinjauan berkas, silakan langsung kirim berkas via WhatsApp.
+                                Formulir Anda telah terkirim dan tercatat di server Google Sheets RT SMART secara aman. Untuk mempercepat tinjauan berkas, silakan langsung hubungi pengurus.
                             </p>
                             <a id="static-whatsapp-btn" href="#" target="_blank" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 text-xs font-bold shadow-md shadow-emerald-500/15 transition animate-bounce-subtle">
                                 <i class="fa-brands fa-whatsapp text-lg"></i>
@@ -347,6 +350,7 @@
                 </div>
             </div>
 
+            <!-- Keuangan Section -->
             <div id="keuangan-section" class="space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
@@ -374,7 +378,7 @@
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300">Riwayat Pembukuan Terkini</h4>
-                                <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold" id="indicator-source">Mode: Menghubungkan ke Cloud...</span>
+                                <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold" id="indicator-source">Mode: Sinkronisasi Realtime...</span>
                             </div>
                             <div class="overflow-x-auto custom-scrollbar">
                                 <table class="w-full text-left text-xs text-slate-500 dark:text-slate-300">
@@ -618,7 +622,7 @@
                                 <!-- Lampiran File (Drag and Drop / File Input) -->
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Unggah Lampiran (Gambar / PDF)</label>
-                                    <div id="announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative">
+                                    <div id="announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative animate-pulse">
                                         <input type="file" id="announce-file" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                         <div class="space-y-1" id="announce-upload-prompt">
                                             <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 dark:text-slate-600"></i>
@@ -626,7 +630,7 @@
                                             <p class="text-[10px] text-slate-400">Gambar/PDF (Maks. 2MB)</p>
                                         </div>
                                         <div class="hidden text-xs text-brand-600 dark:text-brand-400 font-semibold" id="announce-upload-status">
-                                            <i class="fa-solid fa-circle-check text-emerald-500"></i> <span id="announce-file-name">NamaFile.jpg</span>
+                                            <i class="fa-solid fa-circle-check text-emerald-500"></i> <span id="announce-file-name">NamaFile.pdf</span>
                                         </div>
                                     </div>
                                     <div class="mt-2 hidden text-center" id="announce-preview-container">
@@ -807,26 +811,6 @@
                         <option value="Darurat">Penting / Darurat</option>
                     </select>
                 </div>
-                
-                <!-- Edit Lampiran File -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Ganti Berkas Lampiran (Gambar / PDF)</label>
-                    <div id="edit-announce-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 dark:bg-slate-900 transition duration-200 relative">
-                        <input type="file" id="edit-announce-file" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <div class="space-y-1" id="edit-announce-upload-prompt">
-                            <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400"></i>
-                            <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300">Pilih berkas baru</p>
-                        </div>
-                        <div class="hidden text-xs text-brand-600 dark:text-brand-400 font-semibold" id="edit-announce-upload-status">
-                            <i class="fa-solid fa-circle-check text-emerald-500"></i> <span id="edit-announce-file-name">NamaFile.jpg</span>
-                        </div>
-                    </div>
-                    <div class="mt-2 hidden text-center" id="edit-announce-preview-container">
-                        <img id="edit-announce-preview" class="max-h-20 mx-auto rounded-lg shadow-sm">
-                        <button type="button" id="btn-remove-edit-file" class="mt-1 text-[10px] font-bold text-red-500 hover:underline"><i class="fa-solid fa-trash-can"></i> Hapus Berkas</button>
-                    </div>
-                </div>
-
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" id="btn-cancel-edit-announce" class="rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-4 py-2.5 text-sm font-semibold transition">Batal</button>
                     <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 text-sm font-bold shadow-md transition">Simpan Perubahan</button>
@@ -843,18 +827,12 @@
         <img id="zoom-modal-img" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain transition-transform duration-300" onclick="event.stopPropagation()">
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-notification" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white px-5 py-4 shadow-2xl">
-        <span class="text-brand-400" id="toast-icon"><i class="fa-solid fa-circle-check"></i></span>
-        <div class="text-xs font-semibold" id="toast-message">Proses berhasil dilakukan!</div>
-    </div>
-
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        // CONFIGURASI DATABASE CLOUD
+        // CONFIGURASI DATABASE CLOUD GOOGLE APPS SCRIPT
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
-        // Database Terkini
+        // State Memory Sinkron
         let dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
         let dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
         let dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
@@ -863,14 +841,10 @@
         let financeChartInstance = null;
         let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('rt_admin_session')) || false;
 
-        // Penampung berkas Base64 sementara
+        // Berkas Base64 sementara
         let tempBase64File = null;
         let tempFileName = "";
         let tempFileType = "";
-
-        let tempEditBase64File = null;
-        let tempEditFileName = "";
-        let tempEditFileType = "";
 
         function formatRupiah(number) {
             return new Intl.NumberFormat('id-ID', {
@@ -885,7 +859,6 @@
             const icon = document.getElementById('toast-icon');
             const msg = document.getElementById('toast-message');
 
-            // Pengaman (Null-Guard) jika elemen HTML belum dirender sempurna
             if (!toast || !icon || !msg) {
                 console.log((isSuccess ? "🔔 SUKSES: " : "⚠️ ERROR: ") + message);
                 return;
@@ -913,7 +886,7 @@
                 const btnOk = document.getElementById('btn-confirm-ok');
 
                 if (!modal || !titleEl || !bodyEl || !btnCancel || !btnOk) {
-                    resolve(true); // default fallback
+                    resolve(true); 
                     return;
                 }
 
@@ -1017,10 +990,8 @@
             try {
                 if (action === 'read') {
                     const params = new URLSearchParams({ sheet: sheetName, action: 'read' });
-                    // HAPUS header custom 'Content-Type' untuk membiarkan browser mengikuti redirect 302 dari Google secara lancar
-                    const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
-                        method: 'GET'
-                    });
+                    // CRITICAL FIX: Hapus header custom GET agar redirect 302 tidak memicu preflight CORS yang memblokir browser lain!
+                    const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const json = await response.json();
                     if (json.success) return json;
@@ -1110,34 +1081,56 @@
             if (isCloud) {
                 const indicator = document.getElementById('indicator-source');
                 if (indicator) {
-                    indicator.textContent = "Menghubungkan ke Sheets...";
+                    indicator.textContent = "Sinkronisasi Cloud Realtime...";
                     indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
                 }
                 
                 try {
-                    const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error("Timeout Koneksi")), 15000)
-                    );
-
-                    const syncPromise = Promise.allSettled([
-                        syncDatabase('Transactions', 'read'),
-                        syncDatabase('Warga', 'read'),
-                        syncDatabase('Surat', 'read'),
-                        syncDatabase('Pengumuman', 'read')
+                    // Fetch data parallel menggunakan clean atomic fetch (bebas tabrakan data)
+                    const [resTrans, resWarga, resSurat, resAnnounce] = await Promise.all([
+                        fetchFromGAS('Transactions', 'read'),
+                        fetchFromGAS('Warga', 'read'),
+                        fetchFromGAS('Surat', 'read'),
+                        fetchFromGAS('Pengumuman', 'read')
                     ]);
 
-                    await Promise.race([syncPromise, timeoutPromise]);
+                    if (resTrans && resTrans.success) dbTransactions = resTrans.data;
+                    if (resWarga && resWarga.success) dbWarga = resWarga.data;
+                    if (resSurat && resSurat.success) dbSurat = resSurat.data;
+                    if (resAnnounce && resAnnounce.success) dbPengumuman = resAnnounce.data;
 
                     window.isCloudConnected = true;
-                    showNotification("Koneksi Google Sheets berhasil disinkronkan secara realtime!");
+                    showNotification("Data ter-update secara otomatis dari Google Sheets!");
                 } catch(e) {
                     console.error("Gagal sinkronisasi data paralel:", e);
                     window.isCloudConnected = false;
-                    showNotification("Menggunakan database lokal (Mode Offline).", false);
+                    showNotification("Gagal memuat Cloud. Menggunakan basis data offline.", false);
                 }
             } else {
                 window.isCloudConnected = false;
                 showNotification("Aplikasi berjalan dalam mode simulasi lokal.", false);
+            }
+
+            // Simpan cache segar ke local storage
+            localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
+            localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
+            localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
+            localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
+
+            const indicator = document.getElementById('indicator-source');
+            if (indicator) {
+                if (window.isCloudConnected) {
+                    indicator.textContent = "Mode: Google Sheets (Cloud)";
+                    indicator.className = "text-xs text-emerald-600 dark:text-emerald-400 font-semibold";
+                } else {
+                    indicator.textContent = "Mode: Simulasi Lokal (Offline)";
+                    indicator.className = "text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse";
+                }
+            }
+
+            renderPublicDashboard();
+            if (isAdminLoggedIn) {
+                renderAdminDashboard();
             }
 
             if (overlay) {
@@ -1146,8 +1139,6 @@
                     overlay.classList.add('hidden');
                 }, 300);
             }
-
-            syncDatabase(); 
         }
 
         function renderPublicDashboard() {
@@ -1241,7 +1232,7 @@
                             iconHTML = '<i class="fa-solid fa-fire"></i>';
                         }
 
-                        // Render lampiran berkas jika tersedia
+                        // PRATAMPIL PDF & BERKAS INTERAKTIF (PDF TIDAK PERLU UNDUH)
                         let attachmentHTML = '';
                         if (ann.attachment) {
                             if (ann.attachmentType && ann.attachmentType.startsWith('image/')) {
@@ -1252,11 +1243,14 @@
                                 `;
                             } else if (ann.attachmentType === 'application/pdf') {
                                 attachmentHTML = `
-                                    <div class="mt-3">
-                                        <a href="${ann.attachment}" download="${ann.attachmentName || 'Dokumen_Lampiran.pdf'}" class="inline-flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/30 px-4 py-2 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-100 transition">
-                                            <i class="fa-solid fa-file-pdf text-base"></i>
-                                            <span>Unduh PDF Lampiran: ${ann.attachmentName || 'Dokumen'}</span>
-                                        </a>
+                                    <div class="mt-4 w-full">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <p class="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-file-pdf mr-1"></i> Pratinjau Dokumen PDF:</p>
+                                            <a href="${ann.attachment}" download="${ann.attachmentName || 'Lampiran.pdf'}" class="text-[10px] text-brand-500 hover:underline font-bold"><i class="fa-solid fa-download mr-0.5"></i> Unduh File</a>
+                                        </div>
+                                        <div class="relative w-full h-[400px] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-inner bg-slate-100 dark:bg-slate-900">
+                                            <iframe src="${ann.attachment}#toolbar=0" class="w-full h-full border-none" style="border:none;"></iframe>
+                                        </div>
                                     </div>
                                 `;
                             }
@@ -1383,13 +1377,11 @@
                     dbWarga.forEach(item => {
                         const statusClass = item.status === 'Warga Tetap' ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/10 dark:bg-indigo-950/30 dark:text-indigo-400' : 'bg-slate-100 text-slate-700 ring-slate-600/10 dark:bg-slate-900 dark:text-slate-300';
                         
-                        // Bersihkan tanda kutip satu untuk visualisasi frontend
                         let rawPhone = item.phone || '';
                         if (rawPhone.startsWith("'")) {
                             rawPhone = rawPhone.substring(1);
                         }
 
-                        // Buat link WhatsApp instan
                         let waPhone = rawPhone;
                         if (waPhone.startsWith('0')) {
                             waPhone = '62' + waPhone.substring(1);
@@ -1586,7 +1578,6 @@
             const item = dbWarga.find(w => w.id === id);
             if (!item) return;
 
-            // Bersihkan kutip satu jika ada
             let rawPhone = item.phone || '';
             if (rawPhone.startsWith("'")) {
                 rawPhone = rawPhone.substring(1);
@@ -1623,35 +1614,6 @@
             if (pTitle) pTitle.value = item.title;
             if (pBody) pBody.value = item.body;
             if (pCat) pCat.value = item.category;
-
-            // Atur ulang formulir unggah edit pengumuman
-            tempEditBase64File = item.attachment || null;
-            tempEditFileName = item.attachmentName || "";
-            tempEditFileType = item.attachmentType || "";
-
-            const uploadStatus = document.getElementById('edit-announce-upload-status');
-            const uploadPrompt = document.getElementById('edit-announce-upload-prompt');
-            const previewCont = document.getElementById('edit-announce-preview-container');
-            const previewImg = document.getElementById('edit-announce-preview');
-
-            if (tempEditBase64File) {
-                if (uploadStatus) uploadStatus.classList.remove('hidden');
-                if (uploadPrompt) uploadPrompt.classList.add('hidden');
-                
-                const fNameEl = document.getElementById('edit-announce-file-name');
-                if (fNameEl) fNameEl.textContent = tempEditFileName || "Lampiran Terunggah";
-
-                if (tempEditFileType && tempEditFileType.startsWith('image/')) {
-                    if (previewImg) previewImg.src = tempEditBase64File;
-                    if (previewCont) previewCont.classList.remove('hidden');
-                } else {
-                    if (previewCont) previewCont.classList.add('hidden');
-                }
-            } else {
-                if (uploadStatus) uploadStatus.classList.add('hidden');
-                if (uploadPrompt) uploadPrompt.classList.remove('hidden');
-                if (previewCont) previewCont.classList.add('hidden');
-            }
 
             const modal = document.getElementById('custom-edit-announce-modal');
             if (modal) modal.classList.remove('hidden');
@@ -1870,80 +1832,6 @@
                 });
             }
 
-            // DRAG & DROP FILE UPLOAD (EDIT PENGUMUMAN)
-            const editDropZone = document.getElementById('edit-announce-drop-zone');
-            const editFileInput = document.getElementById('edit-announce-file');
-            const editUploadStatus = document.getElementById('edit-announce-upload-status');
-            const editUploadPrompt = document.getElementById('edit-announce-upload-prompt');
-            const editPreviewContainer = document.getElementById('edit-announce-preview-container');
-            const editPreviewImg = document.getElementById('edit-announce-preview');
-            const btnRemoveEditFile = document.getElementById('btn-remove-edit-file');
-
-            function handleEditFileSelect(file) {
-                if (!file) return;
-                if (file.size > 2 * 1024 * 1024) {
-                    showNotification("Gagal! Batas maksimum file adalah 2MB.", false);
-                    return;
-                }
-
-                tempEditFileName = file.name;
-                tempEditFileType = file.type;
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    tempEditBase64File = e.target.result;
-                    if (editUploadPrompt) editUploadPrompt.classList.add('hidden');
-                    if (editUploadStatus) {
-                        editUploadStatus.classList.remove('hidden');
-                        const statusEditName = document.getElementById('edit-announce-file-name');
-                        if (statusEditName) statusEditName.textContent = file.name;
-                    }
-
-                    if (file.type.startsWith('image/')) {
-                        if (editPreviewImg) editPreviewImg.src = tempEditBase64File;
-                        if (editPreviewContainer) editPreviewContainer.classList.remove('hidden');
-                    } else {
-                        if (editPreviewContainer) editPreviewContainer.classList.add('hidden');
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-
-            if (editFileInput) {
-                editFileInput.addEventListener('change', (e) => {
-                    handleEditFileSelect(e.target.files[0]);
-                });
-            }
-
-            if (editDropZone) {
-                editDropZone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    editDropZone.classList.add('border-brand-500', 'bg-brand-50/50');
-                });
-
-                editDropZone.addEventListener('dragleave', () => {
-                    editDropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
-                });
-
-                editDropZone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    editDropZone.classList.remove('border-brand-500', 'bg-brand-50/50');
-                    handleEditFileSelect(e.dataTransfer.files[0]);
-                });
-            }
-
-            if (btnRemoveEditFile) {
-                btnRemoveEditFile.addEventListener('click', () => {
-                    tempEditBase64File = null;
-                    tempEditFileName = "";
-                    tempEditFileType = "";
-                    if (editFileInput) editFileInput.value = "";
-                    if (editUploadPrompt) editUploadPrompt.classList.remove('hidden');
-                    if (editUploadStatus) editUploadStatus.classList.add('hidden');
-                    if (editPreviewContainer) editPreviewContainer.classList.add('hidden');
-                });
-            }
-
             // FORM SUBMISSION: Pengajuan Surat Warga
             const formPengajuan = document.getElementById('form-pengajuan-surat');
             const staticSuccessBlock = document.getElementById('static-success-block');
@@ -2001,7 +1889,7 @@
                 });
             }
 
-            // TRACKING: Cari Status Surat Keterangan
+            // TRACKING: Lacak Surat Mandiri
             const btnTrackSurat = document.getElementById('btn-track-surat');
             const inputTrackNik = document.getElementById('track-nik');
             const trackResult = document.getElementById('track-result');
@@ -2045,7 +1933,7 @@
                                 `- *ID Surat:* ${s.id.toUpperCase()}\n` +
                                 `- *Jenis Surat:* ${s.type}\n` +
                                 `- *Status Saat Ini:* ${s.status}\n\n` +
-                                `Teria kasih atas bantuannya.`
+                                `Terima kasih atas bantuannya.`
                             );
                             const followUpURL = `https://api.whatsapp.com/send?phone=628961777770&text=${followUpText}`;
 
@@ -2108,7 +1996,7 @@
                 });
             }
 
-            // FORM SUBMISSION: Admin Input Warga Baru (Format 0 Terpelihara)
+            // FORM SUBMISSION: Admin Input Warga Baru
             const formAdminWarga = document.getElementById('form-admin-warga');
             if (formAdminWarga) {
                 formAdminWarga.addEventListener('submit', async (e) => {
@@ -2129,7 +2017,6 @@
                         return;
                     }
 
-                    // Tambahkan tanda kutip satu di depan nomor HP agar tetap bertipe Text di Google Sheets
                     const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
 
                     const wargaObj = {
@@ -2148,7 +2035,7 @@
                 });
             }
 
-            // FORM SUBMISSION: Admin Rilis Pengumuman Baru (Lampiran Disimpan)
+            // FORM SUBMISSION: Admin Rilis Pengumuman Baru (Simpan Attachment PDF/Gambar)
             const formAdminAnnounce = document.getElementById('form-admin-pengumuman');
             if (formAdminAnnounce) {
                 formAdminAnnounce.addEventListener('submit', async (e) => {
@@ -2264,20 +2151,10 @@
                         ann.title = title;
                         ann.body = body;
                         ann.category = category;
-                        ann.attachment = tempEditBase64File || "";
-                        ann.attachmentName = tempEditFileName || "";
-                        ann.attachmentType = tempEditFileType || "";
 
                         await syncDatabase('Pengumuman', 'update', {
                             id: id,
-                            newData: { 
-                                title, 
-                                body, 
-                                category,
-                                attachment: ann.attachment,
-                                attachmentName: ann.attachmentName,
-                                attachmentType: ann.attachmentType
-                            }
+                            newData: { title, body, category }
                         });
                         showNotification('Pengumuman berhasil diperbaharui!');
                         const modal = document.getElementById('custom-edit-announce-modal');
