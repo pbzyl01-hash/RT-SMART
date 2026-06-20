@@ -77,6 +77,7 @@
 </head>
 <body class="text-slate-800 dark:text-slate-100 antialiased font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
 
+    <!-- Loading Overlay (Cloud Database Syncing) -->
     <div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 transition-all duration-300">
         <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white shadow-xl shadow-brand-500/20 mb-4 animate-bounce">
             <i class="fa-solid fa-house-laptop text-2xl"></i>
@@ -84,10 +85,28 @@
         <h2 class="text-xl font-extrabold tracking-tight text-brand-600 dark:text-brand-400 animate-pulse">Menghubungkan ke Database Cloud...</h2>
         <p class="text-xs text-slate-400 dark:text-slate-500 mt-2 font-semibold">Sinkronisasi data realtime dengan Google Spreadsheet</p>
         <div class="w-48 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
-            <div class="bg-brand-500 h-full rounded-full animate-pulse w-full"></div>
+            <div class="bg-brand-500 h-full rounded-full w-full animate-pulse"></div>
+        </div>
+
+        <!-- Troubleshooting Tips (shown if loading takes more than 4 seconds) -->
+        <div id="loading-troubleshoot" class="hidden mt-6 max-w-md mx-4 p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-slate-900 dark:border-slate-800 text-left space-y-2 transition-all">
+            <h3 class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation"></i> Koneksi Lambat atau Bermasalah?
+            </h3>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-semibold">
+                Jika aplikasi tidak kunjung memuat data di perangkat baru, kemungkinan besar deployment Google Apps Script Anda belum diatur untuk akses publik.
+            </p>
+            <div class="text-[10px] text-slate-500 space-y-1">
+                <p>1. Buka <strong>Google Apps Script</strong> Anda.</p>
+                <p>2. Klik <strong>Deploy -> New Deployment</strong>.</p>
+                <p>3. Pilih tipe <strong>Web App</strong>, ubah <em>Execute as</em> menjadi <strong>Me</strong> (email Anda).</p>
+                <p>4. Ubah <em>Who has access</em> menjadi <strong>Anyone</strong> (Penting!).</p>
+                <p>5. Salin URL baru dan paste ke baris <code>GAS_WEB_APP_URL</code> di <code>index.html</code>.</p>
+            </div>
         </div>
     </div>
 
+    <!-- Top Navigation Bar -->
     <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-colors duration-200">
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-2">
@@ -344,7 +363,7 @@
                                 <i class="fa-solid fa-magnifying-glass"></i> Cari
                             </button>
                         </div>
-                        <div id="track-result" class="hidden mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white font-medium">
+                        <div id="track-result" class="hidden mt-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white font-semibold font-medium">
                         </div>
                     </div>
                 </div>
@@ -518,7 +537,7 @@
                                     <input type="text" id="warga-nik" maxlength="16" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="16 Digit NIK" required>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">No HP / WhatsApp</label>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">No HP / WhatsApp (Awali angka 0)</label>
                                     <input type="text" id="warga-phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2.5 px-4 text-sm text-slate-800 dark:text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Contoh: 08123456789" required>
                                 </div>
                                 <div>
@@ -856,10 +875,8 @@
 
     <!-- MAIN APP JAVASCRIPT LOGIC -->
     <script>
-        // CONFIGURASI DATABASE CLOUD GOOGLE APPS SCRIPT
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS9XQ3DnD9qg99iNv6Hoqh--7vkQmFeuJ-XiJw-tYseiv11UDDprTPRbCTDY8H-c46/exec"; 
 
-        // State Memory Sinkron
         let dbTransactions = [];
         let dbWarga = [];
         let dbSurat = [];
@@ -868,12 +885,10 @@
         let financeChartInstance = null;
         let isAdminLoggedIn = JSON.parse(sessionStorage.getItem('rt_admin_session')) || false;
 
-        // Berkas Base64 sementara untuk Tambah Pengumuman
         let tempBase64File = null;
         let tempFileName = "";
         let tempFileType = "";
 
-        // Berkas Base64 sementara untuk Edit Pengumuman
         let tempEditBase64File = null;
         let tempEditFileName = "";
         let tempEditFileType = "";
@@ -1021,15 +1036,18 @@
             }
             try {
                 if (action === 'read') {
-                    // CRITICAL FIX: Hilangkan custom headers pada request GET agar Browser tidak memicu CORS Preflight OPTIONS block!
-                    const params = new URLSearchParams({ sheet: sheetName, action: 'read' });
+                    // CRITICAL SINKRONISASI: Tambahkan Cache-Buster (_cb) agar Mobile Safari / Chrome tidak me-load data cache lama
+                    const params = new URLSearchParams({ 
+                        sheet: sheetName, 
+                        action: 'read', 
+                        _cb: Date.now().toString() 
+                    });
                     const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const json = await response.json();
                     if (json.success) return json;
                     throw new Error(json.error || "Gagal membaca dari GAS");
                 } else {
-                    // POST requests dikirim dengan mode CORS default
                     const response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
                         mode: 'cors',
@@ -1065,12 +1083,12 @@
 
             if (isCloud) {
                 if (indicator) {
-                    indicator.textContent = "Sinkronisasi Cloud Realtime...";
+                    indicator.textContent = "Mengkoneksikan Cloud...";
                     indicator.className = "text-xs text-brand-500 font-semibold animate-pulse";
                 }
                 
                 try {
-                    // Fetch data parallel menggunakan clean atomic fetch (bebas tabrakan data)
+                    // Penarikan data paralel dengan pengaman Cache-Buster
                     const [resTrans, resWarga, resSurat, resAnnounce] = await Promise.all([
                         fetchFromGAS('Transactions', 'read'),
                         fetchFromGAS('Warga', 'read'),
@@ -1084,16 +1102,13 @@
                     if (resAnnounce && resAnnounce.success) dbPengumuman = resAnnounce.data;
 
                     window.isCloudConnected = true;
-                    showNotification("Data ter-update secara otomatis dari Google Sheets!");
                 } catch(e) {
-                    console.error("Gagal sinkronisasi data paralel:", e);
+                    console.error("Gagal sinkronisasi data cloud:", e);
                     window.isCloudConnected = false;
-                    // Ambil dari cache local storage apabila jaringan gagal
                     dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
                     dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
                     dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
                     dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
-                    showNotification("Gagal memuat Cloud. Menggunakan basis data offline.", false);
                 }
             } else {
                 window.isCloudConnected = false;
@@ -1101,10 +1116,8 @@
                 dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
                 dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
                 dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
-                showNotification("Aplikasi berjalan dalam mode simulasi lokal.", false);
             }
 
-            // Simpan cache segar ke local storage
             localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
             localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
             localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
@@ -1224,7 +1237,7 @@
                             iconHTML = '<i class="fa-solid fa-fire"></i>';
                         }
 
-                        // PRATAMPIL PDF & BERKAS INTERAKTIF (PDF TIDAK PERLU UNDUH)
+                        // PRATAMPIL PDF INTERAKTIF (PDF TIDAK PERLU UNDUH)
                         let attachmentHTML = '';
                         if (ann.attachment) {
                             if (ann.attachmentType && ann.attachmentType.startsWith('image/')) {
@@ -1604,7 +1617,6 @@
             if (pBody) pBody.value = item.body;
             if (pCat) pCat.value = item.category;
 
-            // Muat data lampiran berkas lama
             tempEditBase64File = item.attachment || null;
             tempEditFileName = item.attachmentName || "";
             tempEditFileType = item.attachmentType || "";
@@ -1666,13 +1678,20 @@
             loadAllData();
             toggleSessionUI();
 
+            // Set up Troubleshooting timer
+            setTimeout(() => {
+                const troubleshoot = document.getElementById('loading-troubleshoot');
+                if (troubleshoot && !window.isCloudConnected) {
+                    troubleshoot.classList.remove('hidden');
+                }
+            }, 4000);
+
             const dateInput = document.getElementById('trans-tanggal');
             if (dateInput) {
                 const today = new Date().toISOString().split('T')[0];
                 dateInput.value = today;
             }
 
-            // Dropdown control
             const btnShowLogin = document.getElementById('btn-show-login');
             const loginDropdown = document.getElementById('login-dropdown');
             const btnCloseLogin = document.getElementById('btn-close-login');
@@ -1697,7 +1716,6 @@
                 if (loginDropdown) loginDropdown.classList.add('hidden'); 
             });
 
-            // Password Toggle Visibility
             const btnTogglePassword = document.getElementById('btn-toggle-password');
             const loginPasswordInput = document.getElementById('login-password');
             const eyeIcon = document.getElementById('eye-icon');
@@ -1714,7 +1732,6 @@
                 });
             }
 
-            // Handle Authentication Login Form
             const formLogin = document.getElementById('form-login');
             const loginErrorMsg = document.getElementById('login-error-msg');
 
@@ -1743,7 +1760,6 @@
                 });
             }
 
-            // Handle Logout
             const btnLogout = document.getElementById('btn-logout');
             if (btnLogout) {
                 btnLogout.addEventListener('click', () => {
@@ -1754,7 +1770,6 @@
                 });
             }
 
-            // TAB SWITCHING LOGIC
             const tabLinks = document.querySelectorAll('.tab-link');
             const tabPanels = document.querySelectorAll('.tab-panel');
 
@@ -2117,7 +2132,7 @@
                 });
             }
 
-            // FORM SUBMISSION: Admin Rilis Pengumuman Baru (Simpan Attachment PDF/Gambar)
+            // FORM SUBMISSION: Admin Rilis Pengumuman Baru
             const formAdminAnnounce = document.getElementById('form-admin-pengumuman');
             if (formAdminAnnounce) {
                 formAdminAnnounce.addEventListener('submit', async (e) => {
