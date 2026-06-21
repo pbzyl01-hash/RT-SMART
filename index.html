@@ -1093,7 +1093,8 @@
          */
         async function _silentPoll() {
             const isCloud = (GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA"));
-            if (!isCloud || !window.isCloudConnected) return;
+            // Tetap coba poll meski sebelumnya gagal — koneksi bisa pulih kapan saja
+            if (!isCloud) return;
 
             try {
                 const [resTrans, resWarga, resSurat, resAnnounce, resSettings] = await Promise.all([
@@ -1127,23 +1128,34 @@
                     changed = true;
                 }
 
-                if (changed) {
-                    // Update cache lokal
-                    localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
-                    localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
-                    localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
-                    localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
-                    localStorage.setItem('rt_settings', JSON.stringify(dbSettings));
+                // Tandai cloud terhubung jika polling berhasil
+                window.isCloudConnected = true;
 
-                    // Re-render tanpa overlay
+                if (changed) {
+                    // Update cache lokal hanya jika ada data baru dari cloud
+                    localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
+                    localStorage.setItem('rt_warga',        JSON.stringify(dbWarga));
+                    localStorage.setItem('rt_surat',        JSON.stringify(dbSurat));
+                    localStorage.setItem('rt_pengumuman',   JSON.stringify(dbPengumuman));
+                    localStorage.setItem('rt_settings',     JSON.stringify(dbSettings));
+
+                    // Re-render UI dengan data terbaru
                     renderPublicDashboard();
                     if (isAdminLoggedIn) renderAdminDashboard();
 
-                    // Tampilkan indikator sinkronisasi kecil di badge
+                    // Tampilkan indikator sinkronisasi di badge
                     _flashSyncBadge();
                 }
             } catch(e) {
                 console.warn("Silent poll gagal:", e);
+                window.isCloudConnected = false;
+                // Update badge offline
+                const sc = document.getElementById('connection-status-container');
+                if (sc) sc.innerHTML = `
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Offline · Cache
+                    </span>
+                `;
             }
         }
 
@@ -1207,6 +1219,11 @@
             const isCloud = (GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA"));
             const statusContainer = document.getElementById('connection-status-container');
 
+            // LANGKAH 1: Tampilkan cache lokal dulu agar UI tidak kosong saat pertama buka
+            loadBackupLocalData();
+            renderPublicDashboard();
+            if (isAdminLoggedIn) renderAdminDashboard();
+
             if (isCloud) {
                 try {
                     const [resTrans, resWarga, resSurat, resAnnounce, resSettings] = await Promise.all([
@@ -1217,31 +1234,39 @@
                         fetchFromGAS('Settings', 'read')
                     ]);
 
-                    if (resTrans && resTrans.success) dbTransactions = resTrans.data;
-                    if (resWarga && resWarga.success) dbWarga = resWarga.data;
-                    if (resSurat && resSurat.success) dbSurat = resSurat.data;
-                    if (resAnnounce && resAnnounce.success) dbPengumuman = resAnnounce.data;
-                    if (resSettings && resSettings.success) dbSettings = resSettings.data;
+                    // LANGKAH 2: Hanya update jika response berhasil — jangan timpa dengan null/kosong
+                    let cloudOk = false;
+                    if (resTrans && resTrans.success)   { dbTransactions = resTrans.data;    cloudOk = true; }
+                    if (resWarga && resWarga.success)   { dbWarga        = resWarga.data;    cloudOk = true; }
+                    if (resSurat && resSurat.success)   { dbSurat        = resSurat.data;    cloudOk = true; }
+                    if (resAnnounce && resAnnounce.success) { dbPengumuman = resAnnounce.data; cloudOk = true; }
+                    if (resSettings && resSettings.success) { dbSettings  = resSettings.data; cloudOk = true; }
 
-                    window.isCloudConnected = true;
+                    if (cloudOk) {
+                        // LANGKAH 3: Simpan cache baru hanya jika cloud berhasil dijangkau
+                        localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
+                        localStorage.setItem('rt_warga',        JSON.stringify(dbWarga));
+                        localStorage.setItem('rt_surat',        JSON.stringify(dbSurat));
+                        localStorage.setItem('rt_pengumuman',   JSON.stringify(dbPengumuman));
+                        localStorage.setItem('rt_settings',     JSON.stringify(dbSettings));
+                        window.isCloudConnected = true;
+                    } else {
+                        // Semua fetch gagal (null) — tetap pakai cache, jangan timpa
+                        window.isCloudConnected = false;
+                    }
                 } catch(e) {
-                    console.error("Gagal sinkronisasi data cloud, memuat cache lokal:", e);
+                    console.error("Gagal sinkronisasi data cloud, memakai cache lokal:", e);
                     window.isCloudConnected = false;
-                    loadBackupLocalData();
                 }
             } else {
                 window.isCloudConnected = false;
-                loadBackupLocalData();
             }
 
-            // Simpan salinan ke penyimpanan lokal
-            localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
-            localStorage.setItem('rt_warga', JSON.stringify(dbWarga));
-            localStorage.setItem('rt_surat', JSON.stringify(dbSurat));
-            localStorage.setItem('rt_pengumuman', JSON.stringify(dbPengumuman));
-            localStorage.setItem('rt_settings', JSON.stringify(dbSettings));
+            // LANGKAH 4: Re-render dengan data final (cloud atau cache)
+            renderPublicDashboard();
+            if (isAdminLoggedIn) renderAdminDashboard();
 
-            // Render Lencana Visual Koneksi Terkini
+            // Render badge koneksi
             if (statusContainer) {
                 if (window.isCloudConnected) {
                     statusContainer.innerHTML = `
@@ -1252,30 +1277,32 @@
                 } else {
                     statusContainer.innerHTML = `
                         <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
-                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Simulasi
+                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Offline · Cache
                         </span>
                     `;
                 }
             }
 
-            renderPublicDashboard();
-            if (isAdminLoggedIn) {
-                renderAdminDashboard();
-            }
-
-            // Mulai polling realtime hanya sekali setelah load pertama berhasil
-            if (window.isCloudConnected && !_pollingStarted) {
+            // Mulai polling realtime hanya sekali — selalu, bukan hanya saat cloud berhasil
+            // Agar jika koneksi sempat gagal, polling tetap berjalan dan bisa recover
+            if (!_pollingStarted && GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
                 _pollingStarted = true;
                 startRealtimePolling();
             }
         }
 
         function loadBackupLocalData() {
-            dbTransactions = JSON.parse(localStorage.getItem('rt_transactions')) || [];
-            dbWarga = JSON.parse(localStorage.getItem('rt_warga')) || [];
-            dbSurat = JSON.parse(localStorage.getItem('rt_surat')) || [];
-            dbPengumuman = JSON.parse(localStorage.getItem('rt_pengumuman')) || [];
-            dbSettings = JSON.parse(localStorage.getItem('rt_settings')) || [{ key: 'admin_pin', value: '123456' }];
+            const t = localStorage.getItem('rt_transactions');
+            const w = localStorage.getItem('rt_warga');
+            const s = localStorage.getItem('rt_surat');
+            const p = localStorage.getItem('rt_pengumuman');
+            const st = localStorage.getItem('rt_settings');
+            // Hanya ganti jika ada data di cache — jangan reset ke [] jika cache kosong tapi cloud mungkin berhasil
+            if (t)  dbTransactions = JSON.parse(t);
+            if (w)  dbWarga        = JSON.parse(w);
+            if (s)  dbSurat        = JSON.parse(s);
+            if (p)  dbPengumuman   = JSON.parse(p);
+            dbSettings = st ? JSON.parse(st) : [{ key: 'admin_pin', value: '123456' }];
         }
 
         function renderPublicDashboard() {
