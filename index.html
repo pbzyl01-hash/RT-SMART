@@ -1091,65 +1091,15 @@
          * Polling diam-diam (tanpa overlay) – hanya menarik data cloud
          * lalu update UI jika ada perubahan. Dipanggil tiap POLLING_INTERVAL_MS.
          */
+        /**
+         * Polling diam-diam tiap 15 detik.
+         * Cukup delegasikan ke _refreshFromCloud — satu fungsi, satu logika.
+         */
         async function _silentPoll() {
-            const isCloud = (GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA"));
-            // Tetap coba poll meski sebelumnya gagal — koneksi bisa pulih kapan saja
-            if (!isCloud) return;
-
-            try {
-                const [resTrans, resWarga, resSurat, resAnnounce, resSettings] = await Promise.all([
-                    fetchFromGAS('Transactions', 'read'),
-                    fetchFromGAS('Warga', 'read'),
-                    fetchFromGAS('Surat', 'read'),
-                    fetchFromGAS('Pengumuman', 'read'),
-                    fetchFromGAS('Settings', 'read')
-                ]);
-
-                let changed = false;
-
-                if (resTrans && resTrans.success && _hasChanged(dbTransactions, resTrans.data)) {
-                    dbTransactions = resTrans.data;
-                    changed = true;
-                }
-                if (resWarga && resWarga.success && _hasChanged(dbWarga, resWarga.data)) {
-                    dbWarga = resWarga.data;
-                    changed = true;
-                }
-                if (resSurat && resSurat.success && _hasChanged(dbSurat, resSurat.data)) {
-                    dbSurat = resSurat.data;
-                    changed = true;
-                }
-                if (resAnnounce && resAnnounce.success && _hasChanged(dbPengumuman, resAnnounce.data)) {
-                    dbPengumuman = resAnnounce.data;
-                    changed = true;
-                }
-                if (resSettings && resSettings.success && _hasChanged(dbSettings, resSettings.data)) {
-                    dbSettings = resSettings.data;
-                    changed = true;
-                }
-
-                // Tandai cloud terhubung jika polling berhasil
-                window.isCloudConnected = true;
-
-                if (changed) {
-                    // Update cache lokal hanya jika ada data baru dari cloud
-                    localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions));
-                    localStorage.setItem('rt_warga',        JSON.stringify(dbWarga));
-                    localStorage.setItem('rt_surat',        JSON.stringify(dbSurat));
-                    localStorage.setItem('rt_pengumuman',   JSON.stringify(dbPengumuman));
-                    localStorage.setItem('rt_settings',     JSON.stringify(dbSettings));
-
-                    // Re-render UI dengan data terbaru
-                    renderPublicDashboard();
-                    if (isAdminLoggedIn) renderAdminDashboard();
-
-                    // Tampilkan indikator sinkronisasi di badge
-                    _flashSyncBadge();
-                }
-            } catch(e) {
-                console.warn("Silent poll gagal:", e);
-                window.isCloudConnected = false;
-                // Update badge offline
+            await _refreshFromCloud();
+            if (window.isCloudConnected) {
+                _flashSyncBadge();
+            } else {
                 const sc = document.getElementById('connection-status-container');
                 if (sc) sc.innerHTML = `
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
@@ -1206,75 +1156,26 @@
         // ── END REALTIME SYNC ───────────────────────────────────────────
 
         /**
-         * Optimistic UI: langsung update in-memory & render, lalu kirim ke GAS di background.
-         * Ini memastikan UI selalu responsif tanpa menunggu round-trip jaringan.
+         * syncDatabase: kirim perubahan ke GAS, tunggu konfirmasi,
+         * lalu tarik ulang semua data dari cloud → render.
+         * TIDAK ada update lokal dulu — satu sumber kebenaran: Spreadsheet.
          */
         async function syncDatabase(sheetName = null, action = null, data = null) {
             if (sheetName && action && data) {
-                // 1. Update in-memory langsung (optimistic)
-                _applyLocalChange(sheetName, action, data);
-
-                // 2. Render segera agar user melihat perubahannya
-                renderPublicDashboard();
-                if (isAdminLoggedIn) renderAdminDashboard();
-
-                // 3. Kirim ke GAS di background
                 try {
                     await fetchFromGAS(sheetName, action, data);
                 } catch(e) {
                     console.warn("Gagal kirim ke GAS:", e);
                 }
-
-                // 4. Tunda sebentar lalu fetch ulang dari cloud untuk konfirmasi
-                //    (beri waktu GAS menulis ke spreadsheet)
-                setTimeout(async () => {
-                    await _refreshFromCloud();
-                }, 2000);
-            } else {
-                // Dipanggil tanpa data = hanya refresh
-                await _refreshFromCloud();
             }
+            // Tarik ulang semua data dari cloud setelah operasi selesai
+            await _refreshFromCloud();
         }
 
         /**
-         * Terapkan perubahan langsung ke array in-memory
-         * tanpa menunggu response dari GAS.
-         */
-        function _applyLocalChange(sheetName, action, data) {
-            const dbMap = {
-                'Transactions': { ref: () => dbTransactions, set: v => { dbTransactions = v; }, key: 'rt_transactions' },
-                'Warga':        { ref: () => dbWarga,        set: v => { dbWarga = v; },        key: 'rt_warga' },
-                'Surat':        { ref: () => dbSurat,        set: v => { dbSurat = v; },        key: 'rt_surat' },
-                'Pengumuman':   { ref: () => dbPengumuman,   set: v => { dbPengumuman = v; },   key: 'rt_pengumuman' },
-                'Settings':     { ref: () => dbSettings,     set: v => { dbSettings = v; },     key: 'rt_settings' },
-            };
-            const entry = dbMap[sheetName];
-            if (!entry) return;
-            let arr = entry.ref();
-
-            if (action === 'create') {
-                arr = [...arr, data];
-            } else if (action === 'update') {
-                if (sheetName === 'Settings') {
-                    arr = arr.map(r => r.key === data.key ? { ...r, value: data.value } : r);
-                } else {
-                    arr = arr.map(r => String(r.id) === String(data.id)
-                        ? { ...r, ...data.newData }
-                        : r
-                    );
-                }
-            } else if (action === 'delete') {
-                arr = arr.filter(r => String(r.id) !== String(data.id));
-            }
-
-            entry.set(arr);
-            // Update cache lokal juga
-            localStorage.setItem(entry.key, JSON.stringify(arr));
-        }
-
-        /**
-         * Tarik semua data dari cloud dan update UI jika ada perbedaan.
-         * Tidak pernah menimpa data jika semua fetch gagal.
+         * Tarik semua data dari Spreadsheet (sumber tunggal kebenaran).
+         * Selalu update in-memory & cache jika berhasil, render ulang UI.
+         * Tidak pernah menimpa data jika semua sheet gagal diambil.
          */
         async function _refreshFromCloud() {
             const isCloud = (GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA"));
@@ -1282,24 +1183,27 @@
             try {
                 const [resTrans, resWarga, resSurat, resAnnounce, resSettings] = await Promise.all([
                     fetchFromGAS('Transactions', 'read'),
-                    fetchFromGAS('Warga', 'read'),
-                    fetchFromGAS('Surat', 'read'),
-                    fetchFromGAS('Pengumuman', 'read'),
-                    fetchFromGAS('Settings', 'read')
+                    fetchFromGAS('Warga',        'read'),
+                    fetchFromGAS('Surat',        'read'),
+                    fetchFromGAS('Pengumuman',   'read'),
+                    fetchFromGAS('Settings',     'read')
                 ]);
-                let changed = false;
-                if (resTrans    && resTrans.success    && _hasChanged(dbTransactions, resTrans.data))    { dbTransactions = resTrans.data;    changed = true; localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions)); }
-                if (resWarga    && resWarga.success    && _hasChanged(dbWarga, resWarga.data))            { dbWarga        = resWarga.data;    changed = true; localStorage.setItem('rt_warga',        JSON.stringify(dbWarga)); }
-                if (resSurat    && resSurat.success    && _hasChanged(dbSurat, resSurat.data))            { dbSurat        = resSurat.data;    changed = true; localStorage.setItem('rt_surat',        JSON.stringify(dbSurat)); }
-                if (resAnnounce && resAnnounce.success && _hasChanged(dbPengumuman, resAnnounce.data))   { dbPengumuman   = resAnnounce.data; changed = true; localStorage.setItem('rt_pengumuman',   JSON.stringify(dbPengumuman)); }
-                if (resSettings && resSettings.success && _hasChanged(dbSettings, resSettings.data))    { dbSettings     = resSettings.data; changed = true; localStorage.setItem('rt_settings',     JSON.stringify(dbSettings)); }
-                if (changed) {
+
+                let anySuccess = false;
+                if (resTrans    && resTrans.success)    { dbTransactions = resTrans.data;    localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions)); anySuccess = true; }
+                if (resWarga    && resWarga.success)    { dbWarga        = resWarga.data;    localStorage.setItem('rt_warga',        JSON.stringify(dbWarga));        anySuccess = true; }
+                if (resSurat    && resSurat.success)    { dbSurat        = resSurat.data;    localStorage.setItem('rt_surat',        JSON.stringify(dbSurat));        anySuccess = true; }
+                if (resAnnounce && resAnnounce.success) { dbPengumuman   = resAnnounce.data; localStorage.setItem('rt_pengumuman',   JSON.stringify(dbPengumuman));   anySuccess = true; }
+                if (resSettings && resSettings.success) { dbSettings     = resSettings.data; localStorage.setItem('rt_settings',     JSON.stringify(dbSettings));     anySuccess = true; }
+
+                if (anySuccess) {
+                    window.isCloudConnected = true;
                     renderPublicDashboard();
                     if (isAdminLoggedIn) renderAdminDashboard();
                 }
-                window.isCloudConnected = true;
             } catch(e) {
                 console.warn("_refreshFromCloud gagal:", e);
+                window.isCloudConnected = false;
             }
         }
 
