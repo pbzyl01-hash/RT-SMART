@@ -1030,7 +1030,9 @@
             });
         }
 
-        // Fetch ke Google Apps Script — ikuti redirect, tanpa custom header agar tidak trigger Preflight CORS
+        // Fetch ke Google Apps Script
+        // GET  → query params biasa, tidak ada mode/headers khusus (browser default)
+        // POST → Content-Type: text/plain untuk menghindari CORS preflight yang diblokir GAS
         async function fetchFromGAS(sheetName, action, data = null) {
             if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
                 return null;
@@ -1038,31 +1040,22 @@
             try {
                 let response;
                 if (action === 'read') {
-                    const params = new URLSearchParams({
-                        sheet: sheetName,
-                        action: 'read',
-                        _cb: Date.now().toString()
-                    });
-                    // redirect:'follow' agar GAS redirect (302) diikuti secara otomatis
-                    response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
-                        method: 'GET',
-                        redirect: 'follow'
-                    });
+                    const url = `${GAS_WEB_APP_URL}?sheet=${encodeURIComponent(sheetName)}&action=read&_t=${Date.now()}`;
+                    response = await fetch(url);
                 } else {
-                    // Content-Type: text/plain menghindari Preflight OPTIONS yang diblokir GAS
                     response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
-                        redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ sheet: sheetName, action: action, data: data })
                     });
                 }
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const json = await response.json();
+                const text = await response.text();
+                const json = JSON.parse(text);
                 if (json.success) return json;
-                throw new Error(json.error || "Respons GAS tidak sukses");
+                console.warn(`GAS error [${sheetName}/${action}]:`, json.error);
+                return null;
             } catch (error) {
-                console.warn(`fetchFromGAS [${sheetName}/${action}] gagal:`, error);
+                console.warn(`fetchFromGAS [${sheetName}/${action}] error:`, error.message);
                 return null;
             }
         }
@@ -1122,19 +1115,18 @@
         // ── END REALTIME SYNC ───────────────────────────────────────────
 
         /**
-         * syncDatabase: kirim perubahan ke GAS, tunggu konfirmasi,
-         * lalu tarik ulang semua data dari cloud → render.
-         * TIDAK ada update lokal dulu — satu sumber kebenaran: Spreadsheet.
+         * syncDatabase — satu-satunya cara tulis data.
+         * 1. Kirim POST ke GAS (tunggu selesai)
+         * 2. Tarik ulang SEMUA data dari Spreadsheet → render
+         * Tidak ada mutasi lokal — Spreadsheet adalah satu-satunya sumber kebenaran.
          */
-        async function syncDatabase(sheetName = null, action = null, data = null) {
-            if (sheetName && action && data) {
-                try {
-                    await fetchFromGAS(sheetName, action, data);
-                } catch(e) {
-                    console.warn("Gagal kirim ke GAS:", e);
-                }
+        async function syncDatabase(sheetName, action, data) {
+            if (!sheetName || !action || !data) return;
+            const result = await fetchFromGAS(sheetName, action, data);
+            if (!result) {
+                showNotification('Gagal menyimpan ke server. Periksa koneksi.', false);
             }
-            // Tarik ulang semua data dari cloud setelah operasi selesai
+            // Selalu refresh dari cloud setelah operasi (berhasil atau gagal)
             await _refreshFromCloud();
         }
 
@@ -1155,22 +1147,21 @@
                     fetchFromGAS('Settings',     'read')
                 ]);
 
-                let anySuccess = false;
-                if (resTrans    && resTrans.success)    { dbTransactions = resTrans.data;    localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions)); anySuccess = true; }
-                if (resWarga    && resWarga.success)    { dbWarga        = resWarga.data;    localStorage.setItem('rt_warga',        JSON.stringify(dbWarga));        anySuccess = true; }
-                if (resSurat    && resSurat.success)    { dbSurat        = resSurat.data;    localStorage.setItem('rt_surat',        JSON.stringify(dbSurat));        anySuccess = true; }
-                if (resAnnounce && resAnnounce.success) { dbPengumuman   = resAnnounce.data; localStorage.setItem('rt_pengumuman',   JSON.stringify(dbPengumuman));   anySuccess = true; }
-                if (resSettings && resSettings.success) { dbSettings     = resSettings.data; localStorage.setItem('rt_settings',     JSON.stringify(dbSettings));     anySuccess = true; }
+                // Update setiap sheet yang berhasil diambil
+                if (resTrans    && resTrans.success)    { dbTransactions = resTrans.data;    localStorage.setItem('rt_transactions', JSON.stringify(dbTransactions)); }
+                if (resWarga    && resWarga.success)    { dbWarga        = resWarga.data;    localStorage.setItem('rt_warga',        JSON.stringify(dbWarga)); }
+                if (resSurat    && resSurat.success)    { dbSurat        = resSurat.data;    localStorage.setItem('rt_surat',        JSON.stringify(dbSurat)); }
+                if (resAnnounce && resAnnounce.success) { dbPengumuman   = resAnnounce.data; localStorage.setItem('rt_pengumuman',   JSON.stringify(dbPengumuman)); }
+                if (resSettings && resSettings.success) { dbSettings     = resSettings.data; localStorage.setItem('rt_settings',     JSON.stringify(dbSettings)); }
 
-                if (anySuccess) {
-                    window.isCloudConnected = true;
-                    renderPublicDashboard();
-                    if (isAdminLoggedIn) renderAdminDashboard();
-                }
+                // Selalu render ulang setelah fetch — apapun hasilnya
+                window.isCloudConnected = true;
+                renderPublicDashboard();
+                if (isAdminLoggedIn) renderAdminDashboard();
+
             } catch(e) {
                 console.warn("_refreshFromCloud gagal:", e);
                 window.isCloudConnected = false;
-                // Retry otomatis akan dilakukan oleh polling berikutnya
             }
         }
 
@@ -1578,7 +1569,6 @@
         async function deleteTransaksi(id) {
             const confirmed = await confirmAction("Konfirmasi Hapus Kas", "Apakah Anda benar-benar yakin ingin menghapus catatan kas ini dari sistem dan Google Sheets?");
             if (confirmed) {
-                dbTransactions = dbTransactions.filter(item => item.id !== id);
                 await syncDatabase('Transactions', 'delete', { id: id });
                 showNotification('Transaksi berhasil dihapus dari sistem');
             }
@@ -1587,7 +1577,6 @@
         async function deleteWarga(id) {
             const confirmed = await confirmAction("Konfirmasi Hapus Warga", "Apakah Anda benar-benar yakin ingin menghapus data kependudukan warga ini secara permanen?");
             if (confirmed) {
-                dbWarga = dbWarga.filter(item => item.id !== id);
                 await syncDatabase('Warga', 'delete', { id: id });
                 showNotification('Data warga berhasil dihapus secara permanen');
             }
@@ -1596,7 +1585,6 @@
         async function deleteSurat(id) {
             const confirmed = await confirmAction("Konfirmasi Hapus Surat", "Apakah Anda yakin ingin menghapus arsip pengajuan surat dari daftar?");
             if (confirmed) {
-                dbSurat = dbSurat.filter(item => item.id !== id);
                 await syncDatabase('Surat', 'delete', { id: id });
                 showNotification('Pengajuan surat dibersihkan');
             }
@@ -1605,7 +1593,6 @@
         async function deletePengumuman(id) {
             const confirmed = await confirmAction("Konfirmasi Hapus Pengumuman", "Apakah Anda benar-benar yakin ingin menarik pengumuman warga ini dari papan mading?");
             if (confirmed) {
-                dbPengumuman = dbPengumuman.filter(item => item.id !== id);
                 await syncDatabase('Pengumuman', 'delete', { id: id });
                 showNotification('Pengumuman berhasil ditarik');
             }
@@ -1713,7 +1700,6 @@
         async function updateStatusSurat(id, statusBaru) {
             const surat = dbSurat.find(item => item.id === id);
             if (surat) {
-                surat.status = statusBaru;
                 await syncDatabase('Surat', 'update', { id: id, newData: { status: statusBaru } });
                 showNotification(`Status surat ${surat.nama} diubah menjadi ${statusBaru}`);
             }
@@ -2015,7 +2001,6 @@
                         date: new Date().toISOString().split('T')[0]
                     };
 
-                    dbSurat.push(newSurat);
                     await syncDatabase('Surat', 'create', newSurat);
 
                     const waMessage = encodeURIComponent(
@@ -2138,7 +2123,6 @@
                         date: tanggal
                     };
 
-                    dbTransactions.push(transObj);
                     await syncDatabase('Transactions', 'create', transObj);
                     formAdminTrans.reset();
                     showNotification('Berhasil menyimpan catatan keuangan baru!');
@@ -2181,7 +2165,6 @@
                         status: status
                     };
 
-                    dbWarga.push(wargaObj);
                     await syncDatabase('Warga', 'create', wargaObj);
                     formAdminWarga.reset();
                     showNotification('Sukses mendaftarkan warga baru!');
@@ -2208,7 +2191,6 @@
                         attachmentType: tempFileType || ""
                     };
 
-                    dbPengumuman.push(announceObj);
                     await syncDatabase('Pengumuman', 'create', announceObj);
                     
                     formAdminAnnounce.reset();
@@ -2260,7 +2242,6 @@
                     if (targetSetting) {
                         targetSetting.value = pinBaruInput;
                     } else {
-                        dbSettings.push({ key: 'admin_pin', value: pinBaruInput });
                     }
 
                     await syncDatabase('Settings', 'update', { key: 'admin_pin', value: pinBaruInput });
@@ -2283,11 +2264,6 @@
 
                     const trans = dbTransactions.find(t => t.id === id);
                     if (trans) {
-                        trans.amount = amount;
-                        trans.date = date;
-                        trans.desc = desc;
-                        trans.type = type;
-
                         await syncDatabase('Transactions', 'update', {
                             id: id,
                             newData: { amount, date, desc, type }
@@ -2317,14 +2293,7 @@
 
                     const item = dbWarga.find(w => w.id === id);
                     if (item) {
-                        item.nama = nama;
-                        item.nik = nik;
-                        
                         const excelPhone = phone.startsWith('0') ? `'${phone}` : phone;
-                        item.phone = excelPhone;
-                        item.alamat = alamat;
-                        item.status = status;
-
                         await syncDatabase('Warga', 'update', {
                             id: id,
                             newData: { nama, nik, phone: excelPhone, alamat, status }
@@ -2347,22 +2316,14 @@
 
                     const ann = dbPengumuman.find(p => p.id === id);
                     if (ann) {
-                        ann.title = title;
-                        ann.body = body;
-                        ann.category = category;
-                        ann.attachment = tempEditBase64File || "";
-                        ann.attachmentName = tempEditFileName || "";
-                        ann.attachmentType = tempEditFileType || "";
-
+                        const attachment = tempEditBase64File || ann.attachment || "";
+                        const attachmentName = tempEditFileName || ann.attachmentName || "";
+                        const attachmentType = tempEditFileType || ann.attachmentType || "";
                         await syncDatabase('Pengumuman', 'update', {
                             id: id,
                             newData: { 
-                                title: title, 
-                                body: body, 
-                                category: category,
-                                attachment: ann.attachment,
-                                attachmentName: ann.attachmentName,
-                                attachmentType: ann.attachmentType
+                                title, body, category,
+                                attachment, attachmentName, attachmentType
                             }
                         });
                         showNotification('Pengumuman berhasil diperbaharui!');
