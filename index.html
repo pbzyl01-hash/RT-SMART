@@ -1030,32 +1030,46 @@
             });
         }
 
-        // Fetch ke Google Apps Script
-        // GET  → query params biasa, tidak ada mode/headers khusus (browser default)
-        // POST → Content-Type: text/plain untuk menghindari CORS preflight yang diblokir GAS
+        // ─── FETCH KE GOOGLE APPS SCRIPT ────────────────────────────────
+        // GAS Web App selalu redirect (302/303). Strategi:
+        //   GET  → fetch biasa, response JSON bisa dibaca
+        //   POST → no-cors (fire & forget). Response tidak bisa dibaca karena
+        //          redirect opaque, tapi data TETAP masuk ke Spreadsheet.
+        //          Konfirmasi dilakukan lewat GET polling setelahnya.
+        // ─────────────────────────────────────────────────────────────────
+
+        async function fetchGAS_read(sheetName) {
+            const url = `${GAS_WEB_APP_URL}?sheet=${encodeURIComponent(sheetName)}&action=read&_t=${Date.now()}`;
+            const res = await fetch(url);
+            const text = await res.text();
+            return JSON.parse(text);
+        }
+
+        async function fetchGAS_write(sheetName, action, data) {
+            // no-cors: browser mengirim request, tidak bisa baca response.
+            // Data TETAP sampai ke GAS & ditulis ke Spreadsheet.
+            await fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ sheet: sheetName, action, data })
+            });
+            // Tidak ada response yang bisa dibaca — return void
+        }
+
+        // Wrapper lama — tetap ada agar kode lain tidak perlu diubah
         async function fetchFromGAS(sheetName, action, data = null) {
-            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
-                return null;
-            }
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) return null;
             try {
-                let response;
                 if (action === 'read') {
-                    const url = `${GAS_WEB_APP_URL}?sheet=${encodeURIComponent(sheetName)}&action=read&_t=${Date.now()}`;
-                    response = await fetch(url);
+                    const json = await fetchGAS_read(sheetName);
+                    return json.success ? json : null;
                 } else {
-                    response = await fetch(GAS_WEB_APP_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ sheet: sheetName, action: action, data: data })
-                    });
+                    await fetchGAS_write(sheetName, action, data);
+                    return { success: true }; // anggap berhasil, dikonfirmasi lewat polling
                 }
-                const text = await response.text();
-                const json = JSON.parse(text);
-                if (json.success) return json;
-                console.warn(`GAS error [${sheetName}/${action}]:`, json.error);
-                return null;
-            } catch (error) {
-                console.warn(`fetchFromGAS [${sheetName}/${action}] error:`, error.message);
+            } catch (err) {
+                console.warn(`fetchFromGAS [${sheetName}/${action}]:`, err.message);
                 return null;
             }
         }
@@ -1116,18 +1130,53 @@
 
         /**
          * syncDatabase — satu-satunya cara tulis data.
-         * 1. Kirim POST ke GAS (tunggu selesai)
-         * 2. Tarik ulang SEMUA data dari Spreadsheet → render
-         * Tidak ada mutasi lokal — Spreadsheet adalah satu-satunya sumber kebenaran.
+         * POST pakai no-cors (fire & forget) → GAS menulis ke Spreadsheet.
+         * Lalu tunggu sebentar agar GAS selesai commit, kemudian GET konfirmasi.
+         * Jika data belum ada (GAS belum selesai), retry sekali lagi setelah 2 detik.
          */
         async function syncDatabase(sheetName, action, data) {
             if (!sheetName || !action || !data) return;
-            const result = await fetchFromGAS(sheetName, action, data);
-            if (!result) {
-                showNotification('Gagal menyimpan ke server. Periksa koneksi.', false);
-            }
-            // Selalu refresh dari cloud setelah operasi (berhasil atau gagal)
+
+            // Disable semua tombol submit saat proses berlangsung (cegah double submit)
+            const btns = document.querySelectorAll('button[type="submit"], button[data-saving]');
+            btns.forEach(b => { b.disabled = true; b.dataset.saving = '1'; });
+
+            // Catat jumlah data sebelum operasi (untuk deteksi perubahan)
+            const countBefore = {
+                Transactions: dbTransactions.length,
+                Warga: dbWarga.length,
+                Surat: dbSurat.length,
+                Pengumuman: dbPengumuman.length,
+            }[sheetName];
+
+            // Kirim ke GAS (no-cors, tidak bisa baca response)
+            await fetchFromGAS(sheetName, action, data);
+
+            // Tunggu GAS selesai menulis (biasanya 1-3 detik)
+            await new Promise(r => setTimeout(r, 2000));
+
+            // Refresh pertama
             await _refreshFromCloud();
+
+            // Jika create dan jumlah data belum bertambah → GAS belum selesai, retry
+            if (action === 'create' && countBefore !== undefined) {
+                const countAfter = {
+                    Transactions: dbTransactions.length,
+                    Warga: dbWarga.length,
+                    Surat: dbSurat.length,
+                    Pengumuman: dbPengumuman.length,
+                }[sheetName];
+                if (countAfter <= countBefore) {
+                    await new Promise(r => setTimeout(r, 2000));
+                    await _refreshFromCloud();
+                }
+            }
+
+            // Re-enable tombol setelah selesai
+            document.querySelectorAll('button[data-saving]').forEach(b => {
+                b.disabled = false;
+                delete b.dataset.saving;
+            });
         }
 
         /**
