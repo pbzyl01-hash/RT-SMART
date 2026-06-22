@@ -60,6 +60,16 @@
             display: inline-block;
         }
 
+        /* Custom Shaking effect on wrong login input */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
         /* Scrollbar styles */
         ::-webkit-scrollbar {
             width: 6px;
@@ -223,8 +233,11 @@
                         
                         <form id="form-surat-warga" onsubmit="handleCitizenSubmission(event)" class="space-y-3.5">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">NIK (Nomor Induk Kependudukan)</label>
-                                <input type="number" id="nik-warga" required class="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 font-mono tracking-wider bg-white/70 dark:bg-slate-950/70 dark:text-white" placeholder="3173xxxxxxxxxxxx">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">NIK (Nomor Induk Kependudukan)</label>
+                                    <span id="nik-counter-citizen" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">0/16</span>
+                                </div>
+                                <input type="number" id="nik-warga" required oninput="limitDigits(this, 16); updateNikCounter('nik-warga', 'nik-counter-citizen');" class="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 font-mono tracking-wider bg-white/70 dark:bg-slate-950/70 dark:text-white" placeholder="317301xxxxxxxxxx">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Lengkap Sesuai KTP</label>
@@ -320,14 +333,14 @@
 
                 </div>
 
-                <!-- KONTAK PENTING & DARURAT (Dibuat Dinamis) -->
+                <!-- KONTAK PENTING & DARURAT -->
                 <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm space-y-4 transition-colors">
                     <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center border-b border-slate-200/50 dark:border-slate-800 pb-3">
                         <i class="fa-solid fa-phone-volume text-rose-500 mr-2 animate-pulse"></i>
                         Pusat Kontak Penting & Nomor Darurat
                     </h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="emergency-contacts-container">
-                        <!-- Konten akan diproses dinamis oleh JS -->
+                        <!-- Konten diproses dinamis oleh JS -->
                     </div>
                 </div>
 
@@ -339,15 +352,16 @@
                 <!-- ADMIN LOGIN SCREEN -->
                 <div id="admin-login-screen" class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 max-w-md mx-auto rounded-3xl border border-white/50 dark:border-slate-800/50 shadow-2xl space-y-5 text-center my-12 relative overflow-hidden transition-colors">
                     <div class="absolute -top-10 -left-10 w-24 h-24 bg-amber-500/20 rounded-full blur-xl pointer-events-none"></div>
-                    <div class="mx-auto w-16 h-16 bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800">
-                        <i class="fa-solid fa-shield-halved animate-pulse"></i>
+                    
+                    <div id="admin-lock-banner" class="mx-auto w-16 h-16 bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800 transition-all duration-300">
+                        <i id="admin-shield-icon" class="fa-solid fa-shield-halved animate-pulse"></i>
                     </div>
                     <div>
                         <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">Autentikasi Pengurus RT</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masukkan PIN keamanan 6 digit untuk mengelola data sistem</p>
                     </div>
                     <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                        <input type="password" id="admin-pin-input" maxlength="6" class="w-full text-center text-2xl font-mono tracking-[0.8em] font-extrabold px-3 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/30 dark:focus:ring-amber-550/30 bg-white/70 dark:bg-slate-950/70 dark:text-white" placeholder="******" required>
+                        <input type="password" id="admin-pin-input" oninput="limitDigits(this, 6)" maxlength="6" class="w-full text-center text-2xl font-mono tracking-[0.8em] font-extrabold px-3 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/30 dark:focus:ring-amber-550/30 bg-white/70 dark:bg-slate-950/70 dark:text-white transition-all duration-300" placeholder="******" required>
                         <button type="submit" class="w-full bg-slate-950 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-600 hover:bg-slate-900 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition-all border border-slate-950">
                             Buka Panel Kontrol <i class="fa-solid fa-arrow-right ml-1.5"></i>
                         </button>
@@ -366,7 +380,7 @@
                             </div>
                             <div>
                                 <h2 class="font-bold text-sm">Dashboard Pengurus RT Resmi</h2>
-                                <p class="text-xs text-slate-400">Pembaruan data langsung tersinkronisasi ke Google Sheets secara real-time</p>
+                                <p class="text-xs text-slate-400">Pembaruan data langsung tersinkronisasi secara real-time</p>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-2">
@@ -442,7 +456,7 @@
                         <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-4 space-y-4 transition-colors">
                             <div class="border-b border-slate-200/55 dark:border-slate-800 pb-2">
                                 <h3 id="kas-form-title" class="text-sm font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-folder-plus text-emerald-500 mr-1.5"></i>Catat Transaksi Buku Kas</h3>
-                                <p class="text-[10px] text-slate-450 dark:text-slate-400">Entri baru atau sunting catatan keuangan kas RT</p>
+                                <p class="text-[10px] text-slate-455 dark:text-slate-400">Entri baru atau sunting catatan keuangan kas RT</p>
                             </div>
                             <form id="form-admin-kas" onsubmit="handleKasSubmission(event)" class="space-y-3.5">
                                 <input type="hidden" id="kas-id" value="">
@@ -518,13 +532,16 @@
                         <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-4 space-y-4 transition-colors">
                             <div class="border-b border-slate-200/55 dark:border-slate-800 pb-2">
                                 <h3 id="warga-form-title" class="text-sm font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-user-plus text-amber-500 mr-1.5"></i>Registrasi / Edit Data Warga</h3>
-                                <p class="text-[10px] text-slate-450 dark:text-slate-400">Tambahkan baru atau ubah arsip kependudukan warga</p>
+                                <p class="text-[10px] text-slate-455 dark:text-slate-400">Tambahkan baru atau ubah arsip kependudukan warga</p>
                             </div>
                             <form id="form-admin-warga" onsubmit="handleWargaSubmission(event)" class="space-y-3.5">
                                 <input type="hidden" id="warga-id" value="">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nomor Induk Keluarga (NIK)</label>
-                                    <input type="number" id="warga-nik" required class="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/30 font-mono bg-white/70 dark:bg-slate-950/70 dark:text-white">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">Nomor Induk Kependudukan (NIK)</label>
+                                        <span id="nik-counter-warga-form" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">0/16</span>
+                                    </div>
+                                    <input type="number" id="warga-nik" required oninput="limitDigits(this, 16); updateNikCounter('warga-nik', 'nik-counter-warga-form');" class="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/30 font-mono bg-white/70 dark:bg-slate-950/70 dark:text-white">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Lengkap</label>
@@ -561,7 +578,7 @@
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200/50 dark:border-slate-800 pb-3">
                                 <div>
                                     <h3 class="text-sm font-bold text-slate-900 dark:text-white">Arsip Induk Kependudukan Warga</h3>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400">Klik ikon WA untuk menghubungi langsung atau gunakan tombol opsi untuk mengedit data</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Arsip kependudukan aktif warga Rukun Tetangga</p>
                                 </div>
                                 <div class="relative w-full sm:w-48">
                                     <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 dark:text-slate-500 text-xs"></i>
@@ -596,7 +613,7 @@
                         <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-4 space-y-4 transition-colors">
                             <div class="border-b border-slate-200/50 dark:border-slate-800 pb-2">
                                 <h3 id="ann-form-title" class="text-sm font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-bullhorn text-purple-500 mr-1.5"></i>Buat Pengumuman Baru</h3>
-                                <p class="text-[10px] text-slate-450 dark:text-slate-400">Siarkan berita penting kepada seluruh warga secara instan</p>
+                                <p class="text-[10px] text-slate-455 dark:text-slate-400">Siarkan berita penting kepada seluruh warga secara instan</p>
                             </div>
                             <form id="form-admin-pengumuman" onsubmit="handlePengumumanSubmission(event)" class="space-y-3.5">
                                 <input type="hidden" id="ann-id" value="">
@@ -653,14 +670,14 @@
 
                     </div>
 
-                    <!-- SUB-TAB CONTENT 5: KELOLA KONTAK (BARU) -->
+                    <!-- SUB-TAB CONTENT 5: KELOLA KONTAK -->
                     <div id="sub-admin-kontak" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
                         
                         <!-- FORM TAMBAH/EDIT KONTAK -->
                         <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-4 space-y-4 transition-colors">
                             <div class="border-b border-slate-200/50 dark:border-slate-800 pb-2">
                                 <h3 id="kontak-form-title" class="text-sm font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-phone text-rose-500 mr-1.5"></i>Sunting / Tambah Kontak</h3>
-                                <p class="text-[10px] text-slate-450 dark:text-slate-400">Sunting pintasan kontak darurat warga</p>
+                                <p class="text-[10px] text-slate-455 dark:text-slate-400">Sunting pintasan kontak darurat warga</p>
                             </div>
                             <form id="form-admin-kontak" onsubmit="handleKontakSubmission(event)" class="space-y-3.5">
                                 <input type="hidden" id="kontak-id" value="">
@@ -691,7 +708,7 @@
                                     <button type="button" id="btn-cancel-edit-kontak" onclick="resetFormKontak()" class="hidden w-1/3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-2.5 px-3 rounded-xl text-xs transition-all border border-slate-200 dark:border-slate-700">
                                         Batal
                                     </button>
-                                    <button type="submit" id="btn-submit-kontak" class="flex-1 bg-rose-650 hover:bg-rose-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-rose-600 bg-rose-600">
+                                    <button type="submit" id="btn-submit-kontak" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-rose-650">
                                         <i class="fa-solid fa-save"></i> Simpan Kontak
                                     </button>
                                 </div>
@@ -702,7 +719,7 @@
                         <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-8 space-y-4 transition-colors">
                             <div class="border-b border-slate-200/50 dark:border-slate-800 pb-3">
                                 <h3 class="text-sm font-bold text-slate-900 dark:text-white">Arsip Kontak Penting RT</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">Arsip yang akan dimuat dinamis ke panel depan warga.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Arsip yang dimuat dinamis ke panel depan warga.</p>
                             </div>
 
                             <div class="overflow-x-auto border border-slate-200/50 dark:border-slate-800 rounded-xl bg-white/50 dark:bg-slate-900/50">
@@ -778,15 +795,15 @@
             <form onsubmit="handleChangePin(event)" class="space-y-3">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-455 mb-1">PIN LAMA</label>
-                    <input type="password" id="pin-old" maxlength="6" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
+                    <input type="password" id="pin-old" maxlength="6" oninput="limitDigits(this, 6)" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-455 mb-1">PIN BARU (6 DIGIT)</label>
-                    <input type="password" id="pin-new" maxlength="6" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
+                    <input type="password" id="pin-new" maxlength="6" oninput="limitDigits(this, 6)" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-455 mb-1">KONFIRMASI PIN BARU</label>
-                    <input type="password" id="pin-confirm" maxlength="6" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
+                    <input type="password" id="pin-confirm" maxlength="6" oninput="limitDigits(this, 6)" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
                 <button type="submit" class="w-full bg-slate-900 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-600 hover:bg-slate-850 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-all border border-slate-950">
                     Simpan Perubahan PIN
@@ -917,8 +934,11 @@
                 <input type="hidden" id="edit-surat-tanggal">
                 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">NIK</label>
-                    <input type="number" id="edit-surat-nik" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white/70 dark:bg-slate-950/70 dark:text-white">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">NIK</label>
+                        <span id="nik-counter-edit-admin" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">0/16</span>
+                    </div>
+                    <input type="number" id="edit-surat-nik" required oninput="limitDigits(this, 16); updateNikCounter('edit-surat-nik', 'nik-counter-edit-admin');" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Lengkap</label>
@@ -1007,7 +1027,7 @@
             syncDataWithCloud();
         });
 
-        // LIVE REALTIME CLOCK
+        // LIVE REALTIME CLOCK (Direct Match to image_63de24.png)
         function initLiveClock() {
             const dateEl = document.getElementById('top-bar-date');
             const clockEl = document.getElementById('top-bar-clock');
@@ -1066,6 +1086,19 @@
             } else {
                 themeIcon.className = "fa-solid fa-moon text-sm text-slate-700";
             }
+        }
+
+        // Limit maximum digits entered in numeric fields
+        function limitDigits(input, max) {
+            if (input.value.length > max) {
+                input.value = input.value.slice(0, max);
+            }
+        }
+
+        // Update real-time counter indicators under inputs
+        function updateNikCounter(inputId, counterId) {
+            const val = document.getElementById(inputId).value;
+            document.getElementById(counterId).textContent = `${val.length}/16`;
         }
 
         // SMOOTH SCROLLING FOR NAVIGATION LINKS
@@ -1266,6 +1299,10 @@
             renderAdminWargaTable();
             renderAdminAnnouncementTable();
             renderAdminKontakTable(); // Render dinamis tabel admin
+
+            // Reset counter labels
+            updateNikCounter('nik-warga', 'nik-counter-citizen');
+            updateNikCounter('warga-nik', 'nik-counter-warga-form');
         }
 
         function renderRunningText() {
@@ -1336,7 +1373,7 @@
                     <div class="text-center py-12 text-slate-400 bg-white/40 dark:bg-slate-900/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                         <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
                         <p class="text-xs font-semibold">Tidak ditemukan data permohonan.</p>
-                        <p class="text-[10px] text-slate-450 mt-1">Masukkan NIK atau Nama yang berbeda.</p>
+                        <p class="text-[10px] text-slate-455 mt-1">Masukkan NIK atau Nama yang berbeda.</p>
                     </div>
                 `;
                 return;
@@ -1358,7 +1395,7 @@
                 } else if (s.status === "Rejected") {
                     statusBadge = `<span class="bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> Ditolak</span>`;
                 } else {
-                    statusBadge = `<span class="bg-amber-500/15 text-amber-800 dark:text-amber-450 border border-amber-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded flex items-center gap-1"><i class="fa-solid fa-clock animate-pulse"></i> Diproses</span>`;
+                    statusBadge = `<span class="bg-amber-500/15 text-amber-800 dark:text-amber-455 border border-amber-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded flex items-center gap-1"><i class="fa-solid fa-clock animate-pulse"></i> Diproses</span>`;
                     printButton = `
                         <a href="https://wa.me/6281234567890?text=Halo%20Ketua%20RT%2C%20saya%20ingin%20konfirmasi%20pengajuan%20surat%20${encodeURIComponent(s.jenis)}%20atas%20nama%20${encodeURIComponent(s.nama)}." target="_blank" class="bg-emerald-500/15 dark:bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-400 font-semibold px-2.5 py-1.5 rounded-lg text-[11px] transition-all flex items-center gap-1">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Hubungi RT
@@ -1451,10 +1488,19 @@
         async function handleCitizenSubmission(e) {
             e.preventDefault();
             
+            const nikVal = document.getElementById('nik-warga').value.trim();
+
+            // Strict 16 Digit validation Check
+            if (nikVal.length !== 16) {
+                showToast("Gagal mengirim! Nomor NIK harus tepat 16 digit.", "error");
+                document.getElementById('nik-warga').focus();
+                return;
+            }
+
             const reqData = {
                 id: "S-" + Date.now(),
                 tanggal: new Date().toISOString().split('T')[0],
-                nik: document.getElementById('nik-warga').value.trim(),
+                nik: nikVal,
                 nama: document.getElementById('nama-warga').value.trim(),
                 norumah: document.getElementById('norumah-warga').value.trim(),
                 wa: document.getElementById('wa-warga').value.trim(),
@@ -1518,10 +1564,18 @@
 
         function handleAdminLogin(e) {
             e.preventDefault();
-            const pin = document.getElementById('admin-pin-input').value.trim();
+            const pinInput = document.getElementById('admin-pin-input');
+            const pin = pinInput.value.trim();
+            const loginCard = document.getElementById('admin-login-screen');
+            const lockBanner = document.getElementById('admin-lock-banner');
+            const shieldIcon = document.getElementById('admin-shield-icon');
             
             if (pin === localData.meta.pin) {
                 isAdminLoggedIn = true;
+                loginCard.classList.remove('animate-shake', 'border-rose-500', 'dark:border-rose-500');
+                lockBanner.className = "mx-auto w-16 h-16 bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800";
+                shieldIcon.className = "fa-solid fa-shield-halved animate-pulse";
+                
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard-view').classList.remove('hidden');
                 showToast("Berhasil masuk sebagai Administrator!", "success");
@@ -1531,13 +1585,33 @@
 
                 renderAllViews();
             } else {
-                showToast("PIN salah! Akses ditolak.", "error");
+                // PIN SALAH - GAGAL LOGIN ADMIN WORKFLOW
+                showToast("Gagal Login Admin! PIN yang Anda masukkan salah.", "error");
+                
+                // Reset password input
+                pinInput.value = "";
+                pinInput.focus();
+
+                // Apply Shake and Red Highlight
+                loginCard.classList.remove('animate-shake');
+                void loginCard.offsetWidth; // Force Reflow to re-trigger CSS Animation
+                loginCard.classList.add('animate-shake', 'border-rose-500', 'dark:border-rose-500');
+                
+                lockBanner.className = "mx-auto w-16 h-16 bg-rose-550 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-rose-600 bg-rose-600";
+                shieldIcon.className = "fa-solid fa-circle-exclamation animate-bounce";
             }
         }
 
         function logoutAdmin() {
             isAdminLoggedIn = false;
             document.getElementById('admin-pin-input').value = "";
+            
+            // Remove red classes on logout
+            const loginCard = document.getElementById('admin-login-screen');
+            loginCard.classList.remove('animate-shake', 'border-rose-500', 'dark:border-rose-500');
+            document.getElementById('admin-lock-banner').className = "mx-auto w-16 h-16 bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800";
+            document.getElementById('admin-shield-icon').className = "fa-solid fa-shield-halved animate-pulse";
+
             document.getElementById('admin-login-screen').classList.remove('hidden');
             document.getElementById('admin-dashboard-view').classList.add('hidden');
             
@@ -1647,7 +1721,7 @@
                         </td>
                         <td class="p-3 text-right">
                             <div class="flex justify-end gap-1.5">
-                                <button onclick="openEditSuratModal('${s.id}')" class="bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 p-1.5 rounded-lg text-xs border border-slate-200 dark:border-slate-800 shadow-sm" title="Edit Pengajuan">
+                                <button onclick="openEditSuratModal('${s.id}')" class="bg-white dark:bg-slate-855 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 p-1.5 rounded-lg text-xs border border-slate-200 dark:border-slate-800 shadow-sm" title="Edit Pengajuan">
                                     <i class="fa-solid fa-user-pen"></i> Edit
                                 </button>
                                 ${s.status === 'Approved' ? `
@@ -1692,6 +1766,8 @@
             document.getElementById('edit-surat-nomorsurat').value = item.nomorsurat || "";
             document.getElementById('edit-surat-status').value = item.status;
 
+            updateNikCounter('edit-surat-nik', 'nik-counter-edit-admin');
+
             document.getElementById('modal-edit-surat').classList.remove('hidden');
         }
 
@@ -1702,10 +1778,18 @@
         async function handleEditSuratAdminSubmit(e) {
             e.preventDefault();
             
+            const nikVal = document.getElementById('edit-surat-nik').value.trim();
+
+            if (nikVal.length !== 16) {
+                showToast("Pembaruan gagal! Nomor NIK harus tepat 16 digit.", "error");
+                document.getElementById('edit-surat-nik').focus();
+                return;
+            }
+
             const updated = {
                 id: document.getElementById('edit-surat-id').value,
                 tanggal: document.getElementById('edit-surat-tanggal').value,
-                nik: document.getElementById('edit-surat-nik').value.trim(),
+                nik: nikVal,
                 nama: document.getElementById('edit-surat-nama').value.trim(),
                 norumah: document.getElementById('edit-surat-norumah').value.trim(),
                 wa: document.getElementById('edit-surat-wa').value.trim(),
@@ -1917,10 +2001,17 @@
         async function handleWargaSubmission(e) {
             e.preventDefault();
             const id = document.getElementById('warga-id').value || "W-" + Date.now();
+            const nikVal = document.getElementById('warga-nik').value.trim();
+
+            if (nikVal.length !== 16) {
+                showToast("Registrasi gagal! Nomor NIK harus tepat 16 digit.", "error");
+                document.getElementById('warga-nik').focus();
+                return;
+            }
             
             const reqData = {
                 id: id,
-                nik: document.getElementById('warga-nik').value.trim(),
+                nik: nikVal,
                 nama: document.getElementById('warga-nama').value.trim(),
                 alamat: document.getElementById('warga-alamat').value.trim(),
                 hp: document.getElementById('warga-hp').value.trim(),
@@ -1988,6 +2079,8 @@
             document.getElementById('warga-hp').value = item.hp;
             document.getElementById('warga-status').value = item.status;
 
+            updateNikCounter('warga-nik', 'nik-counter-warga-form');
+
             document.getElementById('warga-form-title').innerHTML = `<i class="fa-solid fa-user-pen text-amber-500 mr-1.5"></i>Ubah Arsip Warga`;
             document.getElementById('btn-cancel-edit-warga').classList.remove('hidden');
             document.getElementById('btn-submit-warga').className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-amber-600";
@@ -1999,6 +2092,7 @@
             document.getElementById('warga-form-title').innerHTML = `<i class="fa-solid fa-user-plus text-amber-500 mr-1.5"></i>Registrasi / Edit Data Warga`;
             document.getElementById('btn-cancel-edit-warga').classList.add('hidden');
             document.getElementById('btn-submit-warga').className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-amber-600";
+            updateNikCounter('warga-nik', 'nik-counter-warga-form');
         }
 
         function filterAdminWarga() {
@@ -2030,7 +2124,7 @@
                     <td class="p-3 font-bold text-slate-800 dark:text-white">${ann.judul}</td>
                     <td class="p-3 text-slate-600 dark:text-slate-300 max-w-sm truncate" title="${ann.isi}">${ann.isi}</td>
                     <td class="p-3 text-right">
-                        <button onclick="editAnnRow('${ann.id}')" class="bg-amber-100 dark:bg-slate-850 hover:bg-amber-200 dark:hover:bg-slate-750 text-amber-800 dark:text-amber-400 font-semibold px-2.5 py-1 rounded-lg text-xs" title="Edit Pengumuman">
+                        <button onclick="editAnnRow('${ann.id}')" class="bg-amber-100 dark:bg-slate-855 hover:bg-amber-200 dark:hover:bg-slate-750 text-amber-800 dark:text-amber-400 font-semibold px-2.5 py-1 rounded-lg text-xs" title="Edit Pengumuman">
                             <i class="fa-solid fa-pen-to-square"></i> Sunting
                         </button>
                     </td>
@@ -2227,7 +2321,7 @@
             document.getElementById('kontak-id').value = "";
             document.getElementById('kontak-form-title').innerHTML = `<i class="fa-solid fa-phone text-rose-500 mr-1.5"></i>Sunting / Tambah Kontak`;
             document.getElementById('btn-cancel-edit-kontak').classList.add('hidden');
-            document.getElementById('btn-submit-kontak').className = "flex-1 bg-rose-650 hover:bg-rose-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-rose-600 bg-rose-600";
+            document.getElementById('btn-submit-kontak').className = "flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-rose-650";
         }
 
         function openPrintPreview(id) {
