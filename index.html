@@ -94,13 +94,6 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Status Koneksi Badge -->
-                <div id="connection-status-container">
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-bold text-slate-500">
-                        <span class="h-1.5 w-1.5 rounded-full bg-slate-400 animate-pulse"></span> Mengecek...
-                    </span>
-                </div>
-
                 <nav id="nav-public-links" class="hidden md:flex items-center gap-1">
                     <a href="#pengumuman-section" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-bullhorn text-xs"></i>
@@ -1037,39 +1030,39 @@
             });
         }
 
-        // FETCHING DATA BEBAS CORS REDIRECT: Menggunakan 'cors' murni tanpa custom header untuk melompati Preflight
+        // Fetch ke Google Apps Script — ikuti redirect, tanpa custom header agar tidak trigger Preflight CORS
         async function fetchFromGAS(sheetName, action, data = null) {
             if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
                 return null;
             }
             try {
+                let response;
                 if (action === 'read') {
-                    const params = new URLSearchParams({ 
-                        sheet: sheetName, 
-                        action: 'read', 
-                        _cb: Date.now().toString() 
+                    const params = new URLSearchParams({
+                        sheet: sheetName,
+                        action: 'read',
+                        _cb: Date.now().toString()
                     });
-                    const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
+                    // redirect:'follow' agar GAS redirect (302) diikuti secara otomatis
+                    response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, {
                         method: 'GET',
-                        mode: 'cors'
+                        redirect: 'follow'
                     });
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const json = await response.json();
-                    if (json.success) return json;
-                    throw new Error(json.error || "Gagal memproses data");
                 } else {
-                    const response = await fetch(GAS_WEB_APP_URL, {
+                    // Content-Type: text/plain menghindari Preflight OPTIONS yang diblokir GAS
+                    response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
-                        mode: 'cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Menghindari Preflight OPTIONS CORS blocker
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ sheet: sheetName, action: action, data: data })
                     });
-                    const json = await response.json();
-                    if (json.success) return json;
-                    throw new Error(json.error || "Gagal mengirim data");
                 }
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const json = await response.json();
+                if (json.success) return json;
+                throw new Error(json.error || "Respons GAS tidak sukses");
             } catch (error) {
-                console.warn(`Gagal memuat data sheet ${sheetName}:`, error);
+                console.warn(`fetchFromGAS [${sheetName}/${action}] gagal:`, error);
                 return null;
             }
         }
@@ -1097,37 +1090,10 @@
          */
         async function _silentPoll() {
             await _refreshFromCloud();
-            if (window.isCloudConnected) {
-                _flashSyncBadge();
-            } else {
-                const sc = document.getElementById('connection-status-container');
-                if (sc) sc.innerHTML = `
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
-                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Offline · Cache
-                    </span>
-                `;
-            }
+            // badge dihapus
         }
 
-        /** Kedipkan badge koneksi sesaat untuk memberi sinyal data diperbarui */
-        function _flashSyncBadge() {
-            const container = document.getElementById('connection-status-container');
-            if (!container) return;
-            container.innerHTML = `
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 px-2.5 py-1 text-xs font-bold text-blue-600 dark:text-blue-400">
-                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500 animate-ping"></span> Memperbarui...
-                </span>
-            `;
-            setTimeout(() => {
-                const now = new Date();
-                const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                container.innerHTML = `
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400" title="Sinkronisasi terakhir: ${jam}">
-                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Diperbarui ${jam}
-                    </span>
-                `;
-            }, 1500);
-        }
+        function _flashSyncBadge() { /* badge dihapus */ }
 
         /** Mulai polling realtime */
         function startRealtimePolling() {
@@ -1204,6 +1170,7 @@
             } catch(e) {
                 console.warn("_refreshFromCloud gagal:", e);
                 window.isCloudConnected = false;
+                // Retry otomatis akan dilakukan oleh polling berikutnya
             }
         }
 
@@ -1211,8 +1178,6 @@
         let _pollingStarted = false;
 
         async function loadAllData() {
-            const statusContainer = document.getElementById('connection-status-container');
-
             // Langkah 1: Tampilkan cache lokal dulu — UI tidak pernah kosong
             loadBackupLocalData();
             renderPublicDashboard();
@@ -1221,24 +1186,7 @@
             // Langkah 2: Fetch dari cloud, update jika berhasil
             await _refreshFromCloud();
 
-            // Langkah 3: Update badge koneksi
-            if (statusContainer) {
-                if (window.isCloudConnected) {
-                    statusContainer.innerHTML = `
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Terhubung
-                        </span>
-                    `;
-                } else {
-                    statusContainer.innerHTML = `
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
-                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Offline · Cache
-                        </span>
-                    `;
-                }
-            }
-
-            // Langkah 4: Mulai polling realtime hanya sekali
+            // Langkah 3: Mulai polling realtime hanya sekali
             if (!_pollingStarted && GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("URL_APPS_SCRIPT_ANDA")) {
                 _pollingStarted = true;
                 startRealtimePolling();
