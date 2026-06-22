@@ -60,14 +60,14 @@
             display: inline-block;
         }
 
-        /* Custom Shaking effect on wrong login input */
+        /* Shake effect on wrong login input aligned with image_73c2bf.png physics */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
-            20%, 40%, 60%, 80% { transform: translateX(8px); }
+            15%, 45%, 75% { transform: translateX(-8px); }
+            30%, 60%, 90% { transform: translateX(8px); }
         }
         .animate-shake {
-            animation: shake 0.5s ease-in-out;
+            animation: shake 0.45s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         /* Scrollbar styles */
@@ -221,7 +221,7 @@
                 <!-- DUA PANEL UTAMA WARGA -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     
-                    <!-- FORMULIR PENGAJUAN -->
+                    <!-- FORMULIR PENGAJUAN (Locked NIK to exactly 16 digits) -->
                     <div id="section-form-surat" class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-5 space-y-4 transition-colors animate-fade-in">
                         <div class="border-b border-slate-200/50 dark:border-slate-800 pb-3 flex items-center justify-between">
                             <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center">
@@ -234,8 +234,8 @@
                         <form id="form-surat-warga" onsubmit="handleCitizenSubmission(event)" class="space-y-3.5">
                             <div>
                                 <div class="flex justify-between items-center mb-1">
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">NIK (Nomor Induk Kependudukan)</label>
-                                    <span id="nik-counter-citizen" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">0/16</span>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">NIK (Nomor Induk Kependudukan - Wajib 16 Digit)</label>
+                                    <span id="nik-counter-citizen" class="text-[10px] text-slate-405 dark:text-slate-500 font-mono">0/16</span>
                                 </div>
                                 <input type="number" id="nik-warga" required oninput="limitDigits(this, 16); updateNikCounter('nik-warga', 'nik-counter-citizen');" class="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 font-mono tracking-wider bg-white/70 dark:bg-slate-950/70 dark:text-white" placeholder="317301xxxxxxxxxx">
                             </div>
@@ -346,26 +346,38 @@
 
             </div>
 
-            <!-- TAB 2: PANEL ADMIN (PASSWORD/PIN GUARDED) -->
+            <!-- TAB 2: PANEL ADMIN (PASSWORD/PIN GUARDED - MATCHES image_73c2bf.png DESIGN) -->
             <div id="tab-admin" class="hidden space-y-6 transition-opacity duration-350">
                 
-                <!-- ADMIN LOGIN SCREEN -->
-                <div id="admin-login-screen" class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 max-w-md mx-auto rounded-3xl border border-white/50 dark:border-slate-800/50 shadow-2xl space-y-5 text-center my-12 relative overflow-hidden transition-colors">
-                    <div class="absolute -top-10 -left-10 w-24 h-24 bg-amber-500/20 rounded-full blur-xl pointer-events-none"></div>
+                <!-- ADMIN LOGIN SCREEN (EXACT REPLICA OF image_73c2bf.png) -->
+                <div id="admin-login-screen" class="bg-white dark:bg-slate-900/90 backdrop-blur-xl p-8 max-w-[440px] mx-auto rounded-[32px] border border-slate-100 dark:border-slate-800/70 shadow-2xl space-y-6 text-center my-12 relative overflow-hidden transition-all duration-300">
+                    <!-- Ambient Top-Left Yellow/Amber Glow from image_73c2bf.png -->
+                    <div class="absolute -top-12 -left-12 w-36 h-36 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
                     
-                    <div id="admin-lock-banner" class="mx-auto w-16 h-16 bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800 transition-all duration-300">
-                        <i id="admin-shield-icon" class="fa-solid fa-shield-halved animate-pulse"></i>
+                    <!-- Dark Premium squircle box and gold shield outline -->
+                    <div id="admin-lock-banner" class="mx-auto w-16 h-16 bg-[#0B0F19] dark:bg-[#060A12] text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800 transition-all duration-300">
+                        <i id="admin-shield-icon" class="fa-solid fa-shield-halved text-[#D97706] text-xl"></i>
                     </div>
-                    <div>
-                        <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">Autentikasi Pengurus RT</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masukkan PIN keamanan 6 digit untuk mengelola data sistem</p>
+                    
+                    <div class="space-y-1">
+                        <h2 class="text-lg font-extrabold text-[#0F172A] dark:text-white tracking-wide">Autentikasi Pengurus RT</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan PIN keamanan 6 digit untuk mengelola data sistem</p>
                     </div>
-                    <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                        <input type="password" id="admin-pin-input" oninput="limitDigits(this, 6)" maxlength="6" class="w-full text-center text-2xl font-mono tracking-[0.8em] font-extrabold px-3 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/30 dark:focus:ring-amber-550/30 bg-white/70 dark:bg-slate-950/70 dark:text-white transition-all duration-300" placeholder="******" required>
-                        <button type="submit" class="w-full bg-slate-950 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-600 hover:bg-slate-900 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition-all border border-slate-950">
-                            Buka Panel Kontrol <i class="fa-solid fa-arrow-right ml-1.5"></i>
+                    
+                    <form onsubmit="handleAdminLogin(event)" class="space-y-5">
+                        <!-- Password field matching exactly the spaced circular dots shown in image_73c2bf.png -->
+                        <div class="relative">
+                            <input type="password" id="admin-pin-input" oninput="limitDigits(this, 6)" maxlength="6" class="w-full text-center text-3xl font-mono tracking-[0.9em] font-extrabold px-3 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white transition-all duration-300 pl-[1.1em]" placeholder="••••••" required>
+                        </div>
+                        
+                        <!-- Premium Dark Pill Button from image_73c2bf.png -->
+                        <button type="submit" class="w-full bg-[#050B14] hover:bg-slate-900 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-600 text-white font-bold py-4 rounded-2xl text-sm shadow-md transition-all flex items-center justify-center gap-2 border border-slate-950/20">
+                            <span>Buka Panel Kontrol</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </button>
                     </form>
+                    
+                    <!-- Small explanatory note -->
                     <p class="text-[10px] text-slate-400 dark:text-slate-500">Default PIN: <span class="font-bold">123456</span>. PIN dapat diubah di tab Pengaturan setelah masuk.</p>
                 </div>
 
@@ -439,7 +451,7 @@
                                             <th class="p-3 text-right">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="admin-table-surat" class="divide-y divide-slate-150 dark:divide-slate-800 text-slate-600 dark:text-slate-350">
+                                    <tbody id="admin-table-surat" class="divide-y divide-slate-150 dark:divide-slate-800 text-slate-600 dark:text-slate-355">
                                         <tr>
                                             <td colspan="7" class="text-center py-10 text-slate-400">Sedang memproses...</td>
                                         </tr>
@@ -525,7 +537,7 @@
 
                     </div>
 
-                    <!-- SUB-TAB CONTENT 3: DATA WARGA RT -->
+                    <!-- SUB-TAB CONTENT 3: DATA WARGA RT (Locked NIK to exactly 16 Digits) -->
                     <div id="sub-admin-warga" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
                         
                         <!-- FORM INPUT DATA WARGA -->
@@ -538,8 +550,8 @@
                                 <input type="hidden" id="warga-id" value="">
                                 <div>
                                     <div class="flex justify-between items-center mb-1">
-                                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">Nomor Induk Kependudukan (NIK)</label>
-                                        <span id="nik-counter-warga-form" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">0/16</span>
+                                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">Nomor Induk Kependudukan (NIK - Wajib 16 Digit)</label>
+                                        <span id="nik-counter-warga-form" class="text-[10px] text-slate-405 dark:text-slate-500 font-mono">0/16</span>
                                     </div>
                                     <input type="number" id="warga-nik" required oninput="limitDigits(this, 16); updateNikCounter('warga-nik', 'nik-counter-warga-form');" class="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/30 font-mono bg-white/70 dark:bg-slate-950/70 dark:text-white">
                                 </div>
@@ -935,8 +947,8 @@
                 
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">NIK</label>
-                        <span id="nik-counter-edit-admin" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">0/16</span>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">NIK (Nomor Induk Kependudukan - Wajib 16 Digit)</label>
+                        <span id="nik-counter-edit-admin" class="text-[10px] text-slate-405 dark:text-slate-500 font-mono">0/16</span>
                     </div>
                     <input type="number" id="edit-surat-nik" required oninput="limitDigits(this, 16); updateNikCounter('edit-surat-nik', 'nik-counter-edit-admin');" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
@@ -1127,20 +1139,28 @@
             }
         }
 
+        // SHOW NOTIFICATION TOAST (Aligned with image_73c2bf.png red error format)
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `p-3.5 rounded-xl shadow-lg text-xs font-semibold text-white pointer-events-auto flex items-center space-x-2 transition-all duration-300 transform translate-y-2 opacity-0 ${
-                type === 'success' ? 'bg-emerald-600' : 
-                type === 'error' ? 'bg-rose-600' : 
-                type === 'warning' ? 'bg-amber-600' : 'bg-slate-800'
-            }`;
             
-            let icon = '<i class="fa-solid fa-circle-info"></i>';
-            if (type === 'success') icon = '<i class="fa-solid fa-circle-check"></i>';
-            if (type === 'error') icon = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            // Exact red failure toast match to image_73c2bf.png
+            if (type === 'error') {
+                toast.className = "p-4 pr-6 rounded-2xl shadow-xl text-xs sm:text-sm font-extrabold text-white pointer-events-auto flex items-center space-x-2.5 transition-all duration-300 transform translate-y-2 opacity-0 bg-[#E11D48] border border-rose-600/25";
+                toast.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base animate-pulse"></i> <span>PIN salah! Akses ditolak.</span>`;
+            } else {
+                toast.className = `p-3.5 rounded-xl shadow-lg text-xs font-semibold text-white pointer-events-auto flex items-center space-x-2 transition-all duration-300 transform translate-y-2 opacity-0 ${
+                    type === 'success' ? 'bg-emerald-600' : 
+                    type === 'warning' ? 'bg-amber-600' : 'bg-slate-800'
+                }`;
+                
+                let icon = '<i class="fa-solid fa-circle-info"></i>';
+                if (type === 'success') icon = '<i class="fa-solid fa-circle-check"></i>';
+                if (type === 'warning') icon = '<i class="fa-solid fa-triangle-exclamation"></i>';
 
-            toast.innerHTML = `${icon} <span>${message}</span>`;
+                toast.innerHTML = `${icon} <span>${message}</span>`;
+            }
+            
             container.appendChild(toast);
 
             setTimeout(() => {
@@ -1292,13 +1312,13 @@
             renderCitizenHistoryList();
             renderCitizenFinanceList();
             renderCitizenAnnouncementList();
-            renderEmergencyContacts(); // Render dinamis panel depan
+            renderEmergencyContacts(); 
             
             renderAdminSuratTable();
             renderAdminFinanceTable();
             renderAdminWargaTable();
             renderAdminAnnouncementTable();
-            renderAdminKontakTable(); // Render dinamis tabel admin
+            renderAdminKontakTable(); 
 
             // Reset counter labels
             updateNikCounter('nik-warga', 'nik-counter-citizen');
@@ -1337,7 +1357,6 @@
                 return;
             }
 
-            // Memetakan warna visual berdasarkan indeks kontak
             const colors = [
                 { bg: 'bg-rose-500/10 border-rose-500/20 dark:border-rose-500/10', text: 'text-rose-600 dark:text-rose-400', title: 'text-rose-950 dark:text-rose-300', num: 'text-rose-700 dark:text-rose-450' },
                 { bg: 'bg-amber-500/10 border-amber-500/20 dark:border-amber-500/10', text: 'text-amber-600 dark:text-amber-400', title: 'text-amber-950 dark:text-amber-300', num: 'text-amber-700 dark:text-amber-450' },
@@ -1347,8 +1366,6 @@
 
             container.innerHTML = localData.kontak.map((k, i) => {
                 const c = colors[i % colors.length];
-                
-                // Menentukan icon WA atau Telepon Biasa
                 const isWa = k.tautan.includes('wa.me');
                 const actionIcon = isWa ? '<i class="fa-brands fa-whatsapp text-emerald-600"></i>' : '<i class="fa-solid fa-phone text-xs"></i>';
 
@@ -1487,10 +1504,8 @@
 
         async function handleCitizenSubmission(e) {
             e.preventDefault();
-            
             const nikVal = document.getElementById('nik-warga').value.trim();
 
-            // Strict 16 Digit validation Check
             if (nikVal.length !== 16) {
                 showToast("Gagal mengirim! Nomor NIK harus tepat 16 digit.", "error");
                 document.getElementById('nik-warga').focus();
@@ -1562,6 +1577,7 @@
             document.getElementById('modal-success-submit').classList.add('hidden');
         }
 
+        // ADMIN LOGIN WORKFLOW (Aligned with visual results in image_73c2bf.png)
         function handleAdminLogin(e) {
             e.preventDefault();
             const pinInput = document.getElementById('admin-pin-input');
@@ -1573,8 +1589,8 @@
             if (pin === localData.meta.pin) {
                 isAdminLoggedIn = true;
                 loginCard.classList.remove('animate-shake', 'border-rose-500', 'dark:border-rose-500');
-                lockBanner.className = "mx-auto w-16 h-16 bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800";
-                shieldIcon.className = "fa-solid fa-shield-halved animate-pulse";
+                lockBanner.className = "mx-auto w-16 h-16 bg-[#0B0F19] dark:bg-[#060A12] text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800";
+                shieldIcon.className = "fa-solid fa-shield-halved text-[#D97706] text-xl";
                 
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard-view').classList.remove('hidden');
@@ -1585,20 +1601,20 @@
 
                 renderAllViews();
             } else {
-                // PIN SALAH - GAGAL LOGIN ADMIN WORKFLOW
-                showToast("Gagal Login Admin! PIN yang Anda masukkan salah.", "error");
+                // PIN SALAH - EXACT FAIL ACTIONS FROM image_73c2bf.png
+                showToast("PIN salah! Akses ditolak.", "error"); // Triggers precise red bottom-right warning
                 
-                // Reset password input
                 pinInput.value = "";
                 pinInput.focus();
 
-                // Apply Shake and Red Highlight
+                // Shake layout card
                 loginCard.classList.remove('animate-shake');
-                void loginCard.offsetWidth; // Force Reflow to re-trigger CSS Animation
+                void loginCard.offsetWidth; // Reflow reset
                 loginCard.classList.add('animate-shake', 'border-rose-500', 'dark:border-rose-500');
                 
-                lockBanner.className = "mx-auto w-16 h-16 bg-rose-550 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-rose-600 bg-rose-600";
-                shieldIcon.className = "fa-solid fa-circle-exclamation animate-bounce";
+                // Set lock graphic colors red
+                lockBanner.className = "mx-auto w-16 h-16 bg-rose-600 dark:bg-rose-700 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-rose-500";
+                shieldIcon.className = "fa-solid fa-circle-exclamation text-white text-xl animate-bounce";
             }
         }
 
@@ -1606,11 +1622,10 @@
             isAdminLoggedIn = false;
             document.getElementById('admin-pin-input').value = "";
             
-            // Remove red classes on logout
             const loginCard = document.getElementById('admin-login-screen');
             loginCard.classList.remove('animate-shake', 'border-rose-500', 'dark:border-rose-500');
-            document.getElementById('admin-lock-banner').className = "mx-auto w-16 h-16 bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800";
-            document.getElementById('admin-shield-icon').className = "fa-solid fa-shield-halved animate-pulse";
+            document.getElementById('admin-lock-banner').className = "mx-auto w-16 h-16 bg-[#0B0F19] dark:bg-[#060A12] text-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-slate-800";
+            document.getElementById('admin-shield-icon').className = "fa-solid fa-shield-halved text-[#D97706] text-xl";
 
             document.getElementById('admin-login-screen').classList.remove('hidden');
             document.getElementById('admin-dashboard-view').classList.add('hidden');
@@ -1777,7 +1792,6 @@
 
         async function handleEditSuratAdminSubmit(e) {
             e.preventDefault();
-            
             const nikVal = document.getElementById('edit-surat-nik').value.trim();
 
             if (nikVal.length !== 16) {
