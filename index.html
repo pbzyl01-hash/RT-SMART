@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RT SMART - Sistem Layanan Informasi & Surat Digital RT</title>
-    <!-- Tailwind CSS with custom Dark Mode Configuration -->
+    <!-- Tailwind CSS with Custom Dark Mode Configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -79,12 +79,11 @@
 </head>
 <body class="h-full flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 relative bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
-    <!-- AMBIENT BACKDROP BLOBS -->
     <div class="fixed -top-40 -left-40 w-[500px] h-[500px] bg-amber-400/20 dark:bg-amber-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
     <div class="fixed top-1/2 -right-40 w-[600px] h-[600px] bg-indigo-400/15 dark:bg-indigo-500/5 rounded-full blur-[140px] pointer-events-none z-0"></div>
     <div class="fixed -bottom-20 left-1/3 w-[450px] h-[450px] bg-rose-400/10 dark:bg-rose-500/5 rounded-full blur-[100px] pointer-events-none z-0"></div>
 
-    <!-- NEW CONSOLIDATED PREMIUM TOP BAR (from image_63de24.png) -->
+    <!-- PREMIUM HEADER: IDENTICAL TO image_63de24.png -->
     <header class="bg-white/80 dark:bg-slate-900/90 border-b border-slate-200/80 dark:border-slate-800/80 shadow-sm shrink-0 z-20 backdrop-blur-md transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
             
@@ -101,26 +100,25 @@
                 </div>
             </div>
 
-            <!-- Center Navigation (from image_63de24.png) -->
+            <!-- Center Navigation (Inspired by image_63de24.png) -->
             <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto max-w-full pb-1 md:pb-0 scrollbar-none">
-                <button onclick="scrollToSection('citizen-announcement-list')" class="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all whitespace-nowrap">
+                <button onclick="scrollToSection('section-pengumuman')" class="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all whitespace-nowrap">
                     <i class="fa-solid fa-bullhorn text-slate-400 dark:text-slate-500 text-xs sm:text-sm"></i>
                     <span>Pengumuman</span>
                 </button>
-                <button onclick="scrollToSection('citizen-finance-list')" class="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all whitespace-nowrap">
+                <button onclick="scrollToSection('section-keuangan')" class="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all whitespace-nowrap">
                     <i class="fa-solid fa-wallet text-slate-400 dark:text-slate-500 text-xs sm:text-sm"></i>
                     <span>Keuangan</span>
                 </button>
-                <button onclick="scrollToSection('form-surat-warga')" class="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all whitespace-nowrap">
+                <button onclick="scrollToSection('section-form-surat')" class="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all whitespace-nowrap">
                     <i class="fa-solid fa-file-signature text-slate-400 dark:text-slate-500 text-xs sm:text-sm"></i>
                     <span>Pengajuan Surat</span>
                 </button>
             </nav>
 
-            <!-- Right Controls: Date, Time, Theme, Admin (from image_63de24.png) -->
+            <!-- Right Controls: Date, Time, Theme, Admin (Direct Match to image_63de24.png) -->
             <div class="flex items-center space-x-2 sm:space-x-3 w-full md:w-auto justify-between md:justify-end">
                 
-                <!-- Divider (Left of date/time) -->
                 <div class="hidden md:block h-8 border-l border-slate-200 dark:border-slate-800"></div>
 
                 <!-- Date & Running Clock -->
@@ -129,7 +127,6 @@
                     <div id="top-bar-clock" class="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-extrabold font-mono leading-none mt-0.5">15:36:21 WIB</div>
                 </div>
 
-                <!-- Divider (Right of date/time) -->
                 <div class="hidden md:block h-8 border-l border-slate-200 dark:border-slate-800"></div>
 
                 <!-- Dark/Light Theme Button -->
@@ -171,7 +168,7 @@
                     </span>
                     <span class="font-semibold" id="db-status-text">Menghubungkan ke Cloud Database...</span>
                 </div>
-                <div class="flex items-center space-x-2 font-mono text-[10px] text-slate-500 dark:text-slate-450 bg-white/50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-emerald-150/50 dark:border-slate-800">
+                <div class="flex items-center space-x-2 font-mono text-[10px] text-slate-500 dark:text-slate-455 bg-white/50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-emerald-150/50 dark:border-slate-800">
                     <i class="fa-solid fa-database text-emerald-600 dark:text-emerald-400 animate-pulse"></i>
                     <span id="db-status-id-text">ID: 1srGTaw3...</span>
                 </div>
@@ -215,7 +212,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     
                     <!-- FORMULIR PENGAJUAN -->
-                    <div id="section-form-surat" class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-5 space-y-4 transition-colors">
+                    <div id="section-form-surat" class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-5 space-y-4 transition-colors animate-fade-in">
                         <div class="border-b border-slate-200/50 dark:border-slate-800 pb-3 flex items-center justify-between">
                             <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center">
                                 <i class="fa-solid fa-pen-to-square text-amber-500 mr-2.5 text-lg"></i>
@@ -283,7 +280,7 @@
                         <div class="flex-1 overflow-y-auto max-h-[350px] space-y-3 pr-1" id="citizen-letter-history-list">
                             <div class="text-center py-12 text-slate-400 space-y-2">
                                 <i class="fa-solid fa-circle-notch animate-spin text-3xl text-amber-500"></i>
-                                <p class="text-xs font-semibold">Menghubungkan ke Google Sheets...</p>
+                                <p class="text-xs font-semibold">Menghubungkan ke Cloud Database...</p>
                             </div>
                         </div>
                     </div>
@@ -323,41 +320,20 @@
 
                 </div>
 
-                <!-- KONTAK PENTING & DARURAT -->
+                <!-- KONTAK PENTING & DARURAT (Dibuat Dinamis) -->
                 <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm space-y-4 transition-colors">
                     <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center border-b border-slate-200/50 dark:border-slate-800 pb-3">
                         <i class="fa-solid fa-phone-volume text-rose-500 mr-2 animate-pulse"></i>
                         Pusat Kontak Penting & Nomor Darurat
                     </h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-rose-500/10 border border-rose-500/20 dark:border-rose-500/10 p-4 rounded-2xl text-center space-y-1">
-                            <i class="fa-solid fa-kit-medical text-rose-600 dark:text-rose-400 text-xl"></i>
-                            <h5 class="text-xs font-bold text-rose-950 dark:text-rose-300">Ambulans</h5>
-                            <p class="text-sm font-extrabold text-rose-700 dark:text-rose-400 font-mono">118 / (0541) 741521</p>
-                        </div>
-                        <div class="bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/10 p-4 rounded-2xl text-center space-y-1">
-                            <i class="fa-solid fa-fire-extinguisher text-amber-600 dark:text-amber-400 text-xl"></i>
-                            <h5 class="text-xs font-bold text-amber-950 dark:text-amber-300">Pemadam Kebakaran</h5>
-                            <p class="text-sm font-extrabold text-amber-700 dark:text-amber-400 font-mono">113 / (0541) 743911</p>
-                        </div>
-                        <div class="bg-sky-500/10 border border-sky-500/20 dark:border-sky-500/10 p-4 rounded-2xl text-center space-y-1">
-                            <i class="fa-solid fa-building-shield text-sky-600 dark:text-sky-400 text-xl"></i>
-                            <h5 class="text-xs font-bold text-sky-950 dark:text-sky-300">Polsek Terdekat</h5>
-                            <p class="text-sm font-extrabold text-sky-700 dark:text-sky-400 font-mono">110 / (0541) 201234</p>
-                        </div>
-                        <div class="bg-purple-500/10 border border-purple-500/20 dark:border-purple-500/10 p-4 rounded-2xl text-center space-y-1">
-                            <i class="fa-solid fa-user-tie text-purple-600 dark:text-purple-400 text-xl"></i>
-                            <h5 class="text-xs font-bold text-purple-950 dark:text-purple-300">Ketua RT 04 (Ahmad)</h5>
-                            <a href="https://wa.me/6281234567890" target="_blank" class="text-xs font-extrabold text-purple-700 dark:text-purple-400 font-mono hover:underline flex items-center justify-center gap-1">
-                                <i class="fa-brands fa-whatsapp text-emerald-600"></i> Hubungi WA
-                            </a>
-                        </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="emergency-contacts-container">
+                        <!-- Konten akan diproses dinamis oleh JS -->
                     </div>
                 </div>
 
             </div>
 
-            <!-- TAB 2: PANEL ADMIN (PASSWORD/PIN GAURDED) -->
+            <!-- TAB 2: PANEL ADMIN (PASSWORD/PIN GUARDED) -->
             <div id="tab-admin" class="hidden space-y-6 transition-opacity duration-350">
                 
                 <!-- ADMIN LOGIN SCREEN -->
@@ -416,6 +392,9 @@
                         </button>
                         <button onclick="switchAdminSubTab('pengumuman')" id="btn-sub-pengumuman" class="px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/45 transition-all">
                             <i class="fa-solid fa-bullhorn mr-2"></i>Kelola Pengumuman
+                        </button>
+                        <button onclick="switchAdminSubTab('kontak')" id="btn-sub-kontak" class="px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/45 transition-all">
+                            <i class="fa-solid fa-phone mr-2"></i>Kelola Kontak
                         </button>
                     </div>
 
@@ -674,6 +653,78 @@
 
                     </div>
 
+                    <!-- SUB-TAB CONTENT 5: KELOLA KONTAK (BARU) -->
+                    <div id="sub-admin-kontak" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        
+                        <!-- FORM TAMBAH/EDIT KONTAK -->
+                        <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-4 space-y-4 transition-colors">
+                            <div class="border-b border-slate-200/50 dark:border-slate-800 pb-2">
+                                <h3 id="kontak-form-title" class="text-sm font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-phone text-rose-500 mr-1.5"></i>Sunting / Tambah Kontak</h3>
+                                <p class="text-[10px] text-slate-450 dark:text-slate-400">Sunting pintasan kontak darurat warga</p>
+                            </div>
+                            <form id="form-admin-kontak" onsubmit="handleKontakSubmission(event)" class="space-y-3.5">
+                                <input type="hidden" id="kontak-id" value="">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Layanan / Kontak</label>
+                                    <input type="text" id="kontak-judul" required class="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/30 bg-white/70 dark:bg-slate-950/70 dark:text-white" placeholder="Contoh: Ambulans">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Icon Font-Awesome</label>
+                                    <select id="kontak-icon" required class="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/30">
+                                        <option value="fa-kit-medical">Ambulans / Medis</option>
+                                        <option value="fa-fire-extinguisher">Pemadam Kebakaran</option>
+                                        <option value="fa-building-shield">Polisi / Keamanan</option>
+                                        <option value="fa-user-tie">Pengurus RT / Ketua RT</option>
+                                        <option value="fa-phone">Telepon Umum</option>
+                                        <option value="fa-bullhorn">Pemberitahuan / Humas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nomor / Nilai Layanan</label>
+                                    <input type="text" id="kontak-nilai" required class="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/30 bg-white/70 dark:bg-slate-950/70 dark:text-white" placeholder="Misal: 118 / (0541) 123456">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tautan Aksi (Telp / WhatsApp / Web)</label>
+                                    <input type="text" id="kontak-tautan" required class="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/30 bg-white/70 dark:bg-slate-950/70 dark:text-white" placeholder="Contoh: tel:118 atau https://wa.me/...">
+                                </div>
+                                <div class="flex gap-2">
+                                    <button type="button" id="btn-cancel-edit-kontak" onclick="resetFormKontak()" class="hidden w-1/3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-2.5 px-3 rounded-xl text-xs transition-all border border-slate-200 dark:border-slate-700">
+                                        Batal
+                                    </button>
+                                    <button type="submit" id="btn-submit-kontak" class="flex-1 bg-rose-650 hover:bg-rose-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-rose-600 bg-rose-600">
+                                        <i class="fa-solid fa-save"></i> Simpan Kontak
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- TABEL ARSIP KONTAK -->
+                        <div class="bg-white/65 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-white/40 dark:border-slate-800/40 shadow-sm lg:col-span-8 space-y-4 transition-colors">
+                            <div class="border-b border-slate-200/50 dark:border-slate-800 pb-3">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Arsip Kontak Penting RT</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Arsip yang akan dimuat dinamis ke panel depan warga.</p>
+                            </div>
+
+                            <div class="overflow-x-auto border border-slate-200/50 dark:border-slate-800 rounded-xl bg-white/50 dark:bg-slate-900/50">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead class="bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
+                                        <tr>
+                                            <th class="p-3">Nama Kontak</th>
+                                            <th class="p-3">Tipe Icon</th>
+                                            <th class="p-3">Nilai Tampilan</th>
+                                            <th class="p-3">Tautan</th>
+                                            <th class="p-3 text-right">Opsi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-table-kontak" class="divide-y divide-slate-150 dark:divide-slate-800 text-slate-600 dark:text-slate-350">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -726,15 +777,15 @@
             </div>
             <form onsubmit="handleChangePin(event)" class="space-y-3">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-450 mb-1">PIN LAMA</label>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-455 mb-1">PIN LAMA</label>
                     <input type="password" id="pin-old" maxlength="6" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-450 mb-1">PIN BARU (6 DIGIT)</label>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-455 mb-1">PIN BARU (6 DIGIT)</label>
                     <input type="password" id="pin-new" maxlength="6" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-450 mb-1">KONFIRMASI PIN BARU</label>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-455 mb-1">KONFIRMASI PIN BARU</label>
                     <input type="password" id="pin-confirm" maxlength="6" required class="w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950/20 bg-white/70 dark:bg-slate-950/70 dark:text-white">
                 </div>
                 <button type="submit" class="w-full bg-slate-900 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-600 hover:bg-slate-850 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-all border border-slate-950">
@@ -763,7 +814,7 @@
                 </button>
             </div>
 
-            <!-- Body Area Scrollable (Note: Physical sheet stays white for direct printer simulation) -->
+            <!-- Body Area Scrollable -->
             <div class="flex-1 p-6 md:p-8 overflow-y-auto bg-slate-100 dark:bg-slate-950/40 flex justify-center">
                 <div id="paper-letter-printable" class="bg-white p-8 md:p-12 w-full max-w-2xl shadow-xl border border-slate-200 text-slate-900 relative leading-relaxed font-serif" style="font-family: 'Times New Roman', Times, serif;">
                     <!-- KOP SURAT -->
@@ -940,6 +991,7 @@
             keuangan: [],
             pengumuman: [],
             warga: [],
+            kontak: [],
             meta: { pin: "123456" } 
         };
 
@@ -950,17 +1002,12 @@
 
         // ON SITE INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
-            // Setup live clock ticking
             initLiveClock();
-
-            // Set system or storage theme on startup
             initTheme();
-            
-            // Run cloud data synchronization
             syncDataWithCloud();
         });
 
-        // LIVE REALTIME CLOCK (Matching image_63de24.png)
+        // LIVE REALTIME CLOCK
         function initLiveClock() {
             const dateEl = document.getElementById('top-bar-date');
             const clockEl = document.getElementById('top-bar-clock');
@@ -969,7 +1016,6 @@
             const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
             function tick() {
-                // Since context says Monday, June 22, 2026, we will base it on current timezone progression or actual system clock
                 const now = new Date();
                 
                 // Format Date
@@ -1024,7 +1070,6 @@
 
         // SMOOTH SCROLLING FOR NAVIGATION LINKS
         function scrollToSection(id) {
-            // Ensure Citizen tab is active
             if (activeTab !== "warga") {
                 switchTab("warga");
             }
@@ -1033,7 +1078,6 @@
                 const target = document.getElementById(id);
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Visual high-fidelity flash effect
                     target.classList.add('ring-2', 'ring-amber-400/50', 'ring-offset-2', 'dark:ring-offset-slate-900');
                     setTimeout(() => {
                         target.classList.remove('ring-2', 'ring-amber-400/50', 'ring-offset-2', 'dark:ring-offset-slate-900');
@@ -1042,7 +1086,6 @@
             }, 100);
         }
 
-        // TOGGLE THE MAIN ADMIN SECTION
         function toggleAdminTab() {
             if (activeTab === "warga") {
                 switchTab("admin");
@@ -1051,7 +1094,6 @@
             }
         }
 
-        // CUSTOM TOAST NOTIFICATIONS
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -1096,6 +1138,7 @@
                     localData.keuangan = result.data.keuangan || [];
                     localData.pengumuman = result.data.pengumuman || [];
                     localData.warga = result.data.warga || [];
+                    localData.kontak = result.data.kontak || [];
                     if (result.data.meta && result.data.meta[0] && result.data.meta[0].pin) {
                         localData.meta.pin = result.data.meta[0].pin.toString();
                     }
@@ -1117,7 +1160,6 @@
             }
         }
 
-        // DATABASE CONNECTION STATE MANAGER
         function setDatabaseStatus(status) {
             const bar = document.getElementById('db-status-bar');
             const text = document.getElementById('db-status-text');
@@ -1137,7 +1179,6 @@
             }
         }
 
-        // LOAD DEMO DATA
         function loadDemoSimulationData() {
             localData.surat = [
                 { id: "S-101", tanggal: "2026-06-20", nik: "3173010203040001", nama: "Ahmad Subarjo", norumah: "A-5", wa: "081234567890", jenis: "Surat Pengantar Domisili", keperluan: "Melamar Pekerjaan di BUMN", nomorsurat: "04/02/VI/2026-01", status: "Approved" },
@@ -1159,9 +1200,14 @@
                 { id: "W-402", nik: "3173010203040002", nama: "Siti Rahmawati", alamat: "Jl. Bougenville No. 12", hp: "081298765432", status: "Warga Tetap" },
                 { id: "W-403", nik: "3173010203040003", nama: "Rizky Fauzi", alamat: "Jl. Bougenville No. 19", hp: "089876543210", status: "Kos/Kontrak" }
             ];
+            localData.kontak = [
+                { id: "K-001", judul: "Ambulans", icon: "fa-kit-medical", nilai: "118 / (0541) 741521", tautan: "tel:118" },
+                { id: "K-002", judul: "Pemadam Kebakaran", icon: "fa-fire-extinguisher", nilai: "113 / (0541) 743911", tautan: "tel:113" },
+                { id: "K-003", judul: "Polsek Terdekat", icon: "fa-building-shield", nilai: "110 / (0541) 201234", tautan: "tel:110" },
+                { id: "K-004", judul: "Ketua RT 04 (Ahmad)", icon: "fa-user-tie", nilai: "Hubungi WhatsApp", tautan: "https://wa.me/6281234567890" }
+            ];
         }
 
-        // SWITCH TAB (WARGA vs ADMIN)
         function switchTab(tab) {
             activeTab = tab;
             const viewWarga = document.getElementById('tab-warga');
@@ -1190,43 +1236,38 @@
             }
         }
 
-        // SWITCH SUB TAB (ADMIN CONSOLE)
         function switchAdminSubTab(subTab) {
             activeAdminSubTab = subTab;
-            const tabs = ['surat', 'keuangan', 'warga', 'pengumuman'];
+            const tabs = ['surat', 'keuangan', 'warga', 'pengumuman', 'kontak'];
             
             tabs.forEach(item => {
                 const btn = document.getElementById(`btn-sub-${item}`);
                 const view = document.getElementById(`sub-admin-${item}`);
                 if (item === subTab) {
-                    if (btn) {
-                        btn.className = "px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-white transition-all shadow-sm";
-                    }
+                    if (btn) btn.className = "px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl bg-slate-900 dark:bg-amber-500 dark:text-slate-950 text-white transition-all shadow-sm";
                     if (view) view.classList.remove('hidden');
                 } else {
-                    if (btn) {
-                        btn.className = "px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/45 transition-all";
-                    }
+                    if (btn) btn.className = "px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/45 transition-all";
                     if (view) view.classList.add('hidden');
                 }
             });
         }
 
-        // RENDER VIEWS
         function renderAllViews() {
             renderRunningText();
             renderCitizenStats();
             renderCitizenHistoryList();
             renderCitizenFinanceList();
             renderCitizenAnnouncementList();
+            renderEmergencyContacts(); // Render dinamis panel depan
             
             renderAdminSuratTable();
             renderAdminFinanceTable();
             renderAdminWargaTable();
             renderAdminAnnouncementTable();
+            renderAdminKontakTable(); // Render dinamis tabel admin
         }
 
-        // 1. RUNNING PENGUMUMAN MARQUEE
         function renderRunningText() {
             const container = document.getElementById('running-text-container');
             if (localData.pengumuman.length === 0) {
@@ -1237,7 +1278,6 @@
             container.textContent = text;
         }
 
-        // 2. SUMMARY CITIZENS
         function renderCitizenStats() {
             document.getElementById('citizen-surat-count').textContent = localData.surat.length;
             document.getElementById('citizen-news-count').textContent = localData.pengumuman.length;
@@ -1251,7 +1291,42 @@
             document.getElementById('citizen-kas-balance').textContent = formatRupiah(balance);
         }
 
-        // 3. HISTORY CITIZENS
+        function renderEmergencyContacts() {
+            const container = document.getElementById('emergency-contacts-container');
+            if (!container) return;
+
+            if (localData.kontak.length === 0) {
+                container.innerHTML = `<div class="col-span-4 text-center text-xs py-4 text-slate-400">Belum ada kontak terdaftar.</div>`;
+                return;
+            }
+
+            // Memetakan warna visual berdasarkan indeks kontak
+            const colors = [
+                { bg: 'bg-rose-500/10 border-rose-500/20 dark:border-rose-500/10', text: 'text-rose-600 dark:text-rose-400', title: 'text-rose-950 dark:text-rose-300', num: 'text-rose-700 dark:text-rose-450' },
+                { bg: 'bg-amber-500/10 border-amber-500/20 dark:border-amber-500/10', text: 'text-amber-600 dark:text-amber-400', title: 'text-amber-950 dark:text-amber-300', num: 'text-amber-700 dark:text-amber-450' },
+                { bg: 'bg-sky-500/10 border-sky-500/20 dark:border-sky-500/10', text: 'text-sky-600 dark:text-sky-400', title: 'text-sky-950 dark:text-sky-300', num: 'text-sky-700 dark:text-sky-450' },
+                { bg: 'bg-purple-500/10 border-purple-500/20 dark:border-purple-500/10', text: 'text-purple-600 dark:text-purple-400', title: 'text-purple-950 dark:text-purple-300', num: 'text-purple-700 dark:text-purple-450' }
+            ];
+
+            container.innerHTML = localData.kontak.map((k, i) => {
+                const c = colors[i % colors.length];
+                
+                // Menentukan icon WA atau Telepon Biasa
+                const isWa = k.tautan.includes('wa.me');
+                const actionIcon = isWa ? '<i class="fa-brands fa-whatsapp text-emerald-600"></i>' : '<i class="fa-solid fa-phone text-xs"></i>';
+
+                return `
+                    <div class="${c.bg} border p-4 rounded-2xl text-center space-y-1 transform hover:scale-[1.02] transition-all">
+                        <i class="fa-solid ${k.icon} ${c.text} text-xl"></i>
+                        <h5 class="text-xs font-bold ${c.title}">${k.judul}</h5>
+                        <a href="${k.tautan}" target="_blank" class="text-xs font-extrabold ${c.num} font-mono hover:underline flex items-center justify-center gap-1">
+                            ${actionIcon} <span>${k.nilai}</span>
+                        </a>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function renderCitizenHistoryList(filteredList = null) {
             const list = filteredList || localData.surat;
             const container = document.getElementById('citizen-letter-history-list');
@@ -1261,7 +1336,7 @@
                     <div class="text-center py-12 text-slate-400 bg-white/40 dark:bg-slate-900/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                         <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
                         <p class="text-xs font-semibold">Tidak ditemukan data permohonan.</p>
-                        <p class="text-[10px] text-slate-400 mt-1">Masukkan NIK atau Nama yang berbeda untuk mencari.</p>
+                        <p class="text-[10px] text-slate-450 mt-1">Masukkan NIK atau Nama yang berbeda.</p>
                     </div>
                 `;
                 return;
@@ -1285,17 +1360,17 @@
                 } else {
                     statusBadge = `<span class="bg-amber-500/15 text-amber-800 dark:text-amber-450 border border-amber-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded flex items-center gap-1"><i class="fa-solid fa-clock animate-pulse"></i> Diproses</span>`;
                     printButton = `
-                        <a href="https://wa.me/6281234567890?text=Halo%20Ketua%20RT%2C%20saya%20ingin%20konfirmasi%20pengajuan%20surat%20${encodeURIComponent(s.jenis)}%20atas%20nama%20${encodeURIComponent(s.nama)}.%20Mohon%20bantuannya." target="_blank" class="bg-emerald-500/15 dark:bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-400 font-semibold px-2.5 py-1.5 rounded-lg text-[11px] transition-all flex items-center gap-1">
+                        <a href="https://wa.me/6281234567890?text=Halo%20Ketua%20RT%2C%20saya%20ingin%20konfirmasi%20pengajuan%20surat%20${encodeURIComponent(s.jenis)}%20atas%20nama%20${encodeURIComponent(s.nama)}." target="_blank" class="bg-emerald-500/15 dark:bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-400 font-semibold px-2.5 py-1.5 rounded-lg text-[11px] transition-all flex items-center gap-1">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Hubungi RT
                         </a>
                     `;
                 }
 
                 return `
-                    <div class="bg-white/70 dark:bg-slate-900/60 hover:bg-white/90 dark:hover:bg-slate-900/80 p-4 rounded-xl border border-white/50 dark:border-slate-800/50 shadow-sm space-y-3.5 hover:border-slate-350 dark:hover:border-slate-700 transition-all">
+                    <div class="bg-white/70 dark:bg-slate-900/60 hover:bg-white/90 dark:hover:bg-slate-900/80 p-4 rounded-xl border border-white/50 dark:border-slate-800/50 shadow-sm space-y-3.5 hover:border-slate-350 dark:hover:border-slate-700 transition-all animate-fade-in">
                         <div class="flex justify-between items-start">
                             <div>
-                                <span class="text-[10px] text-slate-400 font-semibold uppercase">${formatDate(s.tanggal)}</span>
+                                <span class="text-[10px] text-slate-405 font-semibold uppercase">${formatDate(s.tanggal)}</span>
                                 <h4 class="font-bold text-slate-900 dark:text-white text-sm mt-0.5">${s.jenis}</h4>
                             </div>
                             ${statusBadge}
@@ -1324,7 +1399,6 @@
             renderCitizenHistoryList(filtered);
         }
 
-        // 4. KEUANGAN WARGA RENDERING
         function renderCitizenFinanceList() {
             const container = document.getElementById('citizen-finance-list');
             if (localData.keuangan.length === 0) {
@@ -1353,7 +1427,6 @@
             }).join('');
         }
 
-        // 5. PENGUMUMAN WARGA RENDERING
         function renderCitizenAnnouncementList() {
             const container = document.getElementById('citizen-announcement-list');
             if (localData.pengumuman.length === 0) {
@@ -1367,7 +1440,7 @@
                 <div class="bg-white/60 dark:bg-slate-900/40 p-4 rounded-xl border border-white/50 dark:border-slate-800/40 shadow-sm space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="text-[10px] text-purple-700 dark:text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full font-bold uppercase">${formatDate(ann.tanggal)}</span>
-                        <i class="fa-solid fa-bell text-slate-300 dark:text-slate-650"></i>
+                        <i class="fa-solid fa-bell text-slate-300 dark:text-slate-655"></i>
                     </div>
                     <h4 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">${ann.judul}</h4>
                     <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${ann.isi}</p>
@@ -1375,7 +1448,6 @@
             `).join('');
         }
 
-        // CITIZEN SUBMISSION CONTROLLER
         async function handleCitizenSubmission(e) {
             e.preventDefault();
             
@@ -1420,7 +1492,7 @@
                 console.error(err);
                 localData.surat.push(reqData);
                 triggerSuccessModal(reqData);
-                showToast("Pengajuan berhasil disimpan (Mode Simulasi)", "warning");
+                showToast("Pengajuan disimpan di sandbox simulasi.", "warning");
             } finally {
                 if (!isUsingSimulationMode) setDatabaseStatus('connected');
                 renderAllViews();
@@ -1444,7 +1516,6 @@
             document.getElementById('modal-success-submit').classList.add('hidden');
         }
 
-        // ADMIN PANEL CONTROLLER
         function handleAdminLogin(e) {
             e.preventDefault();
             const pin = document.getElementById('admin-pin-input').value.trim();
@@ -1455,7 +1526,6 @@
                 document.getElementById('admin-dashboard-view').classList.remove('hidden');
                 showToast("Berhasil masuk sebagai Administrator!", "success");
                 
-                // Update header state UI
                 document.getElementById('admin-btn-text').textContent = "Layanan Warga";
                 document.getElementById('admin-lock-icon').className = "fa-solid fa-users text-xs text-amber-500";
 
@@ -1539,7 +1609,6 @@
             }
         }
 
-        // LETTERS CONSOLE (ADMIN)
         function renderAdminSuratTable(filtered = null) {
             const list = filtered || localData.surat;
             const tbody = document.getElementById('admin-table-surat');
@@ -1685,7 +1754,6 @@
             }
         }
 
-        // FINANCE BOOK CONSOLE (ADMIN)
         function renderAdminFinanceTable() {
             const tbody = document.getElementById('admin-table-finance');
             if (localData.keuangan.length === 0) {
@@ -1803,10 +1871,9 @@
             document.getElementById('kas-id').value = "";
             document.getElementById('kas-form-title').innerHTML = `<i class="fa-solid fa-folder-plus text-emerald-500 mr-1.5"></i>Catat Transaksi Buku Kas`;
             document.getElementById('btn-cancel-edit-kas').classList.add('hidden');
-            document.getElementById('btn-submit-kas').className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5";
+            document.getElementById('btn-submit-kas').className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5";
         }
 
-        // CITIZENS MASTER CONSOLE (ADMIN)
         function renderAdminWargaTable(filtered = null) {
             const list = filtered || localData.warga;
             const tbody = document.getElementById('admin-table-warga');
@@ -1948,7 +2015,6 @@
             renderAdminWargaTable(filtered);
         }
 
-        // BULLETIN AGENDA CONSOLE (ADMIN)
         function renderAdminAnnouncementTable() {
             const tbody = document.getElementById('admin-table-announcement');
             if (localData.pengumuman.length === 0) {
@@ -2044,7 +2110,7 @@
 
             document.getElementById('ann-form-title').innerHTML = `<i class="fa-solid fa-user-pen text-amber-500 mr-1.5"></i>Edit Detail Pengumuman`;
             document.getElementById('btn-cancel-edit-ann').classList.remove('hidden');
-            document.getElementById('btn-submit-ann').className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5";
+            document.getElementById('btn-submit-ann').className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5";
         }
 
         function resetFormAnn() {
@@ -2052,10 +2118,118 @@
             document.getElementById('ann-id').value = "";
             document.getElementById('ann-form-title').innerHTML = `<i class="fa-solid fa-bullhorn text-purple-500 mr-1.5"></i>Buat Pengumuman Baru`;
             document.getElementById('btn-cancel-edit-ann').classList.add('hidden');
-            document.getElementById('btn-submit-ann').className = "flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 animate-pulse";
+            document.getElementById('btn-submit-ann').className = "flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5";
         }
 
-        // LIVE PRINT MODAL
+        function renderAdminKontakTable() {
+            const tbody = document.getElementById('admin-table-kontak');
+            if (!tbody) return;
+
+            if (localData.kontak.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Tidak ada data kontak darurat.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = localData.kontak.map(k => `
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all text-xs">
+                    <td class="p-3 font-bold text-slate-900 dark:text-white">${k.judul}</td>
+                    <td class="p-3 font-mono text-slate-500"><i class="fa-solid ${k.icon} mr-1"></i> ${k.icon}</td>
+                    <td class="p-3 font-semibold">${k.nilai}</td>
+                    <td class="p-3 font-mono text-slate-500 truncate max-w-[120px]" title="${k.tautan}">${k.tautan}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="editKontakRow('${k.id}')" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold px-2 py-1 rounded-lg text-xs" title="Edit Kontak">
+                            <i class="fa-solid fa-pen-to-square"></i> Sunting
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function handleKontakSubmission(e) {
+            e.preventDefault();
+            const id = document.getElementById('kontak-id').value || "K-" + Date.now();
+            
+            const reqData = {
+                id: id,
+                judul: document.getElementById('kontak-judul').value.trim(),
+                icon: document.getElementById('kontak-icon').value,
+                nilai: document.getElementById('kontak-nilai').value.trim(),
+                tautan: document.getElementById('kontak-tautan').value.trim()
+            };
+
+            setDatabaseStatus('loading');
+            showToast("Menyimpan kontak darurat...", "info");
+
+            if (isUsingSimulationMode) {
+                setTimeout(() => {
+                    const idx = localData.kontak.findIndex(k => k.id === id);
+                    if (idx !== -1) {
+                        localData.kontak[idx] = reqData;
+                    } else {
+                        localData.kontak.push(reqData);
+                    }
+                    showToast("Kontak disimpan (Simulasi)!", "success");
+                    resetFormKontak();
+                    setDatabaseStatus('simulation');
+                    renderAllViews();
+                }, 800);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${WEB_APP_URL}?action=writeKontak&dbId=${DATABASE_ID}&data=${encodeURIComponent(JSON.stringify(reqData))}`);
+                const res = await response.json();
+                if (res.status === "success") {
+                    const idx = localData.kontak.findIndex(k => k.id === id);
+                    if (idx !== -1) {
+                        localData.kontak[idx] = reqData;
+                    } else {
+                        localData.kontak.push(reqData);
+                    }
+                    showToast("Kontak darurat berhasil diperbarui!", "success");
+                    resetFormKontak();
+                } else {
+                    throw new Error(res.message);
+                }
+            } catch (err) {
+                console.error(err);
+                const idx = localData.kontak.findIndex(k => k.id === id);
+                if (idx !== -1) {
+                    localData.kontak[idx] = reqData;
+                } else {
+                    localData.kontak.push(reqData);
+                }
+                showToast("Kontak disimpan lokal.", "warning");
+                resetFormKontak();
+            } finally {
+                if (!isUsingSimulationMode) setDatabaseStatus('connected');
+                renderAllViews();
+            }
+        }
+
+        function editKontakRow(id) {
+            const item = localData.kontak.find(k => k.id === id);
+            if (!item) return;
+
+            document.getElementById('kontak-id').value = item.id;
+            document.getElementById('kontak-judul').value = item.judul;
+            document.getElementById('kontak-icon').value = item.icon;
+            document.getElementById('kontak-nilai').value = item.nilai;
+            document.getElementById('kontak-tautan').value = item.tautan;
+
+            document.getElementById('kontak-form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-rose-500 mr-1.5"></i>Edit Kontak Darurat`;
+            document.getElementById('btn-cancel-edit-kontak').classList.remove('hidden');
+            document.getElementById('btn-submit-kontak').className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-amber-600";
+        }
+
+        function resetFormKontak() {
+            document.getElementById('form-admin-kontak').reset();
+            document.getElementById('kontak-id').value = "";
+            document.getElementById('kontak-form-title').innerHTML = `<i class="fa-solid fa-phone text-rose-500 mr-1.5"></i>Sunting / Tambah Kontak`;
+            document.getElementById('btn-cancel-edit-kontak').classList.add('hidden');
+            document.getElementById('btn-submit-kontak').className = "flex-1 bg-rose-650 hover:bg-rose-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border border-rose-600 bg-rose-600";
+        }
+
         function openPrintPreview(id) {
             const item = localData.surat.find(s => s.id === id);
             if (!item) return;
@@ -2076,7 +2250,6 @@
             document.getElementById('modal-print-preview').classList.add('hidden');
         }
 
-        // CURRENCY FORMATTER Utility
         function formatRupiah(number) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -2085,7 +2258,6 @@
             }).format(number);
         }
 
-        // DATE FORMATTER Utility
         function formatDate(dateString) {
             if (!dateString) return "-";
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
